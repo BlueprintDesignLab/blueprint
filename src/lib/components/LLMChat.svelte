@@ -11,6 +11,7 @@
 
   import { invoke } from '@tauri-apps/api/core';
   import { coderTools } from "$lib/llm/tools";
+  import { tick } from "svelte";
 
   const openai = new OpenAI({
     apiKey: PUBLIC_OPENAI,
@@ -22,11 +23,11 @@
 
   let question = $state("");
 
+  $inspect(ch);
+
   $effect.pre(() => {
     if (!ch[ch.length - 1]?.content) return;
-    for (const res of ch[ch.length - 1].responses) {
-      res.content;
-    }
+    ch[ch.length - 1].content;
 
     if (!chDiv) return;
 
@@ -144,13 +145,15 @@
         break;
     }
   }
+
+  console.log(typeof(""))
 </script>
 
 
 <div class="flex flex-col h-screen max-w-xl mx-auto p-4">
   <div bind:this={chDiv} class="flex-1 overflow-auto space-y-2 p-2 bg-muted rounded-xl border">
     {#each ch as chItem, i}
-      {#if chItem.role}
+      {#if chItem.role && chItem.content && typeof(chItem.content) === "string" && typeof (chItem.role) === "string"}
         {chItem.role}
         <div class="bg-background border rounded-lg p-3 shadow-sm">
           <MdRenderer content={chItem.content}/>

@@ -18,7 +18,6 @@
   <Resizable.Pane defaultSize={30}><Editor></Editor></Resizable.Pane>
   <Resizable.Handle withHandle />
   <Resizable.Pane><GraphView /></Resizable.Pane>
-  <!-- <Resizable.Handle withHandle /> -->
-
-  <!-- <Resizable.Pane><LlmChat /></Resizable.Pane> -->
+  <Resizable.Handle withHandle />
+  <Resizable.Pane><LlmChat /></Resizable.Pane>
 </Resizable.PaneGroup>

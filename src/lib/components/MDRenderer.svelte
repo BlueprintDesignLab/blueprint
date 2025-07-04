@@ -8,7 +8,11 @@
   import { Copy, CopyCheck } from "lucide-svelte";
   import Button from "./ui/button/button.svelte";
 
-  let { content } = $props();
+  interface Props {
+    content: string
+  }
+
+  let { content }: Props = $props();
 
   const marked = new Marked(
     markedHighlight({
