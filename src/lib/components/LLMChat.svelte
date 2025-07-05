@@ -10,7 +10,7 @@
   import type { ToolCall } from "openai/resources/beta/threads/runs/steps.mjs";
 
   import { invoke } from '@tauri-apps/api/core';
-  import { coderTools } from "$lib/llm/tools";
+  import { coderTools } from "$lib/llm/local/tools3";
   import { tick } from "svelte";
 
   const openai = new OpenAI({
@@ -90,7 +90,7 @@
           console.log(toolCall);
           ch.push(toolCall);
 
-          processToolCall(toolCall, responseRender);
+          // processToolCall(toolCall, responseRender);
           break;
         
         case "response.created":
@@ -110,6 +110,8 @@
       content: question
     });
     question = "";
+
+    console.log(coderTools)
 
     const stream = await openai.responses.create({
       model: "gpt-4.1",

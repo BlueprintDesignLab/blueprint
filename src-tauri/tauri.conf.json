@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "blueprint",
-        "width": 800,
-        "height": 600,
+        "width": 1800,
+        "height": 1200,
         "resizable": true,
         "fullscreen": false
       }
