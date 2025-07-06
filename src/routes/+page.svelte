@@ -8,12 +8,19 @@
   import { useOnSelectionChange } from '@xyflow/svelte';
 
   import { graphCode } from "$lib/state/graph.svelte.ts";
+  import { invoke } from "@tauri-apps/api/core";
+  import { Button } from "$lib/components/ui/button/index";
 
   useOnSelectionChange(({ nodes, edges }) => {
     graphCode.setSelectedNodesEdges(nodes, edges);
   });
+
+  // function test() {
+  //   invoke("freezeTest", {});
+  // }
 </script>
 
+<!-- <Button onclick={test}>Freeze</Button> -->
 <Resizable.PaneGroup direction="horizontal">
   <Resizable.Pane defaultSize={30}><Editor></Editor></Resizable.Pane>
   <Resizable.Handle withHandle />

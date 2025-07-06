@@ -1,5 +1,3 @@
-// src/lib/llm/agent.ts
-import { tools4 } from "./tools4";
 import OpenAI from "openai";; // Your OpenAI API wrapper
 import { invoke } from "@tauri-apps/api/core"; // For Tauri backend tool calls
 import { PUBLIC_OPENAI } from "$env/static/public";
@@ -72,11 +70,16 @@ export class LLMGraphAgent {
       // Handle tool calls
       for (const toolCall of toolCalls) {
         const result = await this.executeTool(toolCall.name, toolCall.arguments);
+        const resObj = {
+          "type": "function_call_output",
+          "call_id": toolCall.call_id,
+          "output": result.toString()
+        }
         this.appendToolCall(toolCall);
-        await this.persistHistory("tool", toolCall);
+        // await this.persistHistory("tool", toolCall);
 
-        this.appendToolCall(result);
-        await this.persistHistory("tool", result);
+        this.appendToolCall(resObj);
+        // await this.persistHistory("tool", resObj);
       }
 
       if (
@@ -122,20 +125,20 @@ export class LLMGraphAgent {
   async executeTool(name: string, args: any): Promise<any> {
     if (name === "end_agentic_loop") {
         this.done = true;
-        return;
+        return args;
     }
 
     // Use Tauri invoke or your backend to execute the tool
     return await invoke(name, args);
   }
 
-  async persistHistory(type: "chat" | "tool", entry: any) {
-    const path = `.blueprint/${this.nodeEdgeType === "edge" ? "edges" : "nodes"}/${this.edgeOrNodeId}/${type}_history.json`;
-    let history = [];
-    try {
-      history = JSON.parse(await invoke("read_file", { path })) || [];
-    } catch {}
-    history.push({ ...entry, timestamp: new Date().toISOString() });
-    await invoke("write_file", { path, content: JSON.stringify(history, null, 2) });
-  }
+  // async persistHistory(type: "chat" | "tool", entry: any) {
+  //   const path = `.blueprint/${this.nodeEdgeType === "edge" ? "edges" : "nodes"}/${this.edgeOrNodeId}/${type}_history.json`;
+  //   let history = [];
+  //   try {
+  //     history = JSON.parse(await invoke("read_file", { path })) || [];
+  //   } catch {}
+  //   history.push({ ...entry, timestamp: new Date().toISOString() });
+  //   await invoke("write_file", { path, content: JSON.stringify(history, null, 2) });
+  // }
 }

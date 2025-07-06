@@ -1,25 +1,7 @@
 import { type Tool } from "openai/resources/responses/responses.mjs";
 import { sharedTools } from "../sharedTools";
 
-// Core file operations
-export const fileTools: Tool[] = [
-  {
-    type: "function",
-    name: "read_file",
-    description: "Read the contents of a text file.",
-    parameters: {
-      type: "object",
-      properties: {
-        path: {
-          type: "string",
-          description: "Relative path from the project root."
-        }
-      },
-      required: ["path"],
-      additionalProperties: false
-    },
-    strict: true
-  },
+const writeTools: Tool[] = [
   {
     type: "function",
     name: "write_file",
@@ -34,44 +16,8 @@ export const fileTools: Tool[] = [
       additionalProperties: false
     },
     strict: true
-  },
-  {
-    type: "function",
-    name: "list_directory",
-    description: "List contents of a directory.",
-    parameters: {
-      type: "object",
-      properties: {
-        path: { type: "string" }
-      },
-      required: ["path"],
-      additionalProperties: false
-    },
-    strict: true
   }
-];
-
-// System command execution
-export const systemTools: Tool[] = [
-  {
-    type: "function",
-    name: "run_command",
-    description: "Execute a shell command.",
-    parameters: {
-      type: "object",
-      properties: {
-        command: { type: "string" },
-        args: {
-          type: "array",
-          items: { type: "string" }
-        }
-      },
-      required: ["command"],
-      additionalProperties: false
-    },
-    strict: true
-  }
-];
+]
 
 // Read-only graph operations
 export const graphQueryTools: Tool[] = [
@@ -117,9 +63,9 @@ export const graphQueryTools: Tool[] = [
 ];
 
 // Combined exports
-export const minimalTools: Tool[] = [
+export const localTools: Tool[] = [
   ...sharedTools,
-  ...fileTools,
+  ...writeTools,
   ...systemTools,
   ...graphQueryTools,
 ];
