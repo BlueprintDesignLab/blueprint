@@ -85,7 +85,7 @@ pub fn run() {
   tauri::Builder::default()
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_fs::init())
-    .manage(read_file_tools::ProjectRoot("/Users/yao/blueprint/blueprint/testPokemon".into()))
+    .manage(read_file_tools::ProjectRoot("/Users/yao/blueprint/blueprint/testPokemon2".into()))
     .setup(setup_app)
     .invoke_handler(tauri::generate_handler![
         read_file,

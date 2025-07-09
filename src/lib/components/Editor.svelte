@@ -64,15 +64,14 @@
     graphCode.loadGraph(graphYaml, viewJSON);
   });
 
-  // $effect(() => {
-  //   semDerived;
-
-  //   updateGraph();
-  // })
+  $effect(() => {
+    viewDerived;
+    saveViewDebounced();
+  })
 
   function updateGraph() {
     try {
-      graphCode.loadGraph(semDerived, viewDerived);
+      loadGraphDebounced();
       saveGraphToFile();
     } catch (e) {
       //suppress in-between invalid YAML states
@@ -89,13 +88,23 @@
     };
   }
 
-  // define once, outside any reactive context
+  const loadGraphDebounced = debounce(() => {
+    graphCode.loadGraph(semDerived, viewDerived)
+  }, 2000);
+
   const saveGraphDebounced = debounce(() => {
     invoke('write_blueprint_file', {
       path: "graph.yaml",
-      content: semDerived,
+      content: saveGraphSemantic(graphCode.getGraph()),
     });
   }, 2000);
+
+  const saveViewDebounced = debounce(() => {
+    invoke('write_blueprint_file', {
+      path: "view.json",
+      content: saveGraphView(graphCode.getGraph()),
+    });
+  }, 50);
 
   // call this function multiple times, and it will debounce properly
   function saveGraphToFile() {

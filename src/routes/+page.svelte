@@ -7,11 +7,15 @@
 
   import { useOnSelectionChange } from '@xyflow/svelte';
 
-  import { graphCode } from "$lib/state/graph.svelte.ts";
-  import { invoke } from "@tauri-apps/api/core";
-  import { Button } from "$lib/components/ui/button/index";
+  import { graphCode } from "$lib/state/graph.svelte";
+  
+  import { focus } from "$lib/state/focus.svelte";
 
   useOnSelectionChange(({ nodes, edges }) => {
+    // if (nodes.length > 0) {
+    //   focus.node = nodes[0].id;
+    // }
+
     graphCode.setSelectedNodesEdges(nodes, edges);
   });
 

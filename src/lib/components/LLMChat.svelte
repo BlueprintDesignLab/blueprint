@@ -19,7 +19,9 @@
 
   let question = $state("");
 
-  let focus = $state("");
+  import { focus } from "$lib/state/focus.svelte";
+  import { workerPrompt } from "$lib/llm/worker/prompt";
+  import { workerTools } from "$lib/llm/worker/tools";
 
   function scroll() {
     tick().then(() => {
@@ -73,7 +75,7 @@
     scrollIfNearBottom();
   }
 
-  let agent = new Agent([], [], architectPrompt, architectTools, streamDelta, showTool);
+  let agent = new Agent([], [], architectPrompt, architectTools, streamDelta, showTool, stopGenerating);
 
   onMount(async () => {
     const dirTree = await invoke("list_directory_tree", {path: "."});
@@ -97,11 +99,11 @@
     agent = new Agent([], [], architectPrompt, architectTools, streamDelta, showTool, stopGenerating);
   })
 
-  // $effect(() => {
-  //   focus;
+  $effect(() => {
+    focus.node;
 
-  //   agent = new Agent([], [], workerPrompt + `\nYour focus is : ${focus}\n`, workerTools, streamDelta, showTool);
-  // })
+    agent = new Agent([], [], workerPrompt + `\nYour focus is : ${focus.node}\n`, workerTools, streamDelta, showTool, stopGenerating);
+  })
 
   let controller = new AbortController();
   let generating = $state(false);
@@ -157,7 +159,7 @@
 
 
 <div class="flex flex-col h-screen max-w-xl mx-auto p-4">
-  Focus: {focus}
+  Focus: {focus.node}
 
   <div bind:this={chDiv} class="flex-1 overflow-auto space-y-2 p-2 bg-muted rounded-xl border">
     {#each ch as chItem}

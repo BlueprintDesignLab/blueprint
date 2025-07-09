@@ -1,8 +1,10 @@
 export const workflow = `
 If you have not read the files and listed the directory, do so before making write changes.
 
-Generally the workflow is create/tweak graph.yaml, then generate the edge json schemas or
-interface files, then generate the code in the nodes.
+The overall workflow is:
+1. create/tweak graph.yaml
+2. generate the edge json schemas and interface files
+3. generate the code in the nodes.
 `
 
 export const designSystem = `
