@@ -3,7 +3,7 @@ pub mod read_file_tools;
 
 pub mod system_tools;
 
-pub use read_file_tools::{read_file, list_directory_tree, read_graph_yaml};
+pub use read_file_tools::{read_file, list_directory_tree, read_graph_yaml, get_project_root};
 pub use write_file_tools::{write_blueprint_file, write_project_file};
 pub use system_tools::{run_command};
 
@@ -85,9 +85,11 @@ pub fn run() {
   tauri::Builder::default()
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_fs::init())
+    .plugin(tauri_plugin_pty::init())
     .manage(read_file_tools::ProjectRoot("/Users/yao/blueprint/blueprint/testPokemon2".into()))
     .setup(setup_app)
     .invoke_handler(tauri::generate_handler![
+        get_project_root,
         read_file,
         list_directory_tree,
         read_graph_yaml,

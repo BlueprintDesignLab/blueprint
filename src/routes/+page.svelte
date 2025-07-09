@@ -10,25 +10,36 @@
   import { graphCode } from "$lib/state/graph.svelte";
   
   import { focus } from "$lib/state/focus.svelte";
+  import Terminal from "$lib/components/Terminal.svelte";
 
   useOnSelectionChange(({ nodes, edges }) => {
-    // if (nodes.length > 0) {
-    //   focus.node = nodes[0].id;
-    // }
-
     graphCode.setSelectedNodesEdges(nodes, edges);
-  });
 
-  // function test() {
-  //   invoke("freezeTest", {});
-  // }
+    if (nodes.length && focus.node !== nodes[0].id) {
+      focus.node = nodes[0].id;   // update only when different
+    }
+  });
 </script>
 
 <!-- <Button onclick={test}>Freeze</Button> -->
 <Resizable.PaneGroup direction="horizontal">
   <Resizable.Pane defaultSize={30}><Editor></Editor></Resizable.Pane>
   <Resizable.Handle withHandle />
-  <Resizable.Pane><GraphView /></Resizable.Pane>
+
+  <Resizable.Pane>
+    <Resizable.PaneGroup direction="vertical">
+    <Resizable.Pane>
+      <GraphView />
+    </Resizable.Pane>
+    <Resizable.Handle withHandle />
+
+    <Resizable.Pane>
+        <Terminal />
+    </Resizable.Pane>
+    </Resizable.PaneGroup>
+  </Resizable.Pane>
   <Resizable.Handle withHandle />
   <Resizable.Pane><LlmChat /></Resizable.Pane>
 </Resizable.PaneGroup>
+
+<!-- <Terminal></Terminal> -->

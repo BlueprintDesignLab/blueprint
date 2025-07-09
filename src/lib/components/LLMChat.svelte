@@ -120,6 +120,7 @@
 
     ch.push(userMessage);
 
+    generating = true;
     controller = new AbortController();
     agent.run(question, controller);
     question = "";
@@ -169,6 +170,9 @@
             <div class="bg-background border rounded-lg p-3 shadow-sm">
               <div class="font-semibold text-sm text-accent-foreground">
                 {chItem.tool.name}
+              </div>
+              <div class="text-xs text-gray-500">
+                {chItem.tool.output}
               </div>
             </div>
           {/if}

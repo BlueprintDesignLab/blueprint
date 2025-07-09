@@ -9,9 +9,7 @@
 </script>
 
 <SvelteFlowProvider>
-  <!-- <DnDProvider> -->
   {@render children()}
-  <!-- </DnDProvider> -->
 </SvelteFlowProvider>
 
 <!-- <Greet /> -->

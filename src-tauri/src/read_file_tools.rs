@@ -3,7 +3,7 @@ use anyhow::{bail, Context, Result};
 use ignore::WalkBuilder;
 use std::ffi::OsStr;
 use std::fmt::Write as _;
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 use tauri::{command, State};
 use tokio::{fs, task};
 
@@ -15,12 +15,14 @@ use tokio::{fs, task};
 pub struct ProjectRoot(pub PathBuf);
 
 impl ProjectRoot {
-    /// Resolve a user-supplied *relative* path safely inside the sandbox.
-    ///
-    /// * Rejects `../../etc/passwd` escapes.
-    /// * Resolves symlinks so `root → tmp → /` tricks don’t slip through.
     pub(crate) fn resolve(&self, user_rel: &Path) -> Result<PathBuf> {
-        let full = self.0.join(user_rel).canonicalize().with_context(|| {
+        // Treat `/foo/bar` as `foo/bar`
+        let rel = match user_rel.components().next() {
+            Some(Component::RootDir) => user_rel.strip_prefix(Component::RootDir)?,
+            _ => user_rel,
+        };
+
+        let full = self.0.join(rel).canonicalize().with_context(|| {
             format!(
                 "Path does not exist or cannot be resolved: {}",
                 user_rel.display()
@@ -34,13 +36,13 @@ impl ProjectRoot {
     }
 }
 
-#[command]
-pub async fn read_file(mut path: String, root: State<'_, ProjectRoot>) -> Result<String, String> {
-    // Treat "/" (or empty) as "./"
-    if path.trim() == "/" || path.trim().is_empty() {
-        path = ".".into();
-    }
+#[tauri::command]
+pub fn get_project_root(root: State<ProjectRoot>) -> String {
+    root.0.to_string_lossy().into_owned()
+}
 
+#[command]
+pub async fn read_file(path: String, root: State<'_, ProjectRoot>) -> Result<String, String> {
     let full = root.resolve(Path::new(&path)).map_err(|e| e.to_string())?;
 
     fs::read_to_string(&full)
@@ -51,14 +53,9 @@ pub async fn read_file(mut path: String, root: State<'_, ProjectRoot>) -> Result
 
 #[command]
 pub async fn list_directory_tree(
-    mut path: String,
+    path: String,
     root: State<'_, ProjectRoot>,
 ) -> Result<String, String> {
-    // Treat "/" (or empty) as "./"
-    if path.trim() == "/" || path.trim().is_empty() {
-        path = ".".into();
-    }
-
     let dir = root.resolve(Path::new(&path)).map_err(|e| e.to_string())?;
 
     let tree = task::spawn_blocking(move || -> Result<String> {

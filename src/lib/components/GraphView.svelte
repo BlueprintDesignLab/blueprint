@@ -57,7 +57,7 @@
   }
 </script>
 
-<main>
+
   <SvelteFlow
     bind:nodes={graphCode.nodes}
     bind:edges={graphCode.edges}
@@ -96,7 +96,6 @@
       pannable
     />
   </SvelteFlow>
-</main>
 
 <style>
   main {

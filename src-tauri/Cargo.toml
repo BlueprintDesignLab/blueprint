@@ -28,4 +28,5 @@ anyhow = "1.0.98"
 ignore = "0.4.23"
 tauri-plugin-dialog = "2"
 tauri-plugin-fs = { version = "2.4", features = ["watch"] }
+tauri-plugin-pty = "0.1.0"
 

@@ -81,10 +81,8 @@
   function debounce<T extends (...args: any[]) => void>(callback: T, wait: number): (...args: Parameters<T>) => void {
     let timeoutId: number | undefined;
     return (...args: Parameters<T>) => {
-      console.log("huge");
-
       window.clearTimeout(timeoutId);
-      timeoutId = window.setTimeout(() => {console.log("pp"),callback(...args)}, wait);
+      timeoutId = window.setTimeout(() => {callback(...args)}, wait);
     };
   }
 
