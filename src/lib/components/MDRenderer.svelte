@@ -40,11 +40,11 @@
   marked.use(markedKatex(options));
 
   let parsed = $derived.by(() => {
-    const replacedInline = replaceInlineDelimiters(content);
-    const replacedBlock = replaceBlockDelimiters(replacedInline);
+    // const replacedInline = replaceInlineDelimiters(content);
+    // const replacedBlock = replaceBlockDelimiters(replacedInline);
 
     // @ts-ignore
-    const parsed = marked.parse(replacedBlock);
+    const parsed = marked.parse(content);
     return parsed;
   });
 

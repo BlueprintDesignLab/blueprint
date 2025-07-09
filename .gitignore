@@ -11,4 +11,4 @@ vite.config.ts.timestamp-*
 /.vscode
 /src-tauri-backup
 /.obsidian
-hypersonic.txt
+/testPokemon

@@ -51,6 +51,10 @@
 <EdgeLabel x={labelX} y={labelY} selectEdgeOnClick={true}>
   {#if data}
     {data.label}
+
+    {#if "interfaceFile" in data}
+      INTERFACE
+    {/if}
     <!-- {data.comment} -->
     <!-- {#if sourceNode.current!.data.type === "context"}
       <ContextEdgeLabel {id} {data} />

@@ -3,107 +3,103 @@
 
   import CodeMirror from "svelte-codemirror-editor";
 
-  import { keymap } from "@codemirror/view";
-  import type { Extension } from "@codemirror/state";
   import { yaml } from "@codemirror/lang-yaml";
-  // import { ayuLight } from "thememirror";
+  import { tomorrow } from "thememirror";
 
   import { saveGraphSemantic, saveGraphView } from "$lib/util/graphIO";
-
-  import { exampleJSON, exampleYaml } from "$lib/example";
-
   import { graphCode } from "$lib/state/graph.svelte";
-
+  import { invoke } from "@tauri-apps/api/core";
   import { onMount } from "svelte";
-
-  import JSZip from "jszip";
-
-  import Button from "./ui/button/button.svelte";
-  import { Download, Upload } from "lucide-svelte";
 
   let semDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
   let viewDerived = $derived(saveGraphView(graphCode.getSelectedGraph()));
 
+  import { watch, type UnwatchFn, BaseDirectory } from '@tauri-apps/plugin-fs';
+    import { watchImmediate } from "@tauri-apps/plugin-fs";
+
+
   // $inspect(semDerived);
   // $inspect(graphCode.filtering);
 
-  onMount(() => {
-    semDerived = "hi";
+  let unwatch: UnwatchFn | undefined;
 
-    graphCode.loadGraph(exampleYaml, exampleJSON);
+  onMount(async () => {
+    // await watch(
+    //   "/Users/yao/blueprint/blueprint/testPokemon/.blueprint/graph.yaml",
+    //   (event) => {
+    //     console.log(event);
+    //   },
+    //   { recursive: false, delayMs: 300 }   // no baseDir when you pass an absolute path
+    // );
+
+    // // watch() starts after delayMs, watchImmediate() emits the first snapshot immediately
+    // unwatch = await watch(
+    //   'blueprint/blueprint/testPokemon/.blueprint/graph.yaml',                              // or absolute path
+    //   (event) => {
+    //     console.log(event);
+    //     // event.kind: 'modify' | 'create' | 'remove' | …
+    //     // event.paths: affected path(s)
+    //     // if (event.kind === 'modify') {
+    //     //   // pull fresh content or just reload store
+    //     // }
+    //   },
+    //   { baseDir: BaseDirectory.Home, recursive: false, delayMs: 300 }
+    // );
+
+    let graphYaml = "";
+    let viewJSON = "";
+
+    try {
+      graphYaml = await invoke("read_file", {
+        path: ".blueprint/graph.yaml"
+      })
+    } catch (e) {}
+
+    try {
+      viewJSON = await invoke("read_file", {
+        path: ".blueprint/view.json"
+      })
+    } catch (e) {}
+    
+    graphCode.loadGraph(graphYaml, viewJSON);
   });
-  // const saveKey: Extension = keymap.of([
-  //   {
-  //     key: "Mod-s", // “Mod” = Ctrl on Win/Linux, ⌘ on macOS
-  //     preventDefault: true,
-  //     run() {
-  //       updateGraph();
-  //       return true; // signals “handled”
-  //     },
-  //   },
-  // ]);
+
+  // $effect(() => {
+  //   semDerived;
+
+  //   updateGraph();
+  // })
 
   function updateGraph() {
     try {
       graphCode.loadGraph(semDerived, viewDerived);
+      saveGraphToFile();
     } catch (e) {
       //suppress in-between invalid YAML states
     }
   }
 
-  async function downloadZip() {
-    const zip = new JSZip();
-    zip.file("graph.blueprint.yaml", semDerived);
-    zip.file("view.blueprint.json", viewDerived);
+  function debounce<T extends (...args: any[]) => void>(callback: T, wait: number): (...args: Parameters<T>) => void {
+    let timeoutId: number | undefined;
+    return (...args: Parameters<T>) => {
+      console.log("huge");
 
-    const blob = await zip.generateAsync({ type: "blob" });
-    triggerDownload(blob, "blueprint.zip");
+      window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => {console.log("pp"),callback(...args)}, wait);
+    };
   }
 
-  function triggerDownload(blob: Blob, filename: string) {
-    const url = URL.createObjectURL(blob);
-    const a = Object.assign(document.createElement("a"), {
-      href: url,
-      download: filename,
+  // define once, outside any reactive context
+  const saveGraphDebounced = debounce(() => {
+    invoke('write_blueprint_file', {
+      path: "graph.yaml",
+      content: semDerived,
     });
-    a.click();
-    URL.revokeObjectURL(url);
-  }
+  }, 2000);
 
-  /** handle the <input type="file" …> change event */
-  async function handleZipSelect(e: Event) {
-    const file = (e.currentTarget as HTMLInputElement).files?.[0];
-    if (!file) return; // nothing chosen
-
-    if (!file.name.endsWith(".zip")) {
-      alert("Please select a .zip file");
-      return;
-    }
-
-    try {
-      const zip = await JSZip.loadAsync(file);
-
-      const yamlEntry = zip.file(/\.blueprint\.ya?ml$/i)[0]; // graph.blueprint.yaml
-      const viewEntry = zip.file(/\.blueprint\.json$/i)[0]; // view.blueprint.json
-
-      if (!yamlEntry || !viewEntry) {
-        alert("Zip must contain *.blueprint.yaml and *.blueprint.json");
-        return;
-      }
-
-      /* read both in parallel */
-      const [yamlStr, viewStr] = await Promise.all([
-        yamlEntry.async("text"),
-        viewEntry.async("text"),
-      ]);
-
-      graphCode.loadGraph(yamlStr, viewStr);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to load zip — see console for details");
-    } finally {
-      (e.currentTarget as HTMLInputElement).value = ""; // reset chooser
-    }
+  // call this function multiple times, and it will debounce properly
+  function saveGraphToFile() {
+    saveGraphDebounced();
   }
 </script>
 
@@ -115,34 +111,8 @@
          border-b border-slate-200 px-3"
   >
     <Tabs.Trigger value="graphVal">Graph</Tabs.Trigger>
-    <Tabs.Trigger value="viewVal">View</Tabs.Trigger>
+    <!-- <Tabs.Trigger value="viewVal">View</Tabs.Trigger> -->
 
-    <!-- right-aligned action area -->
-    <span class="ms-auto flex gap-2">
-      <Button
-        variant="secondary"
-        size="icon"
-        class="size-8"
-        onclick={downloadZip}
-      >
-        <Download />
-      </Button>
-    </span>
-
-    <!-- place this anywhere inside the same <Tabs.List> action area -->
-    <label
-      class="inline-flex items-center justify-center size-8 rounded
-         bg-secondary hover:bg-secondary/80 cursor-pointer"
-    >
-      <Upload class="w-4 h-4" />
-      <input
-        id="zipInput"
-        type="file"
-        accept=".zip"
-        class="hidden"
-        onchange={(e) => handleZipSelect(e)}
-      />
-    </label>
   </Tabs.List>
   <!-- {semDerived} -->
   <!-- YAML editor pane -->
@@ -152,18 +122,10 @@
         bind:value={semDerived}
         lineWrapping={true}
         lang={yaml()}
+        theme={tomorrow}
         on:change={() => updateGraph()}
       />
     </div>
-  </Tabs.Content>
-
-  <!-- View-only pane -->
-  <Tabs.Content value="viewVal" class="flex-1 overflow-auto">
-    <CodeMirror
-      bind:value={viewDerived}
-      lang={yaml()}
-      on:change={() => updateGraph()}
-    />
   </Tabs.Content>
 </Tabs.Root>
 

@@ -1,17 +1,85 @@
-// import { type Tool } from "openai/resources/responses/responses.mjs";
-// import { sharedTools } from "../sharedTools";
+import { type Tool } from "openai/resources/responses/responses.mjs";
+import { sharedTools } from "../sharedTools";
+
+const graphTools: Tool[] = [
+  {
+    "type": "function",
+    "name": "propose_graph",
+    "description": "Replace /blueprint/graph.yaml with the supplied complete YAML content. The IDE will preview the change for approval before writing.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "Entire contents of the new graph.yaml file."
+        }
+      },
+      "required": ["content"],
+      "additionalProperties": false
+    },
+    "strict": true
+  }
+]
+
+const writeTools: Tool[] = [
+  {
+    "type": "function",
+    "name": "write_blueprint_file",
+    "description": `Create or replace a text file anywhere under /.blueprint. Automatically makes missing parent directories and rejects paths that escape the sandbox.`,
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "File path **relative to the /.blueprint directory**, e.g. \"graph.yaml\" or \"edges/audio_bus/spec.txt\"."
+        },
+        "content": {
+          "type": "string",
+          "description": "Full text content to write into the file."
+        }
+      },
+      "required": ["path", "content"],
+      "additionalProperties": false
+    },
+    "strict": true
+  },
+  {
+  "type": "function",
+  "name": "write_project_file",
+  "description": "Create or replace a text file anywhere under /src. Automatically makes missing parent directories and rejects paths that escape the sandbox.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "path": {
+        "type": "string",
+        "description": "File path relative to the /src directory"
+      },
+      "content": {
+        "type": "string",
+        "description": "Full text content to write into the file."
+      }
+    },
+    "required": ["path", "content"],
+    "additionalProperties": false
+  },
+  "strict": true
+}
+]
+
 
 // /**
 //  * High-level cognitive tools for LLM agents.
 //  * Focuses on planning, reflection, and task management.
 //  */
 // // Combined exports
-// export const graphAgentTools: Tool[] = [
-//   ...sharedTools,
-//   // ...planningTools,
-//   // ...knowledgeTools,
-//   // ...reflectionTools
-// ];
+export const architectTools: Tool[] = [
+  // ...graphTools,
+  ...writeTools,
+  ...sharedTools,
+  // ...planningTools,
+  // ...knowledgeTools,
+  // ...reflectionTools
+];
 
 // // // Planning and Task Management
 // // export const planningTools: Tool[] = [
