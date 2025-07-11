@@ -1,11 +1,15 @@
-import OpenAI from "openai";; // Your OpenAI API wrapper
 import { invoke } from "@tauri-apps/api/core"; // For Tauri backend tool calls
 import { PUBLIC_OPENAI } from "$env/static/public";
 
-import { architectTools } from "./architect/tools";
-import { architectPrompt } from "./architect/prompt";
+import OpenAI from "openai";; // Your OpenAI API wrapper
 import type { Tool } from "openai/resources/responses/responses.mjs";
 import type { Stream } from "openai/streaming";
+
+import { Tiktoken } from "js-tiktoken/lite";
+import o200k_base from "js-tiktoken/ranks/o200k_base";
+
+import { terminal } from "$lib/state/terminal.svelte";
+import { contextWindow, encoder } from "$lib/state/contextWindow.svelte";
 
 const CHAT_HISTORY_LIMIT = 99;
 const TOOL_HISTORY_LIMIT = 99;
@@ -21,6 +25,8 @@ export class Agent {
   systemPrompt: string = "";
   tools: Tool[] = [];
   openai;
+
+  model = "gpt-4.1";
 
   streamDelta: StreamDeltaFn;
   showTool: ShowToolFn;
@@ -66,13 +72,15 @@ export class Agent {
       const prompt = this.buildPrompt();
       console.log(prompt);
 
+      contextWindow.length = encoder.encode(prompt + this.systemPrompt).length;
+
       const stream = await this.openai.responses.create({
-        model: "gpt-4.1",
+        model: this.model,
         input: prompt,
         stream: true,
         tools: this.tools,
         instructions: this.systemPrompt,
-        temperature: 0,
+        temperature: 0, 
       }, {
         signal: controller.signal,
       });
@@ -142,6 +150,15 @@ export class Agent {
       this.done = true;
       return JSON.stringify(args);
     } 
+
+    if (name === "run_command") {
+      console.log(args);
+      const command = `${args.command} ${args.args.join(" ")}`
+      console.log(command);
+
+      terminal.pty?.write(command + '\n');
+      return;
+    }
 
     try {
       if (name.includes("write") || name.includes("run")) {

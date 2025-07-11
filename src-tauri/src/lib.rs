@@ -31,13 +31,28 @@ fn build_file_menu<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::menu:
         .expect("Failed to build file menu")
 }
 
-fn build_menu<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::menu::Menu<R> {
-    let app_menu = build_app_menu(app);
-    let file_menu = build_file_menu(app);
-    MenuBuilder::new(app)
-        .items(&[&app_menu, &file_menu])
-        .build()
-        .expect("Failed to build full menu")
+pub fn build_menu<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::menu::Menu<R> {
+  let app_menu  = build_app_menu(app);
+  let file_menu = build_file_menu(app);
+
+  // --- Edit submenu with cross-platform shortcuts --------------------------
+  let edit_menu = SubmenuBuilder::new(app, "Edit")
+      .undo()
+      .redo()
+      .separator()
+      .cut()
+      .copy()
+      .paste()
+      .separator()
+      .select_all()
+      .build()
+      .expect("failed to build Edit submenu");
+
+  // --- Assemble the root menubar ------------------------------------------
+  MenuBuilder::new(app)
+      .items(&[&app_menu, &file_menu, &edit_menu])
+      .build()
+      .expect("failed to build application menu")
 }
 
 fn handle_menu_event<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>, event: MenuEvent) {
@@ -86,7 +101,7 @@ pub fn run() {
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_pty::init())
-    .manage(read_file_tools::ProjectRoot("/Users/yao/blueprint/blueprint/testPokemon2".into()))
+    .manage(read_file_tools::ProjectRoot("/Users/yao/blueprint/blueprint/testYuefan".into()))
     .setup(setup_app)
     .invoke_handler(tauri::generate_handler![
         get_project_root,

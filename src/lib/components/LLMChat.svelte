@@ -7,21 +7,25 @@
   import { Agent } from "$lib/llm/agent";
   
   import { onMount, tick } from "svelte";
-  // import { workerPrompt } from "$lib/llm/worker/prompt";
+
   import { architectPrompt } from "$lib/llm/architect/prompt";
-  // import { workerTools } from "$lib/llm/worker/tools";
   import { architectTools } from "$lib/llm/architect/tools";
+
+  import { workerPrompt } from "$lib/llm/worker/prompt";
+  import { workerTools } from "$lib/llm/worker/tools";
+
+  import { focus } from "$lib/state/focus.svelte";
+
   import { StopCircle } from "lucide-svelte";
+
   import { invoke } from "@tauri-apps/api/core";
+
+  import { contextWindow, encoder } from "$lib/state/contextWindow.svelte";
 
   let ch: any = $state([]);
   let chDiv: HTMLDivElement | null = $state(null);
 
   let question = $state("");
-
-  import { focus } from "$lib/state/focus.svelte";
-  import { workerPrompt } from "$lib/llm/worker/prompt";
-  import { workerTools } from "$lib/llm/worker/tools";
 
   function scroll() {
     tick().then(() => {
@@ -33,7 +37,7 @@
   function scrollIfNearBottom() {
     if (!chDiv) return;
 
-    const TOLERANCE = 100;
+    const TOLERANCE = 50;
     const autoscroll =
       chDiv.offsetHeight + chDiv.scrollTop > chDiv.scrollHeight - TOLERANCE;
 
@@ -57,15 +61,19 @@
   //   }
   // });
 
-  function streamDelta(delta: string) {
+  function chAssistant() {
     if (ch[ch.length-1].role != "assistant") {
-      const responseRender = $state({
+      const responseRender = {
         role: "assistant",
         content: ""
-      })
+      };
 
       ch.push(responseRender);
     }
+  }
+
+  function streamDelta(delta: string) {
+    chAssistant();
     ch[ch.length - 1].content += delta;
     scrollIfNearBottom();
   }
@@ -94,7 +102,6 @@
       role: "user",
       content: "\n<full directory tree>\n" + dirTree + "\n<full directory tree>\n" + "<graph.yaml>\n" + graphYaml + "<graph.yaml>\n"
     }
-    // console.log(helper);
 
     agent = new Agent([], [], architectPrompt, architectTools, streamDelta, showTool, stopGenerating);
   })
@@ -119,11 +126,16 @@
     }
 
     ch.push(userMessage);
+    chAssistant();
 
     generating = true;
     controller = new AbortController();
     agent.run(question, controller);
     question = "";
+
+    tick().then(() => {
+      autoResize(textarea);
+    })
 
     scroll();
   };
@@ -141,6 +153,15 @@
     agent.handleApproval(id, null);
   }
 
+  let textarea: HTMLTextAreaElement | null = $state(null);
+
+  function autoResize(el: HTMLTextAreaElement | null) {
+    if (!el) return;
+
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }
+
   export function handleKeyDown(event: KeyboardEvent) {
     switch (event.key) {
       case "Enter":
@@ -150,7 +171,7 @@
           }
           // If Shift is held, do nothing special: the default behavior will insert a newline
           if (event.shiftKey) {
-            event.preventDefault(); // Prevent the default Enter behavior (newline)
+            event.preventDefault();
             send();
           }
         break;
@@ -160,7 +181,7 @@
 
 
 <div class="flex flex-col h-screen max-w-xl mx-auto p-4">
-  Focus: {focus.node}
+  Focus: {focus.node} Context Window: {contextWindow.length}
 
   <div bind:this={chDiv} class="flex-1 overflow-auto space-y-2 p-2 bg-muted rounded-xl border">
     {#each ch as chItem}
@@ -217,8 +238,16 @@
 
         {/if}
       {:else}
-        {chItem.role}
-        <div class="bg-background border rounded-lg p-3 shadow-sm">
+        <div class="flex items-center justify-between text-xs text-gray-500">
+          <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-md font-mono uppercase tracking-wide">
+            {chItem.role}
+          </span>
+          <span class="text-gray-400 italic">
+            Token Count: {encoder.encode(chItem.content).length}
+          </span>
+        </div>
+
+        <div class="bg-background border rounded-lg p-3 shadow-sm mt-1">
           <MdRenderer content={chItem.content}/>
         </div>
       {/if}
@@ -227,7 +256,15 @@
 
   <!-- Input area -->
   <div class="mt-4 flex items-center gap-2">
-    <Input bind:value={question} onkeydown={(e) => handleKeyDown(e)} class="flex-1" placeholder="Type your message..."/>
+    <textarea
+      bind:value={question}
+      onkeydown={handleKeyDown}
+      placeholder="Type your message..."
+      class="flex-1 resize-none overflow-hidden rounded border p-2 bg-background text-sm leading-relaxed focus:outline-none focus:ring focus:border-accent transition-all"
+      rows="1"
+      oninput={() => autoResize(textarea)}
+      bind:this={textarea}
+    ></textarea>
     {#if generating}
       <Button onclick={stopGenerating}><StopCircle/></Button>
     {:else}

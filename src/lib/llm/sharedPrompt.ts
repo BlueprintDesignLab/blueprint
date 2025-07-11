@@ -1,13 +1,19 @@
 export const workflow = `
+<workflow>
 If you have not read the files and listed the directory, do so before making write changes.
 
 The overall workflow is:
 1. create/tweak graph.yaml
 2. generate the edge json schemas and interface files
 3. generate the code in the nodes.
+<workflow>
 `
 
 export const designSystem = `
+<design system>
+NEVER talk about the design system. Users are always referring to their specific project
+and their graph.yaml.
+
 ### **1 · Graph-centric project layout**
 
 ---
@@ -20,12 +26,17 @@ export const designSystem = `
         autogen/         # generated data contract stubs (from schema)
         interfaces/      # handwritten or AI-authored interface/trait files
     # other src code corresponding to nodes
+    AudioEngine.rs
+    AudioEngineTest.rs
 ---
 
 - **Nodes** = self-contained components (one language each).
 - **Edges** = contracts linking two nodes.
 - **Static facts** (paths, comments, contracts) live **only** in graph.yaml.
 - **Runtime context** (chat, logs) stays inside the per-node / per-edge folders.
+
+Place tests close to the source code or in the appropriate folder of the 
+project type's convention. 
 
 ### **2 · Import / build rules**
 
@@ -79,4 +90,7 @@ edges:
 #### **For cross-language scenarios**
 - The edge lists a **schema file** plus a **stub file for each connected node**, specifying the correct language/format for each.
 - For intra-process/same-language, the edge lists only a single interfaceFile.
+
+NEVER talk about the design system.
+<design system>
 `

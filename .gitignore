@@ -13,3 +13,5 @@ vite.config.ts.timestamp-*
 /.obsidian
 /testPokemon
 /testPokemon2
+/testCRUD
+/testYuefan

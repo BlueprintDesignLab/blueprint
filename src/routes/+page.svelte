@@ -33,7 +33,7 @@
     </Resizable.Pane>
     <Resizable.Handle withHandle />
 
-    <Resizable.Pane>
+    <Resizable.Pane defaultSize={15}>
         <Terminal />
     </Resizable.Pane>
     </Resizable.PaneGroup>

@@ -12,7 +12,7 @@
 
 import { parse, stringify } from "yaml";
 import { type NodeSem, type EdgeSem } from "./graphType.ts";
-import { type Node, type Edge, Position, MarkerType } from "@xyflow/svelte";
+import { type Node, type Edge, Position, MarkerType, type EdgeMarkerType } from "@xyflow/svelte";
 
 import dagre from "@dagrejs/dagre";
 
@@ -44,8 +44,8 @@ export interface MergedGraph {
 const DEFAULT_SEMANTIC = "graph.bpl.yaml";
 const DEFAULT_VIEW = "graph.sfv.json";
 
-export const DEFAULT_MARKEREND = {
-  type: "arrow",
+export const DEFAULT_MARKEREND: EdgeMarkerType = {
+  type: MarkerType.Arrow,
   width: 20,
   height: 20,
   strokeWidth: 1,
@@ -100,11 +100,17 @@ function getLayoutedElements(nodes: Node[], edges: Edge[], direction = "TB") {
 
 /* ───────────────────── Loader ───────────────────────── */
 export function loadGraph(yamlText: string, viewText: string): MergedGraph {
-  const sem = parse(yamlText) as GraphSemYAML;
+  if (yamlText === "") {
+    yamlText = "nodes: []\nedges: []\n";
+  }
 
   if (viewText.trim() === "") {
     viewText = '{"nodes":[], "edges":[]}';
   }
+
+  console.log(yamlText);
+  console.log(yamlText, viewText);
+  const sem = parse(yamlText) as GraphSemYAML;
 
   // console.log(viewText);
   const view = (
@@ -138,7 +144,7 @@ export function loadGraph(yamlText: string, viewText: string): MergedGraph {
     }
 
     return combNode;
-  });
+  }) ?? [];
 
   const edges: Edge[] = Object.entries(sem.edges ?? {}).map(([id, semEdge]) => {
     const v = view.edges?.find((e) => e.id === id);
@@ -155,7 +161,7 @@ export function loadGraph(yamlText: string, viewText: string): MergedGraph {
       markerEnd: v?.markerEnd ?? DEFAULT_MARKEREND,
       animated: true,
     };
-  });
+  }) ?? [];
 
   if (missingV > nodes.length * 0.2) {
     return getLayoutedElements(nodes, edges);
