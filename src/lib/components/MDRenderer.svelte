@@ -44,7 +44,7 @@
     // const replacedBlock = replaceBlockDelimiters(replacedInline);
 
     // @ts-ignore
-    const parsed = marked.parse(content);
+    const parsed = marked.parse(content ?? "");
     return parsed;
   });
 

@@ -1,12 +1,11 @@
 <script lang="ts">
-  import Input from "$lib/components/ui/input/input.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
 
   import MdRenderer from "./MDRenderer.svelte";
 
   import { Agent } from "$lib/llm/agent";
   
-  import { onMount, tick } from "svelte";
+  import { tick } from "svelte";
 
   import { architectPrompt } from "$lib/llm/architect/prompt";
   import { architectTools } from "$lib/llm/architect/tools";
@@ -18,9 +17,9 @@
 
   import { StopCircle } from "lucide-svelte";
 
-  import { invoke } from "@tauri-apps/api/core";
-
   import { contextWindow, encoder } from "$lib/state/contextWindow.svelte";
+  import { plannerPrompt } from "$lib/llm/planner/prompt";
+  import { plannerTools } from "$lib/llm/planner/tools";
 
   let ch: any = $state([]);
   let chDiv: HTMLDivElement | null = $state(null);
@@ -46,21 +45,6 @@
     }
   }
 
-  // $effect.pre(() => {
-  //   if (!ch[ch.length - 1]?.content) return;
-  //   ch[ch.length - 1].content;
-
-  //   if (!chDiv) return;
-
-  //   const TOLERANCE = 100;
-  //   const autoscroll =
-  //     chDiv.offsetHeight + chDiv.scrollTop > chDiv.scrollHeight - TOLERANCE;
-
-  //   if (autoscroll) {
-  //     scroll();
-  //   }
-  // });
-
   function chAssistant() {
     if (ch[ch.length-1].role != "assistant") {
       const responseRender = {
@@ -79,37 +63,38 @@
   }
 
   function showTool(tool: any) {
-    ch.push(tool);
-    scrollIfNearBottom();
+    const index = ch.findIndex((obj: { id: any; }) => obj?.id === tool.id);
+
+    if (index === -1) {
+      ch.push(tool);
+      scrollIfNearBottom();
+      return;
+    } 
+
+    if ("delta" in tool) {
+      ch[index].tool.arguments += tool.delta;
+    } else {
+      ch[index] = tool;
+    }
   }
 
-  let agent = new Agent([], [], architectPrompt, architectTools, streamDelta, showTool, stopGenerating);
+  let agents = {
+    plan: new Agent([], [], plannerPrompt, plannerTools, streamDelta, showTool, stopGenerating),
+    architect: new Agent([], [], architectPrompt, architectTools, streamDelta, showTool, stopGenerating),
+    implement: new Agent([], [], workerPrompt + `\nYour focus is : ${focus.node}\n`, workerTools, streamDelta, showTool, stopGenerating)
+  };
 
-  onMount(async () => {
-    const dirTree = await invoke("list_directory_tree", {path: "."});
-    let graphYaml = "";
+  let agent = $state(agents.plan);
 
-    try {
-      graphYaml = await invoke("read_file", {
-        path: "./.blueprint/graph.yaml"
-      }) as string;
-    } catch(e) {}
+  $effect(() => {
+    focus.mode;
 
-    // console.log(dirTree);
-    // console.log(graphYaml);
-
-    const helper: ChatTurn = {
-      role: "user",
-      content: "\n<full directory tree>\n" + dirTree + "\n<full directory tree>\n" + "<graph.yaml>\n" + graphYaml + "<graph.yaml>\n"
-    }
-
-    agent = new Agent([], [], architectPrompt, architectTools, streamDelta, showTool, stopGenerating);
+    agent = agents[focus.mode];
   })
 
   $effect(() => {
     focus.node;
-
-    agent = new Agent([], [], workerPrompt + `\nYour focus is : ${focus.node}\n`, workerTools, streamDelta, showTool, stopGenerating);
+    agents.implement = new Agent([], [], workerPrompt + `\nYour focus is : ${focus.node}\n`, workerTools, streamDelta, showTool, stopGenerating);
   })
 
   let controller = new AbortController();
@@ -207,7 +192,11 @@
             {chItem.tool.status}
           </div>
 
-          {#if chItem.tool.status === "calling"}
+          {#if chItem.tool.status === "in_progress"}
+            <pre class="text-sm whitespace-pre-wrap break-words bg-muted border rounded p-2 max-h-60 overflow-auto">
+              {chItem.tool.arguments}
+            </pre>
+          {:else if chItem.tool.status === "calling"}
             <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
               {#each Object.entries(chItem.tool.arguments) as [key, value]}
                 {#if key === "content"}

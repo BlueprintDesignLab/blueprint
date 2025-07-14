@@ -14,38 +14,7 @@
   let semDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
   let viewDerived = $derived(saveGraphView(graphCode.getSelectedGraph()));
 
-  import { watch, type UnwatchFn, BaseDirectory } from '@tauri-apps/plugin-fs';
-    import { watchImmediate } from "@tauri-apps/plugin-fs";
-
-
-  // $inspect(semDerived);
-  // $inspect(graphCode.filtering);
-
-  let unwatch: UnwatchFn | undefined;
-
   onMount(async () => {
-    // await watch(
-    //   "/Users/yao/blueprint/blueprint/testPokemon/.blueprint/graph.yaml",
-    //   (event) => {
-    //     console.log(event);
-    //   },
-    //   { recursive: false, delayMs: 300 }   // no baseDir when you pass an absolute path
-    // );
-
-    // // watch() starts after delayMs, watchImmediate() emits the first snapshot immediately
-    // unwatch = await watch(
-    //   'blueprint/blueprint/testPokemon/.blueprint/graph.yaml',                              // or absolute path
-    //   (event) => {
-    //     console.log(event);
-    //     // event.kind: 'modify' | 'create' | 'remove' | …
-    //     // event.paths: affected path(s)
-    //     // if (event.kind === 'modify') {
-    //     //   // pull fresh content or just reload store
-    //     // }
-    //   },
-    //   { baseDir: BaseDirectory.Home, recursive: false, delayMs: 300 }
-    // );
-
     let graphYaml = "";
     let viewJSON = "";
 

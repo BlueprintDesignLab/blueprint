@@ -3,9 +3,10 @@ export const workflow = `
 If you have not read the files and listed the directory, do so before making write changes.
 
 The overall workflow is:
-1. create/tweak graph.yaml
-2. generate the edge json schemas and interface files
-3. generate the code in the nodes.
+- convert user needs to plan.md
+- using plan.md, create/tweak graph.yaml
+- generate the edge json schemas and interface files
+- generate the code in the nodes.
 <workflow>
 `
 

@@ -5,10 +5,7 @@ import OpenAI from "openai";; // Your OpenAI API wrapper
 import type { Tool } from "openai/resources/responses/responses.mjs";
 import type { Stream } from "openai/streaming";
 
-import { Tiktoken } from "js-tiktoken/lite";
-import o200k_base from "js-tiktoken/ranks/o200k_base";
-
-import { terminal } from "$lib/state/terminal.svelte";
+import { terminalController } from "$lib/state/terminal.svelte";
 import { contextWindow, encoder } from "$lib/state/contextWindow.svelte";
 
 const CHAT_HISTORY_LIMIT = 99;
@@ -66,12 +63,9 @@ export class Agent {
 
     this.done = false;
     let step = 0;
-    // console.log(this.systemPrompt);
 
     while (!this.done && step < this.maxSteps) {
       const prompt = this.buildPrompt();
-      console.log(prompt);
-
       contextWindow.length = encoder.encode(prompt + this.systemPrompt).length;
 
       const stream = await this.openai.responses.create({
@@ -117,8 +111,10 @@ export class Agent {
         }
       } else if (event.type === "response.output_item.added") {
         if (event.item.type === "function_call") {
-          this.showTool({tool: event.item});
+          this.showTool({id: event.item.id, tool: event.item});
         }
+      } else if (event.type === "response.function_call_arguments.delta") {
+        this.showTool({id: event.item_id, delta: event.delta});
       }
     }
 
@@ -141,7 +137,7 @@ export class Agent {
     });
 
     // Tell the front-end to show the button.  UI must later call `handleApproval`.
-    this.showTool({ tool: toolCall, approvalId: id });
+    this.showTool({ id: crypto.randomUUID(), tool: toolCall, approvalId: id });
     return promise;           
   }
 
@@ -152,12 +148,9 @@ export class Agent {
     } 
 
     if (name === "run_command") {
-      console.log(args);
       const command = `${args.command} ${args.args.join(" ")}`
-      console.log(command);
 
-      terminal.pty?.write(command + '\n');
-      return;
+      return terminalController.controller?.run(command);
     }
 
     try {
@@ -165,6 +158,7 @@ export class Agent {
         const approved = await this.waitForUser({ name, args });   // <- “blocking”
         if (approved == null) return null;                         // User cancelled
       }
+
       const result = await invoke(name, args);
       return result;
     } catch (e) {
@@ -178,10 +172,11 @@ export class Agent {
     for (const toolCall of toolCalls) {
       const args = JSON.parse(toolCall.arguments);
 
-      const showToolCall = {
-        tool: {...toolCall, arguments: args, status: "calling"}
-      }
-      this.showTool(showToolCall);
+      // const showToolCall = {
+      //   id: crypto.randomUUID(),
+      //   tool: {...toolCall, arguments: args, status: "calling"}
+      // }
+      // this.showTool(showToolCall);
       const result = await this.executeTool(toolCall.name, args) as string|null;
 
       // this.updateUI(`\n> Task Completed!`);
@@ -193,7 +188,7 @@ export class Agent {
         "name": toolCall.name,
       });
 
-      this.showTool({tool: resObj});
+      this.showTool({id: toolCall.id, tool: resObj});
 
       this.appendToolCall(toolCall);
       this.appendToolCall(resObj);
@@ -224,7 +219,7 @@ export class Agent {
 
     prompt +=
       'If you are completely done, call "end_agentic_loop_success"; ' +
-      'if blocked, call "end_agentic_loop_failure".\n';
+      'if several attempts to fix does not work and you are blocked, call "end_agentic_loop_failure".\n';
 
     return prompt;
   }

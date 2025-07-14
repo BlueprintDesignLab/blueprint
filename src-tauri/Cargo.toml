@@ -27,6 +27,8 @@ tokio = { version = "1.46.1", features = ["process"] }
 anyhow = "1.0.98"
 ignore = "0.4.23"
 tauri-plugin-dialog = "2"
-tauri-plugin-fs = { version = "2.4", features = ["watch"] }
+tauri-plugin-fs = { version = "2", features = ["watch"] }
 tauri-plugin-pty = "0.1.0"
-
+tauri-plugin-shell = "2"
+notify = "8.1.0"
+uuid  = { version = "1.17",   features = ["v4"] }

@@ -1,6 +1,6 @@
 import { type Tool } from "openai/resources/responses/responses.mjs";
 import { sharedTools } from "../sharedTools";
-import { writeFile, writeGraph } from "../writeTools";
+import { writeFile } from "../writeTools";
 import { readTools } from "../readTools";
 
 
@@ -9,9 +9,8 @@ import { readTools } from "../readTools";
 //  * Focuses on planning, reflection, and task management.
 //  */
 // // Combined exports
-export const architectTools: Tool[] = [
+export const plannerTools: Tool[] = [
   writeFile,
-  writeGraph,
   ...readTools,
   ...sharedTools,
 ];

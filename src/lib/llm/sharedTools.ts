@@ -1,63 +1,6 @@
 // src/lib/llm/shared_tools.ts
 import { type Tool } from "openai/resources/responses/responses.mjs";
 
-// Core file operations
-export const readProjectTools: Tool[] = [
-  {
-    type: "function",
-    name: "read_file",
-    description: "Read the contents of a text file.",
-    parameters: {
-      type: "object",
-      properties: {
-        path: {
-          type: "string",
-          description: "Relative path from the project root."
-        }
-      },
-      required: ["path"],
-      additionalProperties: false
-    },
-    strict: true
-  },
-  {
-    type: "function",
-    name: "list_directory_tree",
-    description: "List full contents of a directory tree.",
-    parameters: {
-      type: "object",
-      properties: {
-        path: { type: "string" }
-      },
-      required: ["path"],
-      additionalProperties: false
-    },
-    strict: true
-  }
-];
-
-// System command execution
-export const systemTools: Tool[] = [
-  {
-    type: "function",
-    name: "run_command",
-    description: "Execute a shell command.",
-    parameters: {
-      type: "object",
-      properties: {
-        command: { type: "string" },
-        args: {
-          type: "array",
-          items: { type: "string" }
-        }
-      },
-      required: ["command", "args"],
-      additionalProperties: false
-    },
-    strict: true
-  }
-];
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Tool: successful completion
 // ─────────────────────────────────────────────────────────────────────────────
@@ -108,12 +51,9 @@ export const endAgenticLoopTools: Tool[] = [
   }
 ];
 
-
 const searchTool: Tool = { type: "web_search_preview" }
 
 export const sharedTools: Tool[] = [
-  ...readProjectTools,
-  ...systemTools,
   ...endAgenticLoopTools,
   searchTool,
 ]

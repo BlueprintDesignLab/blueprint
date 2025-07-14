@@ -11,7 +11,4 @@ vite.config.ts.timestamp-*
 /.vscode
 /src-tauri-backup
 /.obsidian
-/testPokemon
-/testPokemon2
-/testCRUD
-/testYuefan
+/test-*

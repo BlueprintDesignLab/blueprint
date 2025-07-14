@@ -3,31 +3,30 @@
   import { Terminal } from '@xterm/xterm';
   import { FitAddon } from '@xterm/addon-fit';
   import '@xterm/xterm/css/xterm.css';
-  import { spawn, type IPty } from 'tauri-pty';
+  import { spawn } from 'tauri-pty';
   import { invoke } from '@tauri-apps/api/core';
 
-  import { terminal } from '$lib/state/terminal.svelte';
+  import { TerminalController, terminalController } from '$lib/state/terminal.svelte';
 
   let container: HTMLDivElement;
 
-  onMount(async () => {
-    const term = new Terminal({ cursorBlink: true, fontFamily: 'monospace' });
-    const fit  = new FitAddon();
-    term.loadAddon(fit);
-    term.open(container);
+  onMount(() => {
+    const xTerm = new Terminal({ cursorBlink: true, fontFamily: 'monospace' });
+    const fit = new FitAddon();
+    xTerm.loadAddon(fit);
+    xTerm.open(container);
     fit.fit();
 
-    const path: string = await invoke("get_project_root");
-    console.log(path);
+    invoke("get_project_root").then((path) => {
+      console.log(path);
+      const pty = spawn("zsh", [], { cols: xTerm.cols, rows: xTerm.rows, cwd: path as string});
 
-    terminal.pty = spawn("zsh", [], { cols: term.cols, rows: term.rows, cwd: path });
-
-    terminal.pty.onData(data => term.write(data));
-    term.onData(data => terminal.pty!.write(data));
+      terminalController.controller = new TerminalController(xTerm, pty);
+    });    
 
     const ro = new ResizeObserver(() => {
-      fit.fit();
-      terminal.pty?.resize(term.cols, term.rows);
+      fit.fit(),
+      terminalController.controller?.resize();
     });
     ro.observe(container);
 
@@ -35,15 +34,6 @@
         ro.disconnect();
     }
   });
-
-//   export function runByAgent(cmd: string) {
-//     // if (!auto && !confirm(`Run "${cmd}"?`)) return;
-//     // const coloured = `\x1b[1;32m🤖 ${cmd}\x1b[0m\n`;
-//     // container?.querySelector('.xterm')?.dispatchEvent(
-//     //   new CustomEvent('write', { detail: coloured })
-//     // );
-//     terminal.pty!.write?.(cmd + '\n');
-//   }
 </script>
 
 <style>
@@ -54,4 +44,4 @@
   }
 </style>
 
-<div bind:this={container} class="terminal-wrapper" />
+<div bind:this={container} class="terminal-wrapper"></div>

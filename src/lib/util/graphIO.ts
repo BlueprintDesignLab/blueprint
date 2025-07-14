@@ -11,21 +11,17 @@
 -----------------------------------------------------------------*/
 
 import { parse, stringify } from "yaml";
-import { type NodeSem, type EdgeSem } from "./graphType.ts";
-import { type Node, type Edge, Position, MarkerType, type EdgeMarkerType } from "@xyflow/svelte";
+import { type Node, type Edge, MarkerType, type EdgeMarkerType, Position } from "@xyflow/svelte";
 
 import dagre from "@dagrejs/dagre";
 
+type NodeSem = Record<string, unknown>;
+type EdgeSem = Record<string, unknown>;
+
 /* ---------- semantic container as in YAML ---------- */
 export interface GraphSemYAML {
-  nodes: Record<string, Omit<NodeSem, "id">>;
-  edges: Record<
-    string,
-    Omit<EdgeSem, "id" | "source" | "target"> & {
-      source: string;
-      target: string;
-    }
-  >;
+  nodes: Record<string, unknown>;
+  edges: Record<string, unknown>;
 }
 
 export type NodeView = Omit<Node, "data">;
@@ -40,9 +36,6 @@ export interface MergedGraph {
   nodes: Node[];
   edges: Edge[];
 }
-
-const DEFAULT_SEMANTIC = "graph.bpl.yaml";
-const DEFAULT_VIEW = "graph.sfv.json";
 
 export const DEFAULT_MARKEREND: EdgeMarkerType = {
   type: MarkerType.Arrow,
@@ -81,8 +74,8 @@ function getLayoutedElements(nodes: Node[], edges: Edge[], direction = "TB") {
 
   const layoutedNodes = nodes.map((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
-    // node.targetPosition = isHorizontal ? Position.Left : Position.Top;
-    // node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
+    node.targetPosition = isHorizontal ? Position.Left : Position.Top;
+    node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
 
     // We are shifting the dagre node position (anchor=center center) to the top left
     // so it matches the React Flow node anchor point (top left).
@@ -108,8 +101,6 @@ export function loadGraph(yamlText: string, viewText: string): MergedGraph {
     viewText = '{"nodes":[], "edges":[]}';
   }
 
-  console.log(yamlText);
-  console.log(yamlText, viewText);
   const sem = parse(yamlText) as GraphSemYAML;
 
   // console.log(viewText);
@@ -126,7 +117,7 @@ export function loadGraph(yamlText: string, viewText: string): MergedGraph {
       missingV += 1;
     }
 
-    let combNode: Node = {
+    const combNode: Node = {
       id,
       type: "c4FlowNode",
       data: { ...(semNode as NodeSem) },
@@ -134,13 +125,6 @@ export function loadGraph(yamlText: string, viewText: string): MergedGraph {
       width: v?.width ?? 150,
       height: v?.height ?? 40,
       zIndex: v?.zIndex ?? 0,
-      // extent: semNode.parent ? "parent" : "",
-    }
-
-    if (semNode.parent) {
-      // TODO assign parents a larger size
-      combNode.parentId = semNode.parent;
-      combNode.extent = "parent";
     }
 
     return combNode;
@@ -160,12 +144,15 @@ export function loadGraph(yamlText: string, viewText: string): MergedGraph {
       zIndex: v?.zIndex ?? 1,
       markerEnd: v?.markerEnd ?? DEFAULT_MARKEREND,
       animated: true,
-    };
+    } as Edge;
   }) ?? [];
 
   if (missingV > nodes.length * 0.2) {
     return getLayoutedElements(nodes, edges);
   }
+
+  console.log(nodes);
+  console.log(edges);
 
   return { nodes, edges };
 }

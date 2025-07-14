@@ -1,6 +1,6 @@
 // src-tauri/src/write_file_tools.rs
 use anyhow::{Context, Result};
-use std::path::{Component, Path, PathBuf};
+use std::path::PathBuf;
 use tauri::State;
 use tokio::fs;
 
@@ -43,7 +43,9 @@ pub async fn write_blueprint_file(
 
     // ── B. paths inside the sandbox  ─────────────────────────────────────
     let blueprint_root = root.0.join(".blueprint");
-    fs::create_dir_all(&blueprint_root).await.map_err(|e| e.to_string())?;
+    fs::create_dir_all(&blueprint_root)
+        .await
+        .map_err(|e| e.to_string())?;
 
     let full = blueprint_root.join(&rel);
 
@@ -60,7 +62,9 @@ pub async fn write_blueprint_file(
     }
 
     // ── C. write ─────────────────────────────────────────────────────────
-    fs::create_dir_all(canon_parent).await.map_err(|e| e.to_string())?;
+    fs::create_dir_all(canon_parent)
+        .await
+        .map_err(|e| e.to_string())?;
     fs::write(&full, content)
         .await
         .with_context(|| format!("Failed to write file: {}", full.display()))
@@ -80,7 +84,9 @@ pub async fn write_project_file(
     let full = root.0.join(&rel);
 
     if let Some(parent) = full.parent() {
-        fs::create_dir_all(parent).await.map_err(|e| e.to_string())?;
+        fs::create_dir_all(parent)
+            .await
+            .map_err(|e| e.to_string())?;
 
         let canon_parent = parent.canonicalize().map_err(|e| e.to_string())?;
         let canon_root = root.0.canonicalize().map_err(|e| e.to_string())?;
