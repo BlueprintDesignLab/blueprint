@@ -15,8 +15,8 @@
     Panel,
   } from "@xyflow/svelte";
 
-  import C4FlowNode from "$lib/components/C4FlowNode.svelte";
-  import C4FlowEdge from "$lib/components/C4FlowEdge.svelte";
+  import C4FlowNode from "$lib/components/app/C4FlowNode.svelte";
+  import C4FlowEdge from "$lib/components/app/C4FlowEdge.svelte";
 
   import { graphCode } from "$lib/state/graph.svelte";
   import { DEFAULT_MARKEREND } from "$lib/util/graphIO";

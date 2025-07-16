@@ -1,45 +1,41 @@
 <script lang="ts">
-  import * as Resizable from "$lib/components/ui/resizable/index.js";
+  import ProjectSelector from "$lib/components/onboard/ProjectSelector.svelte";
+  import Onboarding from "$lib/components/onboard/Onboarding.svelte";
+  import Watcher from "$lib/components/onboard/Watcher.svelte";
 
-  import GraphView from "$lib/components/GraphView.svelte";
-  import Editor from "$lib/components/Editor.svelte";
-  import LlmChat from "$lib/components/LLMChat.svelte";
+  import { tauriStore } from '$lib/state/tauriStore';
+  import { onMount } from "svelte";
+  import App from "$lib/components/App.svelte";
 
-  import { useOnSelectionChange } from '@xyflow/svelte';
+  let onboarded = $state<boolean>(true);
+  $inspect(onboarded);
 
-  import { graphCode } from "$lib/state/graph.svelte";
-  
-  import { focus } from "$lib/state/focus.svelte";
-  import Terminal from "$lib/components/Terminal.svelte";
+  // src/lib/context.ts
+  const data = (window as any).__TAURI_INITIAL_DATA__;
 
-  useOnSelectionChange(({ nodes, edges }) => {
-    graphCode.setSelectedNodesEdges(nodes, edges);
+  let ready = $state(false);
+  const projectRoot = data?.projectRoot ?? null;
 
-    if (nodes.length && focus.node !== nodes[0].id) {
-      focus.node = nodes[0].id;   // update only when different
-    }
+  async function getonboarded() {
+    tauriStore.set('onboarded', false);
+    onboarded = await tauriStore.get<boolean>('onboarded') ?? false;
+    ready = true;
+  }
+
+  onMount(() => {
+    getonboarded();
   });
 </script>
 
-<!-- <Button onclick={test}>Freeze</Button> -->
-<Resizable.PaneGroup direction="horizontal">
-  <Resizable.Pane defaultSize={30}><Editor></Editor></Resizable.Pane>
-  <Resizable.Handle withHandle />
+{#if projectRoot}
+  <Watcher />
+  <App />
+{:else if ready}
+  {#if onboarded}
+    <ProjectSelector />
+  {:else}
+    <Onboarding bind:onboarded /> 
+  {/if}
+{/if}
 
-  <Resizable.Pane>
-    <Resizable.PaneGroup direction="vertical">
-    <Resizable.Pane>
-      <GraphView />
-    </Resizable.Pane>
-    <Resizable.Handle withHandle />
 
-    <Resizable.Pane defaultSize={15}>
-        <Terminal />
-    </Resizable.Pane>
-    </Resizable.PaneGroup>
-  </Resizable.Pane>
-  <Resizable.Handle withHandle />
-  <Resizable.Pane><LlmChat /></Resizable.Pane>
-</Resizable.PaneGroup>
-
-<!-- <Terminal></Terminal> -->

@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use tauri::State;
 use tokio::fs;
 
-use crate::read_file_tools::ProjectRoot;
+use crate::ProjectRoot;
 
 /// Turn a user-supplied string into a *sanitised* relative `PathBuf`.
 ///

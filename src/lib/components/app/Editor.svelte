@@ -30,7 +30,10 @@
       })
     } catch (e) {}
     
+    // console.log(graphYaml, viewJSON);
     graphCode.loadGraph(graphYaml, viewJSON);
+    semDerived = graphYaml;
+    viewDerived = viewJSON;
   });
 
   $effect(() => {
@@ -40,7 +43,8 @@
 
   function updateGraph() {
     try {
-      loadGraphDebounced();
+      // loadGraphDebounced();
+      graphCode.loadGraph(semDerived, viewDerived);
       saveGraphToFile();
     } catch (e) {
       //suppress in-between invalid YAML states
@@ -55,11 +59,12 @@
     };
   }
 
-  const loadGraphDebounced = debounce(() => {
-    graphCode.loadGraph(semDerived, viewDerived)
-  }, 2000);
+  // const loadGraphDebounced = debounce(() => {
+  //   graphCode.loadGraph(semDerived, viewDerived)
+  // }, 200);
 
   const saveGraphDebounced = debounce(() => {
+    console.log("sacing");
     invoke('write_blueprint_file', {
       path: "graph.yaml",
       content: saveGraphSemantic(graphCode.getGraph()),
@@ -71,7 +76,7 @@
       path: "view.json",
       content: saveGraphView(graphCode.getGraph()),
     });
-  }, 50);
+  }, 2000);
 
   // call this function multiple times, and it will debounce properly
   function saveGraphToFile() {

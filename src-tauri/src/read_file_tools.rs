@@ -1,45 +1,13 @@
 // src-tauri/src/fs_tools.rs (replaces the previous walker)
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result};
 use ignore::WalkBuilder;
 use std::ffi::OsStr;
 use std::fmt::Write as _;
-use std::path::{Component, Path, PathBuf};
+use std::path::Path;
 use tauri::{command, State};
 use tokio::{fs, task};
 
-/// Store the one-and-only project root.
-///
-/// The path should be **absolute & canonical** when you create the struct
-/// so we don’t have to re-canonicalise it on every call.
-#[derive(Debug)]
-pub struct ProjectRoot(pub PathBuf);
-
-impl ProjectRoot {
-    pub(crate) fn resolve(&self, user_rel: &Path) -> Result<PathBuf> {
-        // Treat `/foo/bar` as `foo/bar`
-        let rel = match user_rel.components().next() {
-            Some(Component::RootDir) => user_rel.strip_prefix(Component::RootDir)?,
-            _ => user_rel,
-        };
-
-        let full = self.0.join(rel).canonicalize().with_context(|| {
-            format!(
-                "Path does not exist or cannot be resolved: {}",
-                user_rel.display()
-            )
-        })?;
-
-        if !full.starts_with(&self.0) {
-            bail!("Access outside project root is forbidden");
-        }
-        Ok(full)
-    }
-}
-
-#[tauri::command]
-pub fn get_project_root(root: State<ProjectRoot>) -> String {
-    root.0.to_string_lossy().into_owned()
-}
+use crate::ProjectRoot;
 
 #[command]
 pub async fn read_file(path: String, root: State<'_, ProjectRoot>) -> Result<String, String> {

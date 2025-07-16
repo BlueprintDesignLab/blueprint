@@ -6,7 +6,7 @@
   import hljs from "highlight.js";
 
   import { Copy, CopyCheck } from "lucide-svelte";
-  import Button from "./ui/button/button.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
 
   interface Props {
     content: string
