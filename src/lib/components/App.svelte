@@ -11,6 +11,9 @@
   
   import { focus } from "$lib/state/focus.svelte";
   import Terminal from "$lib/components/app/Terminal.svelte";
+  import SettingsDialog from "$lib/components/settings/SettingsDialog.svelte";
+  import { Bolt } from "lucide-svelte";
+  import { Button } from "./ui/button";
 
   useOnSelectionChange(({ nodes, edges }) => {
     graphCode.setSelectedNodesEdges(nodes, edges);
@@ -23,7 +26,20 @@
 
 <!-- <Button onclick={test}>Freeze</Button> -->
 <Resizable.PaneGroup direction="horizontal">
-  <Resizable.Pane defaultSize={30}><Editor></Editor></Resizable.Pane>
+  <Resizable.Pane defaultSize={30}>
+    <!-- wrapper that fills the pane and clips overflow -->
+    <div class="h-full flex flex-col overflow-hidden">
+        <!-- editor takes all remaining space -->
+        <div class="flex-1 overflow-hidden">
+        <Editor />
+        </div>
+
+        <!-- button row: fixed height, no extra margin that would blow up the pane -->
+        <div class="shrink-0 flex items-center justify-start p-2">
+            <SettingsDialog />
+        </div>
+    </div>
+  </Resizable.Pane>
   <Resizable.Handle withHandle />
 
   <Resizable.Pane>

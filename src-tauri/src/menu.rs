@@ -60,7 +60,7 @@ pub fn handle_menu_event(app_handle: &tauri::AppHandle, event: MenuEvent) {
                 Some(Path(p)) => {
                     println!("Picked folder: {p:?}");
                     // borrow _within_ the clone, not the stack var
-                    let _ = spawn_project_window(&app, p);
+                    // let _ = spawn_project_window(&app, p);
                 }
                 Some(Url(u)) => eprintln!("Chose virtual folder: {u}"),
                 None => println!("Folder selection cancelled"),

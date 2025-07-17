@@ -17,7 +17,7 @@
   const projectRoot = data?.projectRoot ?? null;
 
   async function getonboarded() {
-    tauriStore.set('onboarded', false);
+    // tauriStore.set('onboarded', false);
     onboarded = await tauriStore.get<boolean>('onboarded') ?? false;
     ready = true;
   }
@@ -27,6 +27,8 @@
   });
 </script>
 
+
+<div id="app" class="h-screen w-screen">
 {#if projectRoot}
   <Watcher />
   <App />
@@ -37,5 +39,6 @@
     <Onboarding bind:onboarded /> 
   {/if}
 {/if}
+</div>
 
 

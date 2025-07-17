@@ -13,12 +13,12 @@
 
   /* ---------- layers (slower, more of them) ---------- */
   const layers = [
-    { amp: 35,  freq: 0.010, speed: 0.0016, hue: 180, alpha: 0.25 },
-    { amp: 55,  freq: 0.015, speed: 0.0014, hue: 180, alpha: 0.20 },
-    { amp: 75,  freq: 0.008, speed: 0.0012, hue: 180, alpha: 0.15 },
-    { amp: 95,  freq: 0.020, speed: 0.0010, hue: 180, alpha: 0.10 },
-    { amp: 115, freq: 0.006, speed: 0.0008, hue: 180, alpha: 0.10 },
-    { amp: 140, freq: 0.004, speed: 0.0006, hue: 180, alpha: 0.05 },
+    { amp: 35,  freq: 0.010, speed: 0.016, hue: 180, alpha: 0.25 },
+    { amp: 55,  freq: 0.015, speed: 0.014, hue: 180, alpha: 0.20 },
+    { amp: 75,  freq: 0.008, speed: 0.012, hue: 180, alpha: 0.15 },
+    { amp: 95,  freq: 0.020, speed: 0.010, hue: 180, alpha: 0.10 },
+    { amp: 115, freq: 0.006, speed: 0.008, hue: 180, alpha: 0.10 },
+    { amp: 140, freq: 0.004, speed: 0.006, hue: 180, alpha: 0.05 },
   ];
 
   let offsets      = layers.map(() => Math.random() * 1000);

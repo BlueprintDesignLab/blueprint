@@ -4,6 +4,7 @@
   import CodeMirror from "svelte-codemirror-editor";
 
   import { yaml } from "@codemirror/lang-yaml";
+  import { markdown } from "@codemirror/lang-markdown";
   import { tomorrow } from "thememirror";
 
   import { saveGraphSemantic, saveGraphView } from "$lib/util/graphIO";
@@ -13,6 +14,8 @@
 
   let semDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
   let viewDerived = $derived(saveGraphView(graphCode.getSelectedGraph()));
+
+  let planMD = $state("");
 
   onMount(async () => {
     let graphYaml = "";
@@ -27,6 +30,12 @@
     try {
       viewJSON = await invoke("read_file", {
         path: ".blueprint/view.json"
+      })
+    } catch (e) {}
+
+    try {
+      planMD = await invoke("read_file", {
+        path: ".blueprint/plan.md"
       })
     } catch (e) {}
     
@@ -64,19 +73,25 @@
   // }, 200);
 
   const saveGraphDebounced = debounce(() => {
-    console.log("sacing");
     invoke('write_blueprint_file', {
       path: "graph.yaml",
       content: saveGraphSemantic(graphCode.getGraph()),
     });
-  }, 2000);
+  }, 1000);
 
   const saveViewDebounced = debounce(() => {
     invoke('write_blueprint_file', {
       path: "view.json",
       content: saveGraphView(graphCode.getGraph()),
     });
-  }, 2000);
+  }, 1000);
+
+  const savePlanDebounced = debounce(() => {
+    invoke('write_blueprint_file', {
+      path: "plan.md",
+      content: planMD,
+    });
+  }, 1000);
 
   // call this function multiple times, and it will debounce properly
   function saveGraphToFile() {
@@ -91,12 +106,22 @@
          flex-nowrap
          border-b border-slate-200 px-3"
   >
+    <Tabs.Trigger value="planVal">Plan</Tabs.Trigger>
     <Tabs.Trigger value="graphVal">Graph</Tabs.Trigger>
-    <!-- <Tabs.Trigger value="viewVal">View</Tabs.Trigger> -->
 
   </Tabs.List>
-  <!-- {semDerived} -->
-  <!-- YAML editor pane -->
+  
+  <Tabs.Content value="planVal" class="flex-1 overflow-auto">
+    <div class="editor-shell">
+      <CodeMirror
+        bind:value={planMD}
+        lineWrapping={true}
+        lang={markdown()}
+        on:change={savePlanDebounced}
+      />
+    </div>
+  </Tabs.Content>
+
   <Tabs.Content value="graphVal" class="flex-1 overflow-auto">
     <div class="editor-shell">
       <CodeMirror

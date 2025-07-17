@@ -58,7 +58,7 @@
 
   function streamDelta(delta: string) {
     chAssistant();
-    ch[ch.length - 1].content += delta;
+    ch.at(-1).content += delta;
     scrollIfNearBottom();
   }
 
@@ -66,6 +66,10 @@
     const index = ch.findIndex((obj: { id: any; }) => obj?.id === tool.id);
 
     if (index === -1) {
+      if (ch.at(-1).content === "") {
+        ch.pop();
+      }
+
       ch.push(tool);
       scrollIfNearBottom();
       return;
@@ -74,7 +78,8 @@
     if ("delta" in tool) {
       ch[index].tool.arguments += tool.delta;
     } else {
-      ch[index] = tool;
+      ch.push(tool);
+      // ch[index] = tool;
     }
   }
 

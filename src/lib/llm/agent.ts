@@ -1,5 +1,4 @@
 import { invoke } from "@tauri-apps/api/core"; // For Tauri backend tool calls
-import { PUBLIC_OPENAI } from "$env/static/public";
 
 import OpenAI from "openai";; // Your OpenAI API wrapper
 import type { Tool } from "openai/resources/responses/responses.mjs";
@@ -7,6 +6,7 @@ import type { Stream } from "openai/streaming";
 
 import { terminalController } from "$lib/state/terminal.svelte";
 import { contextWindow, encoder } from "$lib/state/contextWindow.svelte";
+import { tauriStore } from "$lib/state/tauriStore";
 
 const CHAT_HISTORY_LIMIT = 99;
 const TOOL_HISTORY_LIMIT = 99;
@@ -21,9 +21,6 @@ export class Agent {
   toolHistory: any[] = [];
   systemPrompt: string = "";
   tools: Tool[] = [];
-  openai;
-
-  model = "gpt-4.1";
 
   streamDelta: StreamDeltaFn;
   showTool: ShowToolFn;
@@ -51,11 +48,6 @@ export class Agent {
     this.streamDelta = streamDelta;
     this.showTool = showTool;
     this.stopGenerating = stopGenerating;
-
-    this.openai = new OpenAI({
-      apiKey: PUBLIC_OPENAI,
-      dangerouslyAllowBrowser: true
-    });
   }
 
   async run(userMessage: string, controller: AbortController) {
@@ -64,12 +56,20 @@ export class Agent {
     this.done = false;
     let step = 0;
 
+    const openaiClient = new OpenAI({
+      baseURL: await tauriStore.get('url-endpoint'),
+      apiKey: await tauriStore.get('api-key'),
+      dangerouslyAllowBrowser: true
+    });
+
+    const modelName: string = await tauriStore.get('model-name') ?? "gpt-4.1";
+
     while (!this.done && step < this.maxSteps) {
       const prompt = this.buildPrompt();
-      contextWindow.length = encoder.encode(prompt + this.systemPrompt).length;
+      contextWindow.length = encoder.encode(prompt + this.systemPrompt).length;      
 
-      const stream = await this.openai.responses.create({
-        model: this.model,
+      const stream = await openaiClient.responses.create({
+        model: modelName,
         input: prompt,
         stream: true,
         tools: this.tools,
