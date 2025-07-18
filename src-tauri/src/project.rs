@@ -1,46 +1,53 @@
-use std::path::{PathBuf};
+use std::path::PathBuf;
 
 use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder, Window};
 
 use crate::ProjectRoot;
 
-use tokio::fs::{create_dir, write};
+use tokio::fs::{create_dir, metadata, OpenOptions};
+use tokio::io::AsyncWriteExt;
 
-#[tauri::command]
-pub async fn create_project(
-    app: AppHandle,
-    folder_path: PathBuf,
-) -> Result<(), String> {
-    // 1. Create the project folder if it doesn't exist
-    // create_dir(&folder_path)
-    //     .await
-    //     .map_err(|e| format!("failed to create project dir: {e}"))?;
-
-    // 2. Create `.blueprint` sub-folder
-    let bp_dir = folder_path.join(".blueprint");
-    create_dir(&bp_dir)
-        .await
-        .map_err(|e| format!("failed to create .blueprint dir: {e}"))?;
-
-    // 3. Write .gitignore
-    let gitignore_path = folder_path.join(".gitignore");
-    write(gitignore_path, "/.blueprint/view.json\n/.blueprint/blueprintwatcher.json\n")
-        .await
-        .map_err(|e| format!("failed to write .gitignore: {e}"))?;
-
-    // 4. Create empty .blueprintignore
-    let bpignore_path = folder_path.join(".blueprintignore");
-    write(bpignore_path, "")
-        .await
-        .map_err(|e| format!("failed to write .blueprintignore: {e}"))?;
-
-    // 5. Open the project window
-    spawn_project_window(&app, folder_path).await
-}
-
-/// Called from the **launcher** window.
 #[tauri::command]
 pub async fn open_project(app: AppHandle, folder_path: PathBuf) -> Result<(), String> {
+    let bp_dir = folder_path.join(".blueprint");
+    if !bp_dir.exists() {
+        create_dir(&bp_dir)
+            .await
+            .map_err(|e| format!("failed to create .blueprint dir: {e}"))?;
+    }
+
+    // append to .gitignore (creates it if missing)
+    let gitignore_path = folder_path.join(".gitignore");
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&gitignore_path)
+        .await
+        .map_err(|e| format!("failed to open .gitignore: {e}"))?;
+
+    // avoid adding duplicates
+    let expected_lines = ["/.blueprint/view.json", "/.blueprint/blueprintwatcher.json"];
+
+    let contents = tokio::fs::read_to_string(&gitignore_path)
+        .await
+        .unwrap_or_default();
+
+    for line in expected_lines {
+        if !contents.contains(line) {
+            file.write_all(format!("{}\n", line).as_bytes())
+                .await
+                .map_err(|e| format!("failed to append to .gitignore: {e}"))?;
+        }
+    }
+
+    // create empty .blueprintignore
+    let bpignore_path = folder_path.join(".blueprintignore");
+    if !metadata(&bpignore_path).await.is_ok() {
+        tokio::fs::write(&bpignore_path, "")
+            .await
+            .map_err(|e| format!("failed to write .blueprintignore: {e}"))?;
+    }
+
     spawn_project_window(&app, folder_path).await
 }
 

@@ -5,8 +5,7 @@
 
     import { LazyStore } from '@tauri-apps/plugin-store';
     import { invoke } from "@tauri-apps/api/core";
-
-    import TideAnimation from "./TideAnimation.svelte";
+  import DeskAnimation from "./DeskAnimation.svelte";
 
     const store = new LazyStore('settings.json');
 
@@ -21,18 +20,6 @@
         }
         });
     });
-
-    async function createProject() {
-        const folderPath = await open({
-            multiple: false,
-            directory: true,
-        });
-
-        if (!folderPath) return;
-
-        await invoke("create_project", {folderPath});
-        addRecent(folderPath);
-    }
 
     async function openProject() {
         const folderPath = await open({
@@ -56,21 +43,13 @@
     }
 </script>
 
-<main class="relative flex h-screen w-full items-center justify-center bg-transparent text-foreground">
-  <!-- <TideAnimation /> -->
+<DeskAnimation />
 
+<main class="relative flex h-screen w-full items-center justify-center bg-transparent text-foreground">
   <div class="flex flex-col items-center gap-8 max-w-md">
     <h1 class="text-4xl font-bold">Your Projects</h1>
 
     <div class="grid w-full gap-4">
-      <!-- New -->
-      <button
-        class="flex h-14 w-full items-center gap-4 rounded-lg border border-input bg-background p-4 text-left transition hover:bg-accent"
-        onclick={createProject}
-      >
-        <span class="text-base font-medium">New Project</span>
-      </button>
-
       <!-- Open -->
       <button
         class="flex h-14 w-full items-center gap-4 rounded-lg border border-input bg-background p-4 text-left transition hover:bg-accent"
@@ -95,10 +74,10 @@
       </div>
     {/if}
 
-    <p class="text-xs text-center text-muted-foreground max-w-xs">
-      Every project lives in <code class="bg-muted rounded px-1">/BlueprintProjects</code>.
-      <br/>
-      This is for sandboxing and security.
+    <p class="text-xs text-center text-muted-foreground/70 max-w-xs mx-auto leading-snug">
+        “Give me six hours to chop down a tree and I will spend the first four sharpening the axe.”
+        <br />
+        <span class="text-teal-400 font-medium">- Abraham Lincoln</span>
     </p>
   </div>
 </main>

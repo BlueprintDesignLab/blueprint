@@ -29,9 +29,11 @@ ignore = "0.4.23"
 tauri-plugin-dialog = "2"
 tauri-plugin-fs = { version = "2", features = ["watch"] }
 tauri-plugin-pty = "0.1.0"
-tauri-plugin-shell = "2"
 notify = "8.1.0"
 uuid  = { version = "1.17",   features = ["v4"] }
 walkdir = "2.5.0"
 tauri-plugin-store = "2"
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-window-state = "2"
 

@@ -1,13 +1,13 @@
 export const workflow = `
-<workflow>
+<overall workflow>
 If you have not read the files and listed the directory, do so before making write changes.
 
 The overall workflow is:
-- convert user needs to plan.md
-- using plan.md, create/tweak graph.yaml
-- generate the edge json schemas and interface files
-- generate the code in the nodes.
-<workflow>
+- 'plan' agent convert user needs to plan.md
+- 'architect' agent using plan.md, create/tweak graph.yaml
+- 'architect' agent generate the edge json schemas and interface files
+- 'worker' agent generate the code in the nodes.
+<overall workflow>
 `
 
 export const designSystem = `

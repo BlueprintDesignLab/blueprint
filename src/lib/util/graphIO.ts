@@ -151,8 +151,8 @@ export function loadGraph(yamlText: string, viewText: string): MergedGraph {
     return getLayoutedElements(nodes, edges);
   }
 
-  console.log(nodes);
-  console.log(edges);
+  // console.log(nodes);
+  // console.log(edges);
 
   return { nodes, edges };
 }

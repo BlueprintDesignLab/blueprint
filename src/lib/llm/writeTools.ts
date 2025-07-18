@@ -1,8 +1,8 @@
 import type { Tool } from "openai/resources/responses/responses.mjs";
 
-export const writeFile: Tool = {
+export const writeProjectFile: Tool = {
     "type": "function",
-    "name": "write_file",
+    "name": "write_project_file",
     "description": "Create or replace a file anywhere under project root. Automatically makes missing parent directories and rejects paths that escape the sandbox.",
     "parameters": {
         "type": "object",
@@ -22,9 +22,9 @@ export const writeFile: Tool = {
     "strict": true
 }
 
-export const writeGraph: Tool = {
+export const writeBlueprintFile: Tool = {
     "type": "function",
-    "name": "write_graph",
+    "name": "write_blueprint_file",
     "description": `Create or replace a text file anywhere under /.blueprint. Automatically makes missing parent directories and rejects paths that escape the sandbox.`,
     "parameters": {
       "type": "object",

@@ -3,7 +3,7 @@
 
     let currFocusMode = $derived(focus.mode);
 
-    function changeVal(val: "plan" | "architect" | "implement") {
+    function changeVal(val: "plan" | "architect" | "develop") {
         focus.mode = val;   // update only when different
     }
 </script>
@@ -34,13 +34,13 @@
   </button>
   <button
     class="px-3 py-1 rounded text-sm"
-    style="border: {currFocusMode === 'implement'
+    style="border: {currFocusMode === 'develop'
       ? '2px solid #3b82f6'
-      : '1px solid #d1d5db'}; background-color: {currFocusMode === 'implement'
+      : '1px solid #d1d5db'}; background-color: {currFocusMode === 'develop'
       ? '#eff6ff'
       : '#ffffff'};"
-    onclick={() => changeVal("implement")}
+    onclick={() => changeVal("develop")}
   >
-    Implement
+    develop
   </button>
 </div>

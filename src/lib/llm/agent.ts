@@ -66,7 +66,7 @@ export class Agent {
 
     while (!this.done && step < this.maxSteps) {
       const prompt = this.buildPrompt();
-      contextWindow.length = encoder.encode(prompt + this.systemPrompt).length;      
+      contextWindow.length = encoder.encode(prompt + this.systemPrompt).length;  
 
       const stream = await openaiClient.responses.create({
         model: modelName,
@@ -74,7 +74,7 @@ export class Agent {
         stream: true,
         tools: this.tools,
         instructions: this.systemPrompt,
-        temperature: 0, 
+        ...(modelName.startsWith("o3") ? {} : { temperature: 0 }),
       }, {
         signal: controller.signal,
       });

@@ -1,6 +1,9 @@
 <script lang="ts">
   import * as Tabs from "$lib/components/ui/tabs/index.js";
 
+  import { graphCode } from "$lib/state/graph.svelte";
+  import { focus } from "$lib/state/focus.svelte";
+
   import CodeMirror from "svelte-codemirror-editor";
 
   import { yaml } from "@codemirror/lang-yaml";
@@ -8,41 +11,69 @@
   import { tomorrow } from "thememirror";
 
   import { saveGraphSemantic, saveGraphView } from "$lib/util/graphIO";
-  import { graphCode } from "$lib/state/graph.svelte";
+
   import { invoke } from "@tauri-apps/api/core";
+  import { listen }   from "@tauri-apps/api/event";
+
   import { onMount } from "svelte";
+
+  type FsEvent = {
+      kind: string;
+      paths: string[];
+  };
+
+  let unlisten = () => {};
+
+  const startListener = async () => {
+    await invoke("start_watcher");
+
+    unlisten = await listen<FsEvent>("fs-event", ({ payload }) => {
+        console.log(payload);
+        const { kind, paths } = payload;
+
+        // decide what to show
+        const hasData    = kind.includes("data");
+
+        if (hasData) {
+          for (const path of paths) {
+            if (path.endsWith("/.blueprint/plan.md")) {loadPlanFile();};
+            if (path.endsWith("/.blueprint/view.json")) {loadGraphFiles();};
+            if (path.endsWith("/.blueprint/graph.yaml")) {loadGraphFiles();};
+          }
+        }        
+
+    });
+
+    return unlisten;
+  }
+
+  /* ---- file loaders ---- */
+  async function loadGraphFiles() {
+    let graphYaml = '';
+    let viewJSON  = '';
+    try { graphYaml = await invoke('read_file', { path: '.blueprint/graph.yaml' }); } catch {}
+    try { viewJSON  = await invoke('read_file', { path: '.blueprint/view.json'  }); } catch {}
+
+    graphCode.loadGraph(graphYaml, viewJSON);
+  }
+
+  async function loadPlanFile() {
+    try { planMD = await invoke('read_file', { path: '.blueprint/plan.md' }); } catch {}
+  }
 
   let semDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
   let viewDerived = $derived(saveGraphView(graphCode.getSelectedGraph()));
 
   let planMD = $state("");
 
-  onMount(async () => {
-    let graphYaml = "";
-    let viewJSON = "";
+  onMount(() => {
+    loadGraphFiles();
+    loadPlanFile();
+    startListener();
 
-    try {
-      graphYaml = await invoke("read_file", {
-        path: ".blueprint/graph.yaml"
-      })
-    } catch (e) {}
-
-    try {
-      viewJSON = await invoke("read_file", {
-        path: ".blueprint/view.json"
-      })
-    } catch (e) {}
-
-    try {
-      planMD = await invoke("read_file", {
-        path: ".blueprint/plan.md"
-      })
-    } catch (e) {}
-    
-    // console.log(graphYaml, viewJSON);
-    graphCode.loadGraph(graphYaml, viewJSON);
-    semDerived = graphYaml;
-    viewDerived = viewJSON;
+    return () => {
+      unlisten();
+    }
   });
 
   $effect(() => {
@@ -100,18 +131,18 @@
 </script>
 
 <!-- ——— Tabs -------------------------------------------------------- -->
-<Tabs.Root value="graphVal" class="flex flex-col h-screen w-full">
+<Tabs.Root bind:value={focus.mode} class="flex flex-col h-full w-full">
   <Tabs.List
     class="w-full flex items-center gap-2
          flex-nowrap
          border-b border-slate-200 px-3"
   >
-    <Tabs.Trigger value="planVal">Plan</Tabs.Trigger>
-    <Tabs.Trigger value="graphVal">Graph</Tabs.Trigger>
+    <Tabs.Trigger value="plan">Plan</Tabs.Trigger>
+    <Tabs.Trigger value="develop">Develop</Tabs.Trigger>
 
   </Tabs.List>
   
-  <Tabs.Content value="planVal" class="flex-1 overflow-auto">
+  <Tabs.Content value="plan" class="flex-1 overflow-auto">
     <div class="editor-shell">
       <CodeMirror
         bind:value={planMD}
@@ -122,7 +153,7 @@
     </div>
   </Tabs.Content>
 
-  <Tabs.Content value="graphVal" class="flex-1 overflow-auto">
+  <Tabs.Content value="develop" class="flex-1 overflow-auto">
     <div class="editor-shell">
       <CodeMirror
         bind:value={semDerived}

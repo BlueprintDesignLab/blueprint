@@ -77,7 +77,7 @@
   });
 </script>
 
-<canvas bind:this={canvas} class="tide" />
+<canvas bind:this={canvas} class="tide" ></canvas>
 
 <style>
   .tide {

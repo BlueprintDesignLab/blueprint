@@ -71,9 +71,9 @@
   }}
 >
 
-  <Panel position="top-right">
+  <!-- <Panel position="top-right">
     <AgentSelector />
-  </Panel>
+  </Panel> -->
 
   <Background />
 

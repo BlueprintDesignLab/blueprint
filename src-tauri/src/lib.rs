@@ -2,9 +2,9 @@ pub mod read_file_tools;
 pub mod write_file_tools;
 // pub mod system_tools;
 
-pub mod watcher;
-pub mod project;
 pub mod menu;
+pub mod project;
+pub mod watcher;
 
 use anyhow::{bail, Context, Result};
 
@@ -13,10 +13,10 @@ use std::path::{Component, PathBuf};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    menu::{build_menu, handle_menu_event}, project::{get_project_root, open_project, create_project},
-    watcher::start_watcher,
-
+    menu::{build_menu, handle_menu_event},
+    project::{get_project_root, open_project},
     read_file_tools::{list_directory_tree, read_file, read_graph_yaml},
+    watcher::start_watcher,
     write_file_tools::{write_blueprint_file, write_project_file},
 };
 
@@ -65,8 +65,8 @@ fn setup_app(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_store::Builder::new().build())
-        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_pty::init())
@@ -78,7 +78,6 @@ pub fn run() {
             read_graph_yaml,
             write_blueprint_file,
             write_project_file,
-            create_project,
             open_project,
             start_watcher,
         ])

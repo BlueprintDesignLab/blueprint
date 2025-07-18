@@ -1,6 +1,6 @@
 import { type Tool } from "openai/resources/responses/responses.mjs";
 import { sharedTools } from "../sharedTools";
-import { writeFile } from "../writeTools";
+import { writeBlueprintFile } from "../writeTools";
 import { readTools } from "../readTools";
 
 
@@ -10,7 +10,7 @@ import { readTools } from "../readTools";
 //  */
 // // Combined exports
 export const plannerTools: Tool[] = [
-  writeFile,
+  writeBlueprintFile,
   ...readTools,
   ...sharedTools,
 ];

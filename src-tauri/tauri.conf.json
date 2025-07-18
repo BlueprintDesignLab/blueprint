@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "blueprint",
-  "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "version": "0.0.1",
+  "identifier": "com.blurprint.dev",
   "build": {
     "frontendDist": "../public",
     "devUrl": "http://localhost:1420",

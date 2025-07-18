@@ -10,24 +10,24 @@
   import { graphCode } from "$lib/state/graph.svelte";
   
   import { focus } from "$lib/state/focus.svelte";
+
   import Terminal from "$lib/components/app/Terminal.svelte";
   import SettingsDialog from "$lib/components/settings/SettingsDialog.svelte";
-  import { Bolt } from "lucide-svelte";
-  import { Button } from "./ui/button";
 
   useOnSelectionChange(({ nodes, edges }) => {
     graphCode.setSelectedNodesEdges(nodes, edges);
 
     if (nodes.length && focus.node !== nodes[0].id) {
       focus.node = nodes[0].id;   // update only when different
+    } else if (nodes.length === 0 && focus.node !== "All") {
+        focus.node = "All";
     }
   });
 </script>
 
-<!-- <Button onclick={test}>Freeze</Button> -->
 <Resizable.PaneGroup direction="horizontal">
-  <Resizable.Pane defaultSize={30}>
-    <!-- wrapper that fills the pane and clips overflow -->
+  <!-- 1. Left pane -->
+  <Resizable.Pane order={1} defaultSize={focus.mode === "develop" ? 30 : 55}>
     <div class="h-full flex flex-col overflow-hidden">
         <!-- editor takes all remaining space -->
         <div class="flex-1 overflow-hidden">
@@ -42,20 +42,24 @@
   </Resizable.Pane>
   <Resizable.Handle withHandle />
 
-  <Resizable.Pane>
-    <Resizable.PaneGroup direction="vertical">
-    <Resizable.Pane>
-      <GraphView />
+  <!-- 2. Middle pane – only when focusMode === "develop" -->
+  {#if focus.mode === "develop"}
+    <Resizable.Pane order={2} defaultSize={40}>
+      <Resizable.PaneGroup direction="vertical">
+        <Resizable.Pane order={1} defaultSize={85}>
+          <GraphView />
+        </Resizable.Pane>
+        <Resizable.Handle withHandle />
+        <Resizable.Pane order={2} defaultSize={15}>
+          <Terminal />
+        </Resizable.Pane>
+      </Resizable.PaneGroup>
     </Resizable.Pane>
     <Resizable.Handle withHandle />
+  {/if}
 
-    <Resizable.Pane defaultSize={15}>
-        <Terminal />
-    </Resizable.Pane>
-    </Resizable.PaneGroup>
+  <!-- 3. Right pane -->
+  <Resizable.Pane order={3} defaultSize={focus.mode === "develop" ? 30 : 45}>
+    <LlmChat />
   </Resizable.Pane>
-  <Resizable.Handle withHandle />
-  <Resizable.Pane><LlmChat /></Resizable.Pane>
 </Resizable.PaneGroup>
-
-<!-- <Terminal></Terminal> -->

@@ -7,7 +7,6 @@
   "permissions": [
     "core:default",
     "pty:default",
-    "shell:default",
     "fs:default",
     "store:default",
     "dialog:default"

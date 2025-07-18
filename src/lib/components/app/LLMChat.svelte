@@ -20,6 +20,8 @@
   import { contextWindow, encoder } from "$lib/state/contextWindow.svelte";
   import { plannerPrompt } from "$lib/llm/planner/prompt";
   import { plannerTools } from "$lib/llm/planner/tools";
+  import { toast } from "svelte-sonner";
+  import ChRenderer from "./CHRenderer.svelte";
 
   let ch: any = $state([]);
   let chDiv: HTMLDivElement | null = $state(null);
@@ -79,14 +81,15 @@
       ch[index].tool.arguments += tool.delta;
     } else {
       ch.push(tool);
-      // ch[index] = tool;
     }
+
+    scrollIfNearBottom();
   }
 
   let agents = {
     plan: new Agent([], [], plannerPrompt, plannerTools, streamDelta, showTool, stopGenerating),
     architect: new Agent([], [], architectPrompt, architectTools, streamDelta, showTool, stopGenerating),
-    implement: new Agent([], [], workerPrompt + `\nYour focus is : ${focus.node}\n`, workerTools, streamDelta, showTool, stopGenerating)
+    develop: new Agent([], [], workerPrompt + `\nYour focus is : ${focus.node}\n`, workerTools, streamDelta, showTool, stopGenerating)
   };
 
   let agent = $state(agents.plan);
@@ -99,13 +102,13 @@
 
   $effect(() => {
     focus.node;
-    agents.implement = new Agent([], [], workerPrompt + `\nYour focus is : ${focus.node}\n`, workerTools, streamDelta, showTool, stopGenerating);
+    agents.develop = new Agent([], [], workerPrompt + `\nYour focus is : ${focus.node}\n`, workerTools, streamDelta, showTool, stopGenerating);
   })
 
   let controller = new AbortController();
   let generating = $state(false);
 
-  const send = async () => {
+  const send = () => {
     if (generating) {
       stopGenerating();
     }
@@ -120,7 +123,16 @@
 
     generating = true;
     controller = new AbortController();
-    agent.run(question, controller);
+
+    (async () => {
+      try {
+        await agent.run(question, controller);
+      } catch (e) {
+        toast.error(String(e));
+        streamDelta(String(e));
+      }
+    })();
+
     question = "";
 
     tick().then(() => {
@@ -170,99 +182,38 @@
 </script>
 
 
-<div class="flex flex-col h-screen max-w-xl mx-auto p-4">
-  Focus: {focus.node} Context Window: {contextWindow.length}
+<div class="flex flex-col h-screen mx-auto max-w-2xl w-full p-4">
+  <!-- Status bar -->
+  <p class="text-xs text-muted-foreground mb-2 shrink-0">
+    Focus: <span class="font-medium text-foreground">{focus.node}</span>
+    | Context: <span class="font-medium text-foreground">{contextWindow.length}</span>
+  </p>
 
-  <div bind:this={chDiv} class="flex-1 overflow-auto space-y-2 p-2 bg-muted rounded-xl border">
-    {#each ch as chItem}
-      {#if "tool" in chItem}
-        {#if chItem.tool.name.includes("end_agentic_loop")}
-          {#if chItem.tool.status === "resolved"}
-            <div class="bg-background border rounded-lg p-3 shadow-sm">
-              <div class="font-semibold text-sm text-accent-foreground">
-                {chItem.tool.name}
-              </div>
-              <div class="text-xs text-gray-500">
-                {chItem.tool.output}
-              </div>
-            </div>
-          {/if}
-        {:else}
-          <div class="bg-background border rounded-lg p-3 shadow-sm">
-
-          <div class="font-semibold text-sm text-accent-foreground">
-            {chItem.tool.name}
-          </div>
-          <div class="text-xs text-gray-500">
-            {chItem.tool.status}
-          </div>
-
-          {#if chItem.tool.status === "in_progress"}
-            <pre class="text-sm whitespace-pre-wrap break-words bg-muted border rounded p-2 max-h-60 overflow-auto">
-              {chItem.tool.arguments}
-            </pre>
-          {:else if chItem.tool.status === "calling"}
-            <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-              {#each Object.entries(chItem.tool.arguments) as [key, value]}
-                {#if key === "content"}
-                  <!-- full-width, scrollable Markdown block -->
-                  <div class="col-span-2">
-                    <div class="max-h-60 overflow-auto rounded border bg-muted p-2">
-                      <MdRenderer content={"```" + value + "```"} />
-                    </div>
-                  </div>
-                {:else}
-                  <dt class="font-medium text-gray-700 min-w-[6rem]">{key}</dt>
-                  <dd class="text-gray-600 break-words">{value}</dd>
-                {/if}
-              {/each}
-            </dl>
-
-          {:else if chItem.tool.status === "resolved"}
-            <pre class="text-sm whitespace-pre-wrap break-words bg-muted border rounded p-2 max-h-60 overflow-auto">
-              {chItem.tool.output}
-            </pre>
-          {/if}
-
-          {#if "approvalId" in chItem}
-            <Button onclick={() => {approve(chItem.approvalId); delete chItem.approvalId}}>Approve</Button>
-            <Button variant="secondary" onclick={() => {reject(chItem.approvalId); delete chItem.approvalId}}>Reject</Button>
-          {/if}
-          </div>
-
-        {/if}
-      {:else}
-        <div class="flex items-center justify-between text-xs text-gray-500">
-          <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-md font-mono uppercase tracking-wide">
-            {chItem.role}
-          </span>
-          <span class="text-gray-400 italic">
-            Token Count: {encoder.encode(chItem.content).length}
-          </span>
-        </div>
-
-        <div class="bg-background border rounded-lg p-3 shadow-sm mt-1">
-          <MdRenderer content={chItem.content}/>
-        </div>
-      {/if}
-    {/each}
+  <!-- Scrollable messages -->
+  <div
+    bind:this={chDiv}
+    class="flex-1 overflow-y-auto space-y-3 px-2 py-3 bg-muted rounded-xl border"
+  >
+    <ChRenderer {ch} {approve} {reject} />
   </div>
 
-  <!-- Input area -->
-  <div class="mt-4 flex items-center gap-2">
+  <!-- Input bar -->
+  <div class="mt-4 flex items-end gap-2 shrink-0">
     <textarea
       bind:value={question}
       onkeydown={handleKeyDown}
-      placeholder="Type your message..."
-      class="flex-1 resize-none overflow-hidden rounded border p-2 bg-background text-sm leading-relaxed focus:outline-none focus:ring focus:border-accent transition-all"
+      placeholder="Type your message…"
+      class="flex-1 resize-none rounded border p-2 bg-background text-sm leading-snug
+             focus:outline-none focus:ring-1 focus:ring-accent"
       rows="1"
       oninput={() => autoResize(textarea)}
       bind:this={textarea}
     ></textarea>
+
     {#if generating}
-      <Button onclick={stopGenerating}><StopCircle/></Button>
+      <Button onclick={stopGenerating} size="sm"><StopCircle /></Button>
     {:else}
-      <Button onclick={send}>send</Button>
+      <Button onclick={send} size="sm">Send</Button>
     {/if}
   </div>
 </div>
