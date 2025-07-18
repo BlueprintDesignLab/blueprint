@@ -62,7 +62,7 @@ import Label from "../ui/label/label.svelte";
   <div class="flex items-start gap-2 text-sm text-muted-foreground">
     <Info size={16} class="mt-0.5 shrink-0" />
     <span>
-      Only OpenAI-compatible endpoints are supported.<br />
+      Only OpenAI responses compatible endpoints are supported.<br />
       Additional providers will be added soon!
     </span>
   </div>
