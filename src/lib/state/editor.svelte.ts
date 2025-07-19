@@ -1,6 +1,11 @@
 export const editorState = $state({
     planMD: "",
-    currSrc: ""
+    graphYAML: "",
+    currSrc: "",
+
+    proposedPlanMD: "",
+    proposedGraphYaml: "",
+    proposedCurrSrc: "",
 });
 
 export const updatePlan = (newPlan: string) => {
