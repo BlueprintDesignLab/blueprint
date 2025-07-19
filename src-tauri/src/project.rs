@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder, Window};
 
-use crate::ProjectRoot;
+use crate::{ProjectRoots};
 
 use tokio::fs::{create_dir, metadata, OpenOptions};
 use tokio::io::AsyncWriteExt;
@@ -54,15 +54,26 @@ pub async fn open_project(app: AppHandle, folder_path: PathBuf) -> Result<(), St
 /// Called from **inside** a project window.
 #[tauri::command]
 pub fn get_project_root(window: Window) -> Result<PathBuf, String> {
-    let state = window.state::<ProjectRoot>();
-    Ok(state.0.clone())
+    get_window_root(&window)
+}
+
+pub fn get_window_root(window: &Window) -> Result<PathBuf, String> {
+    let state: tauri::State<'_, ProjectRoots> = window.state::<ProjectRoots>();
+    let map = state.0.read()
+        .map_err(|e| format!("RwLock poisoned: {e}"))?;
+
+    // 2. Look up the entry for this window
+    let label = window.label();
+    map.get(label)
+        .cloned()
+        .ok_or_else(|| format!("No root registered for window {label}"))
 }
 
 pub async fn spawn_project_window(app: &AppHandle, root: PathBuf) -> Result<(), String> {
     let label = uuid::Uuid::new_v4().to_string();
     let url = WebviewUrl::App("index.html".into());
 
-    let win = WebviewWindowBuilder::new(app, label, url)
+    let _ = WebviewWindowBuilder::new(app, label.clone(), url)
         .title(root.file_name().unwrap().to_string_lossy().into_owned())
         .initialization_script(&format!(
             "window.__TAURI_INITIAL_DATA__ = {};",
@@ -77,6 +88,8 @@ pub async fn spawn_project_window(app: &AppHandle, root: PathBuf) -> Result<(), 
         .build()
         .map_err(|e| e.to_string())?;
 
-    win.manage(ProjectRoot(root));
+    let roots = app.state::<ProjectRoots>();
+    roots.0.write().unwrap().insert(label, root);
+
     Ok(())
 }

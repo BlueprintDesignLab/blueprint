@@ -23,11 +23,13 @@
         focus.node = "All";
     }
   });
+
+  let twoPane = $derived(focus.agentMode === "plan");
 </script>
 
 <Resizable.PaneGroup direction="horizontal">
   <!-- 1. Left pane -->
-  <Resizable.Pane order={1} defaultSize={focus.mode === "develop" ? 30 : 55}>
+  <Resizable.Pane order={1} defaultSize={twoPane ? 55 : 30}>
     <div class="h-full flex flex-col overflow-hidden">
         <!-- editor takes all remaining space -->
         <div class="flex-1 overflow-hidden">
@@ -42,24 +44,27 @@
   </Resizable.Pane>
   <Resizable.Handle withHandle />
 
-  <!-- 2. Middle pane – only when focusMode === "develop" -->
-  {#if focus.mode === "develop"}
+  <!-- 2. Middle pane – only when focusMode === "code" -->
+  {#if !twoPane}
     <Resizable.Pane order={2} defaultSize={40}>
       <Resizable.PaneGroup direction="vertical">
         <Resizable.Pane order={1} defaultSize={85}>
           <GraphView />
         </Resizable.Pane>
-        <Resizable.Handle withHandle />
-        <Resizable.Pane order={2} defaultSize={15}>
-          <Terminal />
-        </Resizable.Pane>
+
+        {#if focus.agentMode === "code"}
+            <Resizable.Handle withHandle />
+            <Resizable.Pane order={2} defaultSize={15}>
+            <Terminal />
+            </Resizable.Pane>
+        {/if}
       </Resizable.PaneGroup>
     </Resizable.Pane>
     <Resizable.Handle withHandle />
   {/if}
 
   <!-- 3. Right pane -->
-  <Resizable.Pane order={3} defaultSize={focus.mode === "develop" ? 30 : 45}>
+  <Resizable.Pane order={3} defaultSize={twoPane ? 45 : 30}>
     <LlmChat />
   </Resizable.Pane>
 </Resizable.PaneGroup>

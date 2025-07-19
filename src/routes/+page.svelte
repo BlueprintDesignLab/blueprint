@@ -4,6 +4,7 @@
   import { tauriStore } from '$lib/state/tauriStore';
   import { onMount } from "svelte";
   import App from "$lib/components/App.svelte";
+  import { invoke } from "@tauri-apps/api/core";
 
   let onboarded = $state<boolean>(true);
   // $inspect(onboarded);
@@ -20,8 +21,11 @@
     ready = true;
   }
 
-  onMount(() => {
+  onMount(async () => {
     getonboarded();
+
+    const root = await invoke("get_project_root");
+    console.log(root);
   });
 </script>
 

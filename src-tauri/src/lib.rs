@@ -8,41 +8,48 @@ pub mod watcher;
 
 use anyhow::{bail, Context, Result};
 
-use std::path::{Component, PathBuf};
+use std::{collections::HashMap, path::{Component, PathBuf}, sync::RwLock};
 
 use serde::{Deserialize, Serialize};
 
 use crate::{
     menu::{build_menu, handle_menu_event},
     project::{get_project_root, open_project},
-    read_file_tools::{list_directory_tree, read_file, read_graph_yaml},
+    read_file_tools::{list_directory_tree, read_file},
     watcher::start_watcher,
-    write_file_tools::{write_blueprint_file, write_project_file},
+    write_file_tools::{write_project_file},
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ProjectRoot(pub PathBuf);
+#[derive(Debug, Serialize, Deserialize)]
+struct ProjectRoots(RwLock<HashMap<String, PathBuf>>);
 
-impl ProjectRoot {
-    pub(crate) fn resolve(&self, user_rel: &std::path::Path) -> Result<PathBuf> {
-        // Treat `/foo/bar` as `foo/bar`
-        let rel = match user_rel.components().next() {
-            Some(Component::RootDir) => user_rel.strip_prefix(Component::RootDir)?,
-            _ => user_rel,
-        };
-
-        let full = self.0.join(rel).canonicalize().with_context(|| {
-            format!(
-                "Path does not exist or cannot be resolved: {}",
-                user_rel.display()
-            )
-        })?;
-
-        if !full.starts_with(&self.0) {
-            bail!("Access outside project root is forbidden");
-        }
-        Ok(full)
+impl Default for ProjectRoots {
+    fn default() -> Self {
+        Self(RwLock::new(HashMap::new()))
     }
+}
+
+pub(crate) fn resolve(root: PathBuf, user_rel: &PathBuf) -> Result<PathBuf> {
+    // Treat `/foo/bar` as `foo/bar`
+    let rel = match user_rel.components().next() {
+        Some(Component::RootDir) => user_rel.strip_prefix(Component::RootDir)?,
+        _ => user_rel,
+    };
+
+    // Join and canonicalise (may fail on non-existing components)
+    let full = root.join(rel).canonicalize().with_context(|| {
+        format!(
+            "Cannot canonicalise path: {}",
+            user_rel.display()
+        )
+    })?;
+
+    // Still enforce staying within the project root
+    if !full.starts_with(&root) {
+        bail!("Access outside project root is forbidden");
+    }
+
+    Ok(full)
 }
 
 fn setup_app(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
@@ -65,6 +72,8 @@ fn setup_app(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .manage(ProjectRoots::default())
+        .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
@@ -75,9 +84,9 @@ pub fn run() {
             get_project_root,
             read_file,
             list_directory_tree,
-            read_graph_yaml,
-            write_blueprint_file,
+
             write_project_file,
+
             open_project,
             start_watcher,
         ])

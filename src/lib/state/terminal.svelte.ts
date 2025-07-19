@@ -7,6 +7,8 @@ export const terminalController: {controller: TerminalController | null}= {
   controller: null
 }
 
+export const SHELL_SENTINEL = "<BLUEPRINT_SHELL>";
+
 export class TerminalController {
   private pty: IPty;
   private xterm: Terminal;
@@ -16,20 +18,32 @@ export class TerminalController {
   private running = false;
   private buffer = "";
 
-  PROMPT = "<BLUEPRINT_SHELL>";
+  private firstSentinel = false;
 
   constructor(xterm: Terminal, pty: IPty) {
     this.xterm = xterm;
     this.pty = pty;
 
-    pty.write('export PS1="' + this.PROMPT + '"\n');
+    pty.write('export PS1="' + SHELL_SENTINEL + '"\n');
     pty.write('clear\n');
 
+    this.setUpPtyToXTerm();
+    this.xterm.onData((d) => this.pty.write(d));
+    // setTimeout(() => this.setUpPtyToXTerm(), 500);
+  }
+
+  setUpPtyToXTerm() {
     this.pty.onData((chunk) => {
       this.buffer += stripAnsi(chunk);
-      // console.log(this.buffer); 
+      console.log(this.buffer);
+      
+      // if (this.buffer.includes(SHELL_SENTINEL)) {
+      //   this.firstSentinel = true;
+      // }
 
-      if (this.running && this.buffer.includes(this.PROMPT)) {
+      // if (!this.firstSentinel) return;
+
+      if (this.running && this.buffer.includes(SHELL_SENTINEL)) {
         const lines = this.buffer.split('\n');
         const cleaned = lines.slice(1, -1).join('\n');
         console.log(cleaned);
@@ -41,9 +55,6 @@ export class TerminalController {
 
       this.xterm.write(chunk);
     });
-
-    this.xterm.onData((d) => this.pty.write(d));
-    // pty.write('clear\n');
   }
 
   resize() {

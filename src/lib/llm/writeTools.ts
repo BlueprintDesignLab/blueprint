@@ -22,23 +22,37 @@ export const writeProjectFile: Tool = {
     "strict": true
 }
 
-export const writeBlueprintFile: Tool = {
+export const writePlanMD: Tool = {
     "type": "function",
-    "name": "write_blueprint_file",
-    "description": `Create or replace a text file anywhere under /.blueprint. Automatically makes missing parent directories and rejects paths that escape the sandbox.`,
+    "name": "write_plan_md_file",
+    "description": `Create or replace a the plan.md file.`,
     "parameters": {
       "type": "object",
       "properties": {
-        "path": {
-          "type": "string",
-          "description": "File path **relative to the /.blueprint directory**, e.g. \"graph.yaml\" or \"edges/audio_bus/spec.txt\"."
-        },
         "content": {
           "type": "string",
           "description": "Full text content to write into the file."
         }
       },
-      "required": ["path", "content"],
+      "required": ["content"],
+      "additionalProperties": false
+    },
+    "strict": true
+}
+
+export const writeGraphYAMLFile: Tool = {
+    "type": "function",
+    "name": "write_graph_yaml_file",
+    "description": `Create or replace a the graph.yaml file.`,
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "Full text content to write into the file."
+        }
+      },
+      "required": ["content"],
       "additionalProperties": false
     },
     "strict": true

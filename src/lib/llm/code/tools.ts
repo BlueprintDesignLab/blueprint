@@ -10,7 +10,7 @@ import { readTools } from "../readTools";
 //  * Focuses on planning, reflection, and task management.
 //  */
 // // Combined exports
-export const workerTools: Tool[] = [
+export const codeTools: Tool[] = [
   writeProjectFile,
   ...readTools,
   ...systemTools,

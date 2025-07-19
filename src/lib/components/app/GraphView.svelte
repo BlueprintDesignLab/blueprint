@@ -20,8 +20,6 @@
 
   import { graphCode } from "$lib/state/graph.svelte";
   import { DEFAULT_MARKEREND } from "$lib/util/graphIO";
-  import LayerSelector from "./LayerSelector.svelte";
-  import AgentSelector from "./AgentSelector.svelte";
 
   const edgeTypes = {
     c4FlowEdge: C4FlowEdge,
@@ -70,10 +68,6 @@
     return onConnect(d);
   }}
 >
-
-  <!-- <Panel position="top-right">
-    <AgentSelector />
-  </Panel> -->
 
   <Background />
 

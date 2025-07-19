@@ -31,10 +31,9 @@
         </div>
 
         {#if chItem.tool.status === "in_progress"}
-        <!-- <pre class="text-sm whitespace-pre-wrap break-words bg-muted border rounded p-2 max-h-60 overflow-auto">
-            {chItem.tool.arguments}
-        </pre> -->
-            <MdRenderer content={"```" + chItem.tool.arguments + "```"} />
+            <div class="bg-background border rounded-lg p-3 shadow-sm mt-1">
+                <MdRenderer content={chItem.tool.arguments} />
+            </div>
         {:else if chItem.tool.status === "calling"}
         <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
             {#each Object.entries(chItem.tool.arguments) as [key, value]}
@@ -42,7 +41,7 @@
                 <!-- full-width, scrollable Markdown block -->
                 <div class="col-span-2">
                 <div class="max-h-60 overflow-auto rounded border bg-muted p-2">
-                    <MdRenderer content={"```" + value + "```"} />
+                    <MdRenderer content={value} />
                 </div>
                 </div>
             {:else}
@@ -53,9 +52,9 @@
         </dl>
 
         {:else if chItem.tool.status === "resolved"}
-        <pre class="text-sm whitespace-pre-wrap break-words bg-muted border rounded p-2 max-h-60 overflow-auto">
-            {chItem.tool.output}
-        </pre>
+            <div class="bg-background border rounded-lg p-3 shadow-sm mt-1">
+                <MdRenderer content={chItem.tool.output} />
+            </div>
         {/if}
 
         {#if "approvalId" in chItem}

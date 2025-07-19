@@ -9,6 +9,17 @@
     "pty:default",
     "fs:default",
     "store:default",
-    "dialog:default"
+    "dialog:default",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        {
+          "url": "https://discord.gg/aT2mYAVVzk"
+        },
+        {
+          "url": "discord://discord.gg/aT2mYAVVzk"
+        }
+      ]
+    }
   ]
 }

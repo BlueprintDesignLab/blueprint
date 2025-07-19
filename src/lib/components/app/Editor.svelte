@@ -3,6 +3,7 @@
 
   import { graphCode } from "$lib/state/graph.svelte";
   import { focus } from "$lib/state/focus.svelte";
+  import { editorState } from "$lib/state/editor.svelte";
 
   import CodeMirror from "svelte-codemirror-editor";
 
@@ -58,13 +59,11 @@
   }
 
   async function loadPlanFile() {
-    try { planMD = await invoke('read_file', { path: '.blueprint/plan.md' }); } catch {}
+    try { editorState.planMD = await invoke('read_file', { path: '.blueprint/plan.md' }); } catch {}
   }
 
   let semDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
   let viewDerived = $derived(saveGraphView(graphCode.getSelectedGraph()));
-
-  let planMD = $state("");
 
   onMount(() => {
     loadGraphFiles();
@@ -99,28 +98,24 @@
     };
   }
 
-  // const loadGraphDebounced = debounce(() => {
-  //   graphCode.loadGraph(semDerived, viewDerived)
-  // }, 200);
-
   const saveGraphDebounced = debounce(() => {
-    invoke('write_blueprint_file', {
-      path: "graph.yaml",
+    invoke('write_project_file', {
+      path: "./.blueprint/graph.yaml",
       content: saveGraphSemantic(graphCode.getGraph()),
     });
   }, 1000);
 
   const saveViewDebounced = debounce(() => {
-    invoke('write_blueprint_file', {
-      path: "view.json",
+    invoke('write_project_file', {
+      path: "./.blueprint/view.json",
       content: saveGraphView(graphCode.getGraph()),
     });
   }, 1000);
 
   const savePlanDebounced = debounce(() => {
-    invoke('write_blueprint_file', {
-      path: "plan.md",
-      content: planMD,
+    invoke('write_project_file', {
+      path: "./.blueprint/plan.md",
+      content: editorState.planMD,
     });
   }, 1000);
 
@@ -131,21 +126,22 @@
 </script>
 
 <!-- ——— Tabs -------------------------------------------------------- -->
-<Tabs.Root bind:value={focus.mode} class="flex flex-col h-full w-full">
+<Tabs.Root bind:value={focus.agentMode} class="flex flex-col h-full w-full">
   <Tabs.List
     class="w-full flex items-center gap-2
          flex-nowrap
          border-b border-slate-200 px-3"
   >
     <Tabs.Trigger value="plan">Plan</Tabs.Trigger>
-    <Tabs.Trigger value="develop">Develop</Tabs.Trigger>
+    <Tabs.Trigger value="architect">Architect</Tabs.Trigger>
+    <Tabs.Trigger value="code">Code</Tabs.Trigger>
 
   </Tabs.List>
   
   <Tabs.Content value="plan" class="flex-1 overflow-auto">
     <div class="editor-shell">
       <CodeMirror
-        bind:value={planMD}
+        bind:value={editorState.planMD}
         lineWrapping={true}
         lang={markdown()}
         on:change={savePlanDebounced}
@@ -153,7 +149,7 @@
     </div>
   </Tabs.Content>
 
-  <Tabs.Content value="develop" class="flex-1 overflow-auto">
+  <Tabs.Content value="architect" class="flex-1 overflow-auto">
     <div class="editor-shell">
       <CodeMirror
         bind:value={semDerived}
@@ -161,6 +157,15 @@
         lang={yaml()}
         theme={tomorrow}
         on:change={() => updateGraph()}
+      />
+    </div>
+  </Tabs.Content>
+
+  <Tabs.Content value="code" class="flex-1 overflow-auto">
+    <div class="editor-shell">
+      <CodeMirror
+        bind:value={editorState.currSrc}
+        lineWrapping={true}
       />
     </div>
   </Tabs.Content>

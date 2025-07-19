@@ -1,17 +1,21 @@
 // src-tauri/src/fs_tools.rs (replaces the previous walker)
 use anyhow::{Context, Result};
 use ignore::WalkBuilder;
-use std::ffi::OsStr;
+use std::{ffi::OsStr, path::PathBuf};
 use std::fmt::Write as _;
 use std::path::Path;
-use tauri::{command, State};
+use tauri::{command, Window};
 use tokio::{fs, task};
 
-use crate::ProjectRoot;
+use crate::resolve;
+use crate::{project::get_window_root};
 
 #[command]
-pub async fn read_file(path: String, root: State<'_, ProjectRoot>) -> Result<String, String> {
-    let full = root.resolve(Path::new(&path)).map_err(|e| e.to_string())?;
+pub async fn read_file(path: String, window: Window) -> Result<String, String> {
+    let root: PathBuf = get_window_root(&window).unwrap();
+    let rel: PathBuf = path.into();
+
+    let full = resolve(root, &rel).map_err(|e| e.to_string())?;
 
     fs::read_to_string(&full)
         .await
@@ -22,12 +26,15 @@ pub async fn read_file(path: String, root: State<'_, ProjectRoot>) -> Result<Str
 #[command]
 pub async fn list_directory_tree(
     path: String,
-    root: State<'_, ProjectRoot>,
+    window: Window
 ) -> Result<String, String> {
-    let dir = root.resolve(Path::new(&path)).map_err(|e| e.to_string())?;
+    let root: PathBuf = get_window_root(&window).unwrap();
+    let rel: PathBuf = path.into();
+
+    let full = resolve(root, &rel).map_err(|e| e.to_string())?;
 
     let tree = task::spawn_blocking(move || -> Result<String> {
-        let walker = WalkBuilder::new(&dir)
+        let walker = WalkBuilder::new(&full)
             .add_custom_ignore_filename(".blueprintignore")
             .standard_filters(false)
             .follow_links(false)
@@ -58,19 +65,4 @@ pub async fn list_directory_tree(
     .map_err(|e| e.to_string())?; // anyhow::Error
 
     Ok(tree)
-}
-
-#[command]
-pub async fn read_graph_yaml(root: State<'_, ProjectRoot>) -> Result<String, String> {
-    // Relative path inside the project
-    let rel = Path::new(".blueprint").join("graph.yaml");
-
-    // Canonicalise & sandbox-check
-    let full = root.resolve(&rel).map_err(|e| e.to_string())?;
-
-    // Async read
-    fs::read_to_string(&full)
-        .await
-        .with_context(|| format!("Failed to read file: {}", full.display()))
-        .map_err(|e| e.to_string())
 }

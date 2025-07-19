@@ -1,8 +1,4 @@
 <script lang="ts">
-  import Button from "$lib/components/ui/button/button.svelte";
-
-  import MdRenderer from "./MDRenderer.svelte";
-
   import { Agent } from "$lib/llm/agent";
   
   import { tick } from "svelte";
@@ -10,18 +6,23 @@
   import { architectPrompt } from "$lib/llm/architect/prompt";
   import { architectTools } from "$lib/llm/architect/tools";
 
-  import { workerPrompt } from "$lib/llm/worker/prompt";
-  import { workerTools } from "$lib/llm/worker/tools";
+  import { codePrompt } from "$lib/llm/code/prompt";
+  import { codeTools } from "$lib/llm/code/tools";
 
-  import { focus } from "$lib/state/focus.svelte";
+  import { plannerPrompt } from "$lib/llm/plan/prompt";
+  import { plannerTools } from "$lib/llm/plan/tools";
+
+  import { focus, setFocuNode, setFocusMode } from "$lib/state/focus.svelte";
 
   import { StopCircle } from "lucide-svelte";
 
-  import { contextWindow, encoder } from "$lib/state/contextWindow.svelte";
-  import { plannerPrompt } from "$lib/llm/planner/prompt";
-  import { plannerTools } from "$lib/llm/planner/tools";
+  import { contextWindow } from "$lib/state/contextWindow.svelte";
+  
   import { toast } from "svelte-sonner";
+
   import ChRenderer from "./CHRenderer.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
+  import { updateCurrSrc, updatePlan } from "$lib/state/editor.svelte";
 
   let ch: any = $state([]);
   let chDiv: HTMLDivElement | null = $state(null);
@@ -87,22 +88,17 @@
   }
 
   let agents = {
-    plan: new Agent([], [], plannerPrompt, plannerTools, streamDelta, showTool, stopGenerating),
-    architect: new Agent([], [], architectPrompt, architectTools, streamDelta, showTool, stopGenerating),
-    develop: new Agent([], [], workerPrompt + `\nYour focus is : ${focus.node}\n`, workerTools, streamDelta, showTool, stopGenerating)
+    plan: new Agent([], [], plannerPrompt, plannerTools, streamDelta, showTool, stopGenerating, setFocusMode, setFocuNode, updatePlan, () => {}, updateCurrSrc),
+    architect: new Agent([], [], architectPrompt, architectTools, streamDelta, showTool, stopGenerating, setFocusMode, setFocuNode, updatePlan, () => {}, updateCurrSrc),
+    code: new Agent([], [], codePrompt, codeTools, streamDelta, showTool, stopGenerating, setFocusMode, setFocuNode, updatePlan, () => {}, updateCurrSrc)
   };
 
   let agent = $state(agents.plan);
 
   $effect(() => {
-    focus.mode;
+    focus.agentMode;
 
-    agent = agents[focus.mode];
-  })
-
-  $effect(() => {
-    focus.node;
-    agents.develop = new Agent([], [], workerPrompt + `\nYour focus is : ${focus.node}\n`, workerTools, streamDelta, showTool, stopGenerating);
+    agent = agents[focus.agentMode];
   })
 
   let controller = new AbortController();
@@ -185,7 +181,8 @@
 <div class="flex flex-col h-screen mx-auto max-w-2xl w-full p-4">
   <!-- Status bar -->
   <p class="text-xs text-muted-foreground mb-2 shrink-0">
-    Focus: <span class="font-medium text-foreground">{focus.node}</span>
+    | Mode: <span class="font-medium text-foreground">{focus.agentMode}</span>
+    | Focus: <span class="font-medium text-foreground">{focus.node}</span>
     | Context: <span class="font-medium text-foreground">{contextWindow.length}</span>
   </p>
 

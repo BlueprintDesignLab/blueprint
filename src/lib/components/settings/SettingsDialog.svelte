@@ -4,20 +4,22 @@
 	import * as Dialog from "$lib/components/ui/dialog/index.js";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 
-  	import { Bolt, Bot } from "lucide-svelte";
-  import SettingsLlm from "./SettingsLLM.svelte";
-	
+  	import { Bolt, Bot, Heart } from "lucide-svelte";
 
+  	import SettingsLlm from "./SettingsLLM.svelte";
+  import SettingsFeedback from "./SettingsFeedback.svelte";
+	
 	const data = {
 		nav: [
 			{ name: "LLM", icon: Bot },
+			{ name: "Feedback", icon: Heart },
 		],
 	};
 
 	let open = $state(false);
 	let active = $state(0);
 
-	let pages = [SettingsLlm];
+	let pages = [SettingsLlm, SettingsFeedback];
 
 	let ActivePage = $derived(pages[active]);
 </script>
@@ -78,13 +80,7 @@
 					</div>
 				</header> -->
 				<div class="flex flex-1 flex-col gap-4 overflow-y-auto p-4 pt-0">
-					<!-- {#if active === "LLM"}
-					{/if} -->
 					<ActivePage />
-
-					<!-- {#each Array.from({ length: 10 }) as _, i (i)}
-						<div class="bg-muted/50 aspect-video max-w-3xl rounded-xl"></div>
-					{/each} -->
 				</div>
 			</main>
 		</Sidebar.Provider>

@@ -6,7 +6,11 @@ import type { Stream } from "openai/streaming";
 
 import { terminalController } from "$lib/state/terminal.svelte";
 import { contextWindow, encoder } from "$lib/state/contextWindow.svelte";
+
 import { tauriStore } from "$lib/state/tauriStore";
+import { StreamParamExtractor } from "./streamParamExtractor";
+import { graphCode } from "$lib/state/graph.svelte";
+
 
 const CHAT_HISTORY_LIMIT = 99;
 const TOOL_HISTORY_LIMIT = 99;
@@ -25,8 +29,15 @@ export class Agent {
   streamDelta: StreamDeltaFn;
   showTool: ShowToolFn;
   stopGenerating;
+  updateMode;
+  updateNode;
+
+  updatePlan;
+  updateGraph;
+  updateCurrSrc;
 
   pendingApprovals = new Map<string, Pending>();
+  activeToolCalls = new Map<string, StreamParamExtractor>();
 
   maxSteps = 20;
   done = true;
@@ -38,7 +49,13 @@ export class Agent {
     tools: Tool[],
     streamDelta: StreamDeltaFn,
     showTool: ShowToolFn,
-    stopGenerating: () => void
+    stopGenerating: () => void,
+
+    updateMode: (arg0: AgentModes) => void,
+    updateNode: (arg0: string) => void,
+    updatePlan: (arg0: string) => void,
+    updateGraph: (arg0: string) => void,
+    updateCurrSrc: (arg0: string) => void,
   ) {
     this.chatHistory = chatHistory;
     this.toolHistory = toolHistory;
@@ -48,6 +65,13 @@ export class Agent {
     this.streamDelta = streamDelta;
     this.showTool = showTool;
     this.stopGenerating = stopGenerating;
+
+    this.updateMode = updateMode;
+    this.updateNode = updateNode;
+
+    this.updatePlan = updatePlan;
+    this.updateGraph = updateGraph;
+    this.updateCurrSrc = updateCurrSrc;
   }
 
   async run(userMessage: string, controller: AbortController) {
@@ -108,12 +132,32 @@ export class Agent {
       } else if (event.type === "response.output_item.done") {
         if (event.item.type === "function_call") {
           toolCalls.push(event.item);
+          this.activeToolCalls.delete(event.item.id ?? "");
         }
       } else if (event.type === "response.output_item.added") {
         if (event.item.type === "function_call") {
           this.showTool({id: event.item.id, tool: event.item});
+          this.activeToolCalls.set(event.item.id ?? "", new StreamParamExtractor("content", event.item.name));
         }
       } else if (event.type === "response.function_call_arguments.delta") {
+        const toolCallExtractor = this.activeToolCalls.get(event.item_id)!;
+        toolCallExtractor.feed(event.delta);
+
+        if (toolCallExtractor.getToolName() === "write_plan_md_file") {
+          this.updatePlan(toolCallExtractor.getBuffer());
+          continue;
+
+        } else if (toolCallExtractor.getToolName() === "write_graph_yaml_file") {
+          try {
+            graphCode.loadGraph(toolCallExtractor.getBuffer(), "");
+          } catch (e) {} // suppress intermediate states
+          continue;
+
+        } else if (toolCallExtractor.getToolName() === "write_project_file") {
+          this.updateCurrSrc(toolCallExtractor.getBuffer());
+          continue;
+        }
+
         this.showTool({id: event.item_id, delta: event.delta});
       }
     }
@@ -145,18 +189,38 @@ export class Agent {
     if (name === "end_agentic_loop_success" || name === "end_agentic_loop_failure") {
       this.done = true;
       return JSON.stringify(args);
-    } 
 
-    if (name === "run_command") {
+    } else if (name === "run_command") {
       const command = `${args.command} ${args.args.join(" ")}`
-
       return terminalController.controller?.run(command);
+
+    } else if (name === "refer") {
+      const approved = await this.waitForUser({ name, args });   
+      if (approved == null) return null;                         
+
+      this.updateMode(args.role);
+      return;
+    } else if (name === "start_coder") {
+      const approved = await this.waitForUser({ name, args });   
+      if (approved == null) return null;                         
+
+      this.updateMode("code");
+      this.updateNode(args.node);
+      return;
+    } 
+    
+    if (name === "write_plan_md_file") {
+      name = "write_project_file";
+      args.path = "./.blueprint/plan.md";
+    } else if (name === "write_graph_yaml_file") {
+      name = "write_project_file";
+      args.path = "./.blueprint/graph.yaml";
     }
 
     try {
       if (name.includes("write") || name.includes("run")) {
-        const approved = await this.waitForUser({ name, args });   // <- “blocking”
-        if (approved == null) return null;                         // User cancelled
+        const approved = await this.waitForUser({ name, args });   
+        if (approved == null) return null;                         
       }
 
       const result = await invoke(name, args);
@@ -172,11 +236,6 @@ export class Agent {
     for (const toolCall of toolCalls) {
       const args = JSON.parse(toolCall.arguments);
 
-      // const showToolCall = {
-      //   id: crypto.randomUUID(),
-      //   tool: {...toolCall, arguments: args, status: "calling"}
-      // }
-      // this.showTool(showToolCall);
       const result = await this.executeTool(toolCall.name, args) as string|null;
 
       // this.updateUI(`\n> Task Completed!`);

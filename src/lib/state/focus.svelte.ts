@@ -1,23 +1,17 @@
-import { tauriStore } from "./tauriStore"
-
-type Modes = "plan" | "architect" | "develop";
-
 interface Focus {
     node: string,
-    mode: Modes
+    agentMode: AgentModes
 }
 
 export const focus: Focus = $state({
     node: "All",
-    mode: "plan"
+    agentMode: "plan"
 })
 
-// $effect(() => {
-//     tauriStore.set("focus-node", focus.node);
-//     tauriStore.set("focus-mode", focus.node);
-// });
+export const setFocusMode = (newFocusMode: AgentModes) => {
+    focus.agentMode = newFocusMode;
+}
 
-// (async () => {
-//     focus.mode = await tauriStore.get("focus-node") as Modes ?? "All";
-//     focus.mode = await tauriStore.get("focus-mode") ?? "plan";
-// })();
+export const setFocuNode = (newFocusMode: string) => {
+    focus.node = newFocusMode;
+}

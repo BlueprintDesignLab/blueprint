@@ -11,9 +11,9 @@ use std::{
     sync::mpsc,
     time::UNIX_EPOCH,
 };
-use tauri::{command, Emitter, Manager, Window};
+use tauri::{command, Emitter, Window};
 
-use crate::ProjectRoot;
+use crate::{project::get_window_root};
 
 // inside src/watcher.rs
 #[derive(Serialize, Clone)]
@@ -93,15 +93,14 @@ fn get_file_meta(path: &Path) -> Option<FileMeta> {
 // ---------- Tauri command ----------
 #[command]
 pub async fn start_watcher(window: Window) -> Result<(), String> {
-    let root = window.state::<ProjectRoot>().0.clone();
-    let root_path = PathBuf::from(&root);
+    let root: PathBuf = get_window_root(&window).unwrap();
 
-    let gi = build_gitignore(&root_path);
+    let gi = build_gitignore(&root);
 
     // offline snapshot logic (optional but kept for parity)
-    let snapshot_file = root_path.join(WATCHER_PATH);
+    let snapshot_file = root.join(WATCHER_PATH);
     let old = load_snapshot(&snapshot_file);
-    let new_files = scan_dir(&root_path, &gi);
+    let new_files = scan_dir(&root, &gi);
     let new_snapshot = Snapshot { files: new_files };
     if let Some(old_snap) = old {
         compare_snapshots(&old_snap, &new_snapshot);
@@ -115,7 +114,7 @@ pub async fn start_watcher(window: Window) -> Result<(), String> {
             RecommendedWatcher::new(tx, notify::Config::default()).map_err(|e| e.to_string())?;
 
         watcher
-            .watch(&root_path, RecursiveMode::Recursive)
+            .watch(&root, RecursiveMode::Recursive)
             .map_err(|e| e.to_string())?;
 
         // keep the thread alive until the channel is closed

@@ -1,5 +1,8 @@
 type ChatRole = "user" | "assistant" | "developer";
 
+type AgentModes = "plan" | "architect" | "code";
+
+
 type ChatTurn = { 
     role: ChatRole, 
     content: string, 

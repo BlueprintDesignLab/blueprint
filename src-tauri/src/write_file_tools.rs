@@ -1,99 +1,51 @@
 // src-tauri/src/write_file_tools.rs
 use anyhow::{Context, Result};
-use std::path::PathBuf;
-use tauri::State;
+use tauri::{Window};
 use tokio::fs;
 
-use crate::ProjectRoot;
+use crate::{project::get_window_root};
 
-/// Turn a user-supplied string into a *sanitised* relative `PathBuf`.
-///
-/// * `"/foo/bar"`  →  `"foo/bar"`
-/// * `"./foo"`     →  `"./foo"`  (unchanged)  
-/// * Rejects empty, `..`, drive letters, or UNC prefixes.
-fn normalise_rel(user: &str) -> Result<PathBuf, String> {
-    use std::path::{Component, Path};
+use std::path::{Path, PathBuf};
 
-    if user.trim().is_empty() {
-        return Err("Path cannot be empty".into());
+/// Same safety guarantee as `resolve`, but never touches the disk.
+fn resolve_no_canonicalize(root: PathBuf, user_rel: &Path) -> Result<PathBuf, String> {
+    // Treat absolute paths as relative to root
+    let rel = match user_rel.components().next() {
+        Some(std::path::Component::RootDir) => {
+            user_rel
+                .strip_prefix(std::path::Component::RootDir)
+                .map_err(|_| "Invalid absolute path".to_string())?
+        }
+        _ => user_rel,
+    };
+
+    // Simple logical join
+    let full = root.join(rel);
+
+    // Root-escape check on the *logical* path
+    if !full.starts_with(root) {
+        return Err("Access outside project root is forbidden".to_string());
     }
 
-    // Strip a single leading `/` so pseudo-absolute becomes relative
-    let trimmed = user.trim_start_matches('/');
-
-    // Still reject drive letters or UNC prefixes (true absolute on Windows)
-    let rel = Path::new(trimmed);
-    if rel.is_absolute() {
-        return Err("Absolute paths are not allowed".into());
-    }
-    if rel.components().any(|c| c == Component::ParentDir) {
-        return Err("`..` segments are forbidden".into());
-    }
-    Ok(rel.to_path_buf())
-}
-
-#[tauri::command]
-pub async fn write_blueprint_file(
-    path: String,
-    content: String,
-    root: State<'_, ProjectRoot>,
-) -> Result<(), String> {
-    // ── A. clean & validate ──────────────────────────────────────────────
-    let rel = normalise_rel(&path)?;
-
-    // ── B. paths inside the sandbox  ─────────────────────────────────────
-    let blueprint_root = root.0.join(".blueprint");
-    fs::create_dir_all(&blueprint_root)
-        .await
-        .map_err(|e| e.to_string())?;
-
-    let full = blueprint_root.join(&rel);
-
-    // Canonical-safety check (resolves symlinks)
-    let canon_parent = full
-        .parent()
-        .expect("file has a parent")
-        .canonicalize()
-        .map_err(|e| e.to_string())?;
-    let canon_blueprint = blueprint_root.canonicalize().map_err(|e| e.to_string())?;
-
-    if !canon_parent.starts_with(&canon_blueprint) {
-        return Err("Access outside .blueprint is forbidden".into());
-    }
-
-    // ── C. write ─────────────────────────────────────────────────────────
-    fs::create_dir_all(canon_parent)
-        .await
-        .map_err(|e| e.to_string())?;
-    fs::write(&full, content)
-        .await
-        .with_context(|| format!("Failed to write file: {}", full.display()))
-        .map_err(|e| e.to_string())
+    Ok(full)
 }
 
 #[tauri::command]
 pub async fn write_project_file(
     path: String,
     content: String,
-    root: State<'_, ProjectRoot>,
+    window: Window,
 ) -> Result<(), String> {
+    let root: PathBuf = get_window_root(&window).unwrap();
+    
     // ── A. clean & validate ──────────────────────────────────────────────
-    let rel = normalise_rel(&path)?;
-
-    // ── B. compute & guard ───────────────────────────────────────────────
-    let full = root.0.join(&rel);
+    let rel: PathBuf = path.into();
+    let full = resolve_no_canonicalize(root, &rel).unwrap();
 
     if let Some(parent) = full.parent() {
         fs::create_dir_all(parent)
             .await
             .map_err(|e| e.to_string())?;
-
-        let canon_parent = parent.canonicalize().map_err(|e| e.to_string())?;
-        let canon_root = root.0.canonicalize().map_err(|e| e.to_string())?;
-
-        if !canon_parent.starts_with(&canon_root) {
-            return Err("Access outside project root is forbidden".into());
-        }
     } else {
         return Err("Path has no parent directory".into());
     }
