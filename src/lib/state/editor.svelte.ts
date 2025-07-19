@@ -8,11 +8,22 @@ export const editorState = $state({
     proposedCurrSrc: "",
 });
 
-export const updatePlan = (newPlan: string) => {
-    // newPlan = JSON.parse(newPlan);
-    editorState.planMD = newPlan;
+export const proposePlan = (newPlan: string) => {
+    editorState.proposedPlanMD = newPlan;
 }
 
-export const updateCurrSrc = (newSrc: string) => {
-    editorState.currSrc = newSrc;
+export const proposeCurrSrc = (newSrc: string) => {
+    editorState.proposedCurrSrc = newSrc;
+}
+
+export const commit = () => {
+    editorState.planMD = editorState.proposedPlanMD;
+    editorState.graphYAML = editorState.proposedGraphYaml;
+    editorState.currSrc = editorState.proposedCurrSrc;
+}
+
+export const revert = () => {
+    editorState.proposedPlanMD = editorState.planMD;
+    editorState.proposedGraphYaml = editorState.graphYAML;
+    editorState.proposedCurrSrc = editorState.currSrc;
 }
