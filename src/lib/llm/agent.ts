@@ -1,7 +1,6 @@
 import { invoke } from "@tauri-apps/api/core"; // For Tauri backend tool calls
 
 import OpenAI from "openai";; // Your OpenAI API wrapper
-import type { Tool } from "openai/resources/responses/responses.mjs";
 import type { Stream } from "openai/streaming";
 
 import { terminalController } from "$lib/state/terminal.svelte";
@@ -24,7 +23,7 @@ export class Agent {
   chatHistory: ChatTurn[] = [];
   toolHistory: any[] = [];
   systemPrompt: string = "";
-  tools: Tool[] = [];
+  tools: BPTool[] = [];
 
   streamDelta: StreamDeltaFn;
   showTool: ShowToolFn;
@@ -46,12 +45,12 @@ export class Agent {
     chatHistory: ChatTurn[], 
     toolHistory: any[], 
     systemPrompt: string, 
-    tools: Tool[],
+    tools: BPTool[],
     streamDelta: StreamDeltaFn,
     showTool: ShowToolFn,
     stopGenerating: () => void,
 
-    updateMode: (arg0: AgentModes) => void,
+    updateMode: (arg0: AgentRoles) => void,
     updateNode: (arg0: string) => void,
     updatePlan: (arg0: string) => void,
     updateGraph: (arg0: string) => void,
@@ -272,7 +271,7 @@ export class Agent {
         prompt += `${item.role}: ${item.content}\n`;
       } else {
         // tool call or its output
-        prompt += `Tool: ${JSON.stringify(item)}\n`;
+        prompt += `BPTool: ${JSON.stringify(item)}\n`;
       }
     }
 

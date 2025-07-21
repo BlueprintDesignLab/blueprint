@@ -1,6 +1,6 @@
 export const workflow = `
 <overall workflow>
-If you have not read the files and listed the directory, do so before making write changes.
+If you have not read the files and listed the directory, always do so first to understand current progress.
 
 The overall workflow is:
 - 'plan' agent convert user needs to plan.md

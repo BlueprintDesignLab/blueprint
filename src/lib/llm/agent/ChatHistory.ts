@@ -5,15 +5,15 @@ export class ChatHistory {
   chat: ChatTurn[] = [];
   tools: any[] = [];
 
-  appendChat = (t: ChatTurn) => pushLimited(this.chat, t, CHAT_HISTORY_LIMIT);
-  appendTool = (t: any) => pushLimited(this.tools, t, TOOL_HISTORY_LIMIT);
+  appendChat = (t: ChatTurn) => pushLimited(this.chat, {...t, timestamp: new Date().toISOString() }, CHAT_HISTORY_LIMIT);
+  appendTool = (t: any) => pushLimited(this.tools, {...t, timestamp: new Date().toISOString() }, TOOL_HISTORY_LIMIT);
 
   buildPrompt(systemFallback: string) {
     const combined = [...this.chat, ...this.tools]
       .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
     let prompt = combined.map(i => "role" in i
         ? `${i.role}: ${i.content}`
-        : `Tool: ${JSON.stringify(i)}`).join("\n");
+        : `BPTool: ${JSON.stringify(i)}`).join("\n");
     prompt += "\n" + systemFallback;
     return prompt;
   }

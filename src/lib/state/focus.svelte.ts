@@ -1,6 +1,6 @@
 interface Focus {
     node: string,
-    agentMode: AgentModes
+    agentMode: AgentRoles
 }
 
 export const focus: Focus = $state({
@@ -8,7 +8,7 @@ export const focus: Focus = $state({
     agentMode: "plan"
 })
 
-export const setFocusMode = (newFocusMode: AgentModes) => {
+export const setFocusMode = (newFocusMode: AgentRoles) => {
     focus.agentMode = newFocusMode;
 }
 

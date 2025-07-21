@@ -1,10 +1,8 @@
-import { type Tool } from "openai/resources/responses/responses.mjs";
 import { sharedTools } from "../sharedTools";
 import { writeGraphYAMLFile, writeProjectFile } from "../writeTools";
 import { readTools } from "../readTools";
 
-
-const startWorker: Tool = {
+const startWorker: BPTool = {
   type: "function",
   name: "start_coder",
   description:
@@ -15,7 +13,7 @@ const startWorker: Tool = {
       node: {
         type: "string",
         description:
-          "The focus node for the code to implement."
+          "The focus node for the code to impleament."
       }
     },
     required: ["node"],
@@ -24,8 +22,7 @@ const startWorker: Tool = {
   strict: true
 };
 
-
-export const architectTools: Tool[] = [
+export const architectTools: BPTool[] = [
   startWorker,
   writeGraphYAMLFile,
   writeProjectFile,

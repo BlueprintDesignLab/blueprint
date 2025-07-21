@@ -1,4 +1,3 @@
-import { type Tool } from "openai/resources/responses/responses.mjs";
 import { sharedTools } from "../sharedTools";
 import { writePlanMD } from "../writeTools";
 import { readTools } from "../readTools";
@@ -9,7 +8,7 @@ import { readTools } from "../readTools";
 //  * Focuses on planning, reflection, and task management.
 //  */
 // // Combined exports
-export const plannerTools: Tool[] = [
+export const plannerTools: BPTool[] = [
   writePlanMD,
   ...readTools,
   ...sharedTools,

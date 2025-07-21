@@ -1,5 +1,4 @@
 import OpenAI from "openai";
-import type { Tool } from "openai/resources/responses/responses.mjs";
 
 export interface LLMStream {
   // yields the neutral events above
@@ -12,12 +11,13 @@ export class OpenAIAdapter implements LLMStream {
     private openai: OpenAI,
     private model: string,
     private prompt: string,
-    private tools: Tool[],
+    private tools: BPTool[],
     private instructions: string,
     private signal: AbortSignal
   ) {}
 
   async *events(): AsyncIterable<LLMEvent> {
+    console.log(this.instructions, this.prompt);
     const raw = await this.openai.responses.create(
       { model: this.model, input: this.prompt, stream: true, tools: this.tools, instructions: this.instructions },
       { signal: this.signal }

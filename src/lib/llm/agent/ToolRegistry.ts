@@ -1,26 +1,32 @@
 import type { Tool } from "openai/resources/responses/responses.mjs";
 
-interface ToolHandler {
-  name: string;
-  schema: Tool;
-  handler: (args: any, deps: { approval: ApprovalGateway }) => Promise<any>;
+import type { ToolKey } from "./ToolRole";
+import { toolMap } from "./ToolMap";
+import type { ApprovalGateway } from "./UIUpdater";
+
+interface InternalToolHandler {
+  handler: (args: any) => Promise<any>;
+  schema:  BPTool;
 }
 
+
 export class ToolRegistry {
-  private handlers = new Map<string, ToolHandler>();
+  private handlers = new Map<string, InternalToolHandler>();
 
-  constructor(private approval: ApprovalGateway) {}
-
-  register(h: ToolHandler) { this.handlers.set(h.name, h); }
-
-  async execute({ name, arguments: rawArgs }: any) {
-    const h = this.handlers.get(name);
-    if (!h) throw new Error(`Unknown tool ${name}`);
-    const args = JSON.parse(rawArgs);
-    return h.handler(args, { approval: this.approval });
+  constructor(keys: ToolKey[], approval: ApprovalGateway) {
+    for (const k of keys) {
+      const { schema, handler } = toolMap[k];
+      this.handlers.set(schema.name, { schema, handler: (args) => handler(args, { approval }) });
+    }
   }
 
   asOpenAITools(): Tool[] {
     return [...this.handlers.values()].map(h => h.schema);
+  }
+
+  async execute(name: string, args: any) {
+    console.log(args);
+    console.log(this.handlers.get(name)?.handler)
+    return this.handlers.get(name)?.handler(args);
   }
 }

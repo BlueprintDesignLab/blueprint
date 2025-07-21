@@ -1,7 +1,4 @@
-// src/lib/llm/shared_tools.ts
-import { type Tool } from "openai/resources/responses/responses.mjs";
-
-export const endAgenticLoopTools: Tool[] = [
+export const endAgenticLoopTools: BPTool[] = [
   {
     type: "function",
     name: "end_agentic_loop_success",
@@ -59,9 +56,9 @@ export const endAgenticLoopTools: Tool[] = [
   }
 ];
 
-const searchTool: Tool = { type: "web_search_preview" }
+const searchTool: BPTool = { type: "web_search_preview", name: "web_search_preview" }
 
-export const sharedTools: Tool[] = [
+export const sharedTools: BPTool[] = [
   ...endAgenticLoopTools,
   searchTool,
 ]

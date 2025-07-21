@@ -1,7 +1,5 @@
-import type { Tool } from "openai/resources/responses/responses.mjs";
-
 // System command execution
-export const systemTools: Tool[] = [
+export const systemTools: BPTool[] = [
   {
     type: "function",
     name: "run_command",

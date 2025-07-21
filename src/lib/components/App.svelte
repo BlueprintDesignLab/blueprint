@@ -29,7 +29,7 @@
 
 <Resizable.PaneGroup direction="horizontal">
   <!-- 1. Left pane -->
-  <Resizable.Pane order={1} defaultSize={twoPane ? 55 : 30}>
+  <Resizable.Pane order={1} defaultSize={twoPane ? 70 : 30}>
     <div class="h-full flex flex-col overflow-hidden">
         <!-- editor takes all remaining space -->
         <div class="flex-1 overflow-hidden">
@@ -64,7 +64,7 @@
   {/if}
 
   <!-- 3. Right pane -->
-  <Resizable.Pane order={3} defaultSize={twoPane ? 45 : 30}>
+  <Resizable.Pane order={3} defaultSize={30}>
     <LlmChat />
   </Resizable.Pane>
 </Resizable.PaneGroup>

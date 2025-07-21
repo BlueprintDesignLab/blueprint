@@ -1,5 +1,4 @@
 <script lang="ts">
-  import * as Tabs from "$lib/components/ui/tabs/index.js";
 
   import { graphCode } from "$lib/state/graph.svelte";
   import { focus } from "$lib/state/focus.svelte";
@@ -125,51 +124,33 @@
   }
 </script>
 
-<!-- ——— Tabs -------------------------------------------------------- -->
-<Tabs.Root bind:value={focus.agentMode} class="flex flex-col h-full w-full">
-  <Tabs.List
-    class="w-full flex items-center gap-2
-         flex-nowrap
-         border-b border-slate-200 px-3"
-  >
-    <Tabs.Trigger value="plan">Plan</Tabs.Trigger>
-    <Tabs.Trigger value="architect">Architect</Tabs.Trigger>
-    <Tabs.Trigger value="code">Code</Tabs.Trigger>
-
-  </Tabs.List>
-  
-  <Tabs.Content value="plan" class="flex-1 overflow-auto">
-    <div class="editor-shell">
-      <CodeMirror
-        bind:value={editorState.planMD}
-        lineWrapping={true}
-        lang={markdown()}
-        on:change={savePlanDebounced}
-      />
-    </div>
-  </Tabs.Content>
-
-  <Tabs.Content value="architect" class="flex-1 overflow-auto">
-    <div class="editor-shell">
-      <CodeMirror
-        bind:value={semDerived}
-        lineWrapping={true}
-        lang={yaml()}
-        theme={tomorrow}
-        on:change={() => updateGraph()}
-      />
-    </div>
-  </Tabs.Content>
-
-  <Tabs.Content value="code" class="flex-1 overflow-auto">
-    <div class="editor-shell">
-      <CodeMirror
-        bind:value={editorState.currSrc}
-        lineWrapping={true}
-      />
-    </div>
-  </Tabs.Content>
-</Tabs.Root>
+{#if focus.agentMode === "plan"}
+ <div class="editor-shell">
+    <CodeMirror
+      bind:value={editorState.planMD}
+      lineWrapping={true}
+      lang={markdown()}
+      on:change={savePlanDebounced}
+    />
+  </div>
+{:else if focus.agentMode === "architect"}
+  <div class="editor-shell">
+    <CodeMirror
+      bind:value={semDerived}
+      lineWrapping={true}
+      lang={yaml()}
+      theme={tomorrow}
+      on:change={() => updateGraph()}
+    />
+  </div>
+{:else if focus.agentMode === "code"}
+  <div class="editor-shell">
+    <CodeMirror
+      bind:value={editorState.currSrc}
+      lineWrapping={true}
+    />
+  </div>
+{/if}
 
 <style>
   /* Now the shell just fills its flex-parent */

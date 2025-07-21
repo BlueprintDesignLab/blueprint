@@ -1,6 +1,4 @@
-import type { Tool } from "openai/resources/responses/responses.mjs";
-
-export const readTools: Tool[] = [
+export const readTools: BPTool[] = [
   {
     type: "function",
     name: "read_file",

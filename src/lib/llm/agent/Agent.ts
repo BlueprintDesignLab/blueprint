@@ -1,9 +1,11 @@
 import { tauriStore } from "$lib/state/tauriStore";
 import OpenAI from "openai";
 import { ChatHistory } from "./ChatHistory";
-import { OpenAIAdapter, OpenaiLLMClient } from "./LLMClient";
+import { OpenAIAdapter } from "./LLMClient";
 import { ToolRegistry } from "./ToolRegistry";
-import { UIUpdater } from "./UIUpdater";
+import { UIUpdater, type UIUpdaterCallbacks } from "./UIUpdater";
+import { toolsFor } from "./ToolRole";
+import { getSystemPromptFor } from "./SystemPrompts";
 
 const MAX_STEPS = 20;
 
@@ -17,21 +19,21 @@ export class Agent {
 
   constructor(
     deps: { chat: ChatTurn[], tools: any[] },
-    systemPrompt: string,
-    callbacks: /* same long list as before */
+    role: AgentRoles,
+    callbacks: UIUpdaterCallbacks
   ) {
     this.history.chat = deps.chat;
     this.history.tools = deps.tools;
-    this.systemPrompt = systemPrompt;
+    this.systemPrompt = getSystemPromptFor(role);
 
     this.ui = new UIUpdater(callbacks);
-    this.registry = new ToolRegistry(this.ui);   // UIUpdater implements ApprovalGateway
 
-    registerBuiltinTools(this.registry);         // helper that adds all your tools
+    const tools = toolsFor("architect");
+    this.registry = new ToolRegistry(tools, this.ui); 
   }
 
   async run(userMessage: string, controller: AbortController) {
-    this.history.appendChat({ role: "user", content: userMessage, timestamp: new Date().toISOString() });
+    this.history.appendChat({ role: "user", content: userMessage });
     this.done = false;
     let step = 0;
 
@@ -48,14 +50,22 @@ export class Agent {
       const adapter = new OpenAIAdapter(openai, model, prompt, this.registry.asOpenAITools(), this.systemPrompt, controller.signal);
 
       const { assistantContent, toolCalls } = await this.ui.consume(adapter);
-      this.history.appendChat({ role: "assistant", content: assistantContent, timestamp: new Date().toISOString() });
+      this.history.appendChat({ role: "assistant", content: assistantContent });
 
       for (const tc of toolCalls) {
-        const output = await this.registry.execute(tc);
+        this.ui.showToolCalling(tc);
+        const output = await this.registry.execute(tc.name, tc.args);
         this.history.appendTool({ type: "function_call_output", call_id: tc.call_id, output });
+        this.ui.showToolCallResult(tc, output);        
       }
 
       if (toolCalls.length === 0) this.done = true;
     }
+
+    this.ui.stop();
+  }
+
+  handleApproval(id: string, result: string | null) {
+    this.ui.handleApproval(id, result);
   }
 }

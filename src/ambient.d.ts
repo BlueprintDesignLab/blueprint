@@ -1,7 +1,11 @@
+declare global {
+  // Pull the type in *inside* the declaration
+  type BPTool = import('openai/resources/responses/responses.mjs').Tool;
+}
+
 type ChatRole = "user" | "assistant" | "developer";
 
-type AgentModes = "plan" | "architect" | "code";
-
+type AgentRoles = "plan" | "architect" | "code";
 
 type ChatTurn = { 
     role: ChatRole, 
@@ -12,10 +16,6 @@ type ChatTurn = {
 type StreamDeltaFn = (delta: string) => void;
 type ShowToolFn   = (tool: any) => void;
 
-interface ApprovalGateway {
-  ask(message: any): Promise<string | null>;
-}
-
 type LLMEvent =
   | { type: "text"; delta: string }
   | { type: "toolCallStart"; id: string; name: string }
@@ -25,3 +25,5 @@ type LLMEvent =
 interface LLMStream {
   events(): AsyncIterable<LLMEvent>;
 }
+
+type BPTool = Tool;
