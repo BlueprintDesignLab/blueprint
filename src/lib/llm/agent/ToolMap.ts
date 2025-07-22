@@ -1,12 +1,14 @@
 import { invoke } from "@tauri-apps/api/core";
 import { terminalController } from "$lib/state/terminal.svelte";
-import { graphCode } from "$lib/state/graph.svelte";
 
 import type { ToolKey } from "./ToolRole";
-import type { ApprovalGateway } from "./UIUpdater";
+import type { ApprovalGateway } from "./StreamHandler";
+
+import { clearProposedCurrSrc, clearProposedPlan, commitCurrSrc, commitPlan } from "$lib/state/editor.svelte";
+import { graphCode } from "$lib/state/graph.svelte";
 
 export interface ToolHandler {
-  handler: (args: any, deps: { approval: ApprovalGateway }) => Promise<any>;
+  handler: (args: any, deps: { approval: ApprovalGateway }) => Promise<string>;
   schema:  BPTool;
 }
 
@@ -31,7 +33,13 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     },
     handler: async ({ path, content }, { approval }) => {
       const ok = await approval.ask({ name: "write_project_file", args: { path, content } });
-      return ok ? invoke("write_file", { path, content }) : null;
+      if (!ok) {
+        clearProposedCurrSrc();
+        return "not approved"
+      };
+
+      commitCurrSrc();
+      return await invoke("write_project_file", { path, content }) ?? "success";
     },
   },
 
@@ -52,7 +60,13 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     },
     handler: async ({ content }, { approval }) => {
       const ok = await approval.ask({ name: "write_plan_md_file", args: { content } });
-      return ok ? invoke("write_file", { path: "./.blueprint/plan.md", content }) : null;
+      if (!ok) {
+        clearProposedPlan();
+        return "not approved"
+      };
+
+      commitPlan();
+      return "success";
     },
   },
 
@@ -73,11 +87,13 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     },
     handler: async ({ content }, { approval }) => {
       const ok = await approval.ask({ name: "write_graph_yaml_file", args: { content } });
-      if (ok) {
-        graphCode.loadGraph(content, ""); // side-effect for live preview
-        return invoke("write_file", { path: "./.blueprint/graph.yaml", content });
-      }
-      return null;
+      if (!ok) {
+        graphCode.clearProposed();
+        return "not approved"
+      };
+
+      graphCode.commitGraph();
+      return "success";
     },
   },
 
@@ -96,8 +112,8 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
       strict: true,
     },
     handler: async ({ path }, { approval }) => {
-      const ok = await approval.ask({ name: "read_file", args: { path } });
-      return ok ? invoke("read_file", { path }) : null;
+      // const ok = await approval.ask({ name: "read_file", args: { path } });
+      return await invoke("read_file", { path }) ?? "failed";
     },
   },
 
@@ -115,8 +131,8 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
       strict: true,
     },
     handler: async ({ path }, { approval }) => {
-      const ok = await approval.ask({ name: "list_directory_tree", args: { path } });
-      return ok ? invoke("list_directory_tree", { path }) : null;
+      // const ok = await approval.ask({ name: "list_directory_tree", args: { path } });
+      return await invoke("list_directory_tree", { path }) ?? "failed";
     },
   },
 
@@ -140,7 +156,9 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     handler: async ({ command, args }, { approval }) => {
       const full = `${command} ${args.join(" ")}`;
       const ok = await approval.ask({ name: "run_command", args: { command, args } });
-      return ok ? terminalController.controller?.run(full) : null;
+      if (!ok) return "not approved";
+
+      return await terminalController.controller!.run(full) ?? "failed";
     },
   },
 
@@ -160,7 +178,7 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     },
     handler: async ({ node }, { approval }) => {
       const ok = await approval.ask({ name: "start_coder", args: { node } });
-      return ok ? undefined : null;
+      return ok ? "coder started" : "not approved";
     },
   },
 
@@ -179,7 +197,7 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     },
     handler: async ({ role }, { approval }) => {
       const ok = await approval.ask({ name: "refer", args: { role } });
-      return ok ? undefined : null;
+      return ok ? "refer successful" : "not approved";
     },
   },
 
@@ -197,7 +215,6 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
       strict: true,
     },
     handler: async ({ reason }, { approval }) => {
-      await approval.ask({ name: "end_agentic_loop_success", args: { reason } });
       return JSON.stringify({ status: "success", reason });
     },
   },
@@ -216,7 +233,6 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
       strict: true,
     },
     handler: async ({ reason }, { approval }) => {
-      await approval.ask({ name: "end_agentic_loop_failure", args: { reason } });
       return JSON.stringify({ status: "failure", reason });
     },
   },

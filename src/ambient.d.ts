@@ -16,14 +16,5 @@ type ChatTurn = {
 type StreamDeltaFn = (delta: string) => void;
 type ShowToolFn   = (tool: any) => void;
 
-type LLMEvent =
-  | { type: "text"; delta: string }
-  | { type: "toolCallStart"; id: string; name: string }
-  | { type: "toolCallArgs"; id: string; delta: string }
-  | { type: "toolCallEnd"; id: string; name: string; args: string };
-
-interface LLMStream {
-  events(): AsyncIterable<LLMEvent>;
-}
 
 type BPTool = Tool;

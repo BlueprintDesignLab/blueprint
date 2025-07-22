@@ -1,4 +1,4 @@
-import { loadGraph, saveGraphSemantic, saveGraphView, type MergedGraph } from "$lib/util/graphIO";
+import { loadGraph, type MergedGraph } from "$lib/util/graphIO";
 
 import { type Node, type Edge } from "@xyflow/svelte";
 
@@ -16,6 +16,9 @@ class GraphCode {
   selectedNodes:Node[] = $state.raw([]);
   selectedEdges:Edge[] = $state.raw([]);
 
+  proposedNodes:Node[] = $state.raw([]);
+  proposedEdges:Edge[] = $state.raw([]);
+
   filtering = $derived(this.selectedNodes.length > 0 || this.selectedEdges.length);
 
   loadGraph = (semDerived: string, viewDerived: string) => {
@@ -28,6 +31,33 @@ class GraphCode {
       this.edges = newMerged.edges;
     }
   }
+
+  /** load external data into the *proposed* buffers */
+  proposeGraph = (newSem: string) => {
+    let proposedGraph: MergedGraph = {nodes: [], edges: []};
+
+    try {
+      proposedGraph = loadGraph(newSem, "");
+    } catch (e) {
+      return;
+    }
+
+    this.proposedNodes = proposedGraph.nodes;
+    this.proposedEdges = proposedGraph.edges;
+  };
+
+  /** move proposed → live, then wipe proposed */
+  commitGraph = () => {
+    this.nodes = this.proposedNodes;
+    this.edges = this.proposedEdges;
+    this.clearProposed();
+  };
+
+  /** discard proposed changes */
+  clearProposed = () => {
+    this.proposedNodes = [];
+    this.proposedEdges = [];
+  };
 
   getGraph = () => {
     return {nodes: this.nodes, edges: this.edges};
@@ -46,10 +76,7 @@ class GraphCode {
     const dispNodes = [...this.selectedNodes];
     const dispEdges = [...this.selectedEdges];
 
-    const selectedNodeIds = new Set(this.selectedNodes.map((n) => n.id))
-
-    // console.log(selectedNodeIds);
-    // console.log(selectedEdgeIds);
+    const selectedNodeIds = new Set(this.selectedNodes.map((n) => n.id));
 
     if (this.selectedNodes.length > 0) {
       const edgeAdjacentToNodes = this.edges.filter(edge =>

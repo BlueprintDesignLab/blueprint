@@ -1,73 +1,88 @@
-/**
- * Streaming extractor that pulls a single string parameter out of
- *   {"type":"response.function_call_arguments.delta", ... ,"key":"value"}
- * style deltas.
- */
 export class StreamParamExtractor {
   private readonly key: string;
-  private state: 'idle' | 'prefix' | 'value' = 'idle';
-  private buffer = '';
+  private readonly toolName: string;
+  private done = false;               // single-use flag
+
+  private state: 'idle' | 'key' | 'sep' | 'value' = 'idle';
+  private depth = 0;
+  private inString = false;
   private escaped = false;
-  private toolName;
+
+  private keyBuffer = '';
+  private valueBuffer = '';
 
   constructor(key: string, toolName: string) {
-    this.key = `"${key}":"`;
+    this.key = key;
     this.toolName = toolName;
   }
 
   feed(chunk: string | Buffer): string | undefined {
+    if (this.done) return undefined;     // single-use guard
+
     const str = typeof chunk === 'string' ? chunk : chunk.toString('utf8');
 
     for (const ch of str) {
-      if (this.state === 'idle') {
-        // Fast prefix match
-        this.buffer += ch;
-        if (this.buffer.endsWith(this.key)) {
-          this.state = 'value';
-          this.buffer = '';
-          this.escaped = false;
-        }
-        continue;
-      }
+      switch (this.state) {
+        case 'idle':
+          if (ch === '"') {
+            this.keyBuffer = '"';
+            this.state = 'key';
+          }
+          if (!this.inString) {
+            if (ch === '{') this.depth++;
+            else if (ch === '}') this.depth--;
+          }
+          break;
 
-      // --- inside the value ---
-      if (this.escaped) {
-        switch (ch) {
-          case 'n':  this.buffer += '\n'; break;
-          case 't':  this.buffer += '\t'; break;
-          case 'r':  this.buffer += '\r'; break;
-          case '\\': this.buffer += '\\'; break;
-          case '"':  this.buffer += '"';  break;
-          default:   this.buffer += ch;   // keep unknown escapes literally
-        }
-        this.escaped = false;
-      } else if (ch === '\\') {
-        this.escaped = true;
-      } else if (ch === '"') {
-        // closing quote → value complete
-        const result = this.buffer;
-        this.reset();
-        return result;
-      } else {
-        this.buffer += ch;
+        case 'key':
+          this.keyBuffer += ch;
+          if (this.escaped) {
+            this.escaped = false;
+          } else if (ch === '\\') {
+            this.escaped = true;
+          } else if (ch === '"') {
+            this.state = this.keyBuffer === `"${this.key}"` ? 'sep' : 'idle';
+            this.escaped = false;
+          }
+          break;
+
+        case 'sep':
+          if (ch === ':') this.state = 'value';
+          break;
+
+        case 'value':
+          if (!this.inString) {
+            if (ch === '"') { this.inString = true; continue; }
+            if (ch <= ' ') continue;
+            this.done = true;            // not a string ⇒ give up
+            return undefined;
+          }
+
+          if (this.escaped) {
+            switch (ch) {
+              case 'n': this.valueBuffer += '\n'; break;
+              case 't': this.valueBuffer += '\t'; break;
+              case 'r': this.valueBuffer += '\r'; break;
+              case '\\': this.valueBuffer += '\\'; break;
+              case '"': this.valueBuffer += '"'; break;
+              default: this.valueBuffer += ch;
+            }
+            this.escaped = false;
+          } else if (ch === '\\') {
+            this.escaped = true;
+          } else if (ch === '"') {
+            this.done = true;            // value complete
+            return this.valueBuffer;
+          } else {
+            this.valueBuffer += ch;
+          }
+          break;
       }
     }
-    return undefined; // still streaming
+    return undefined;
   }
 
-  getToolName() {
-    return this.toolName;
-  }
+  getToolName(): string { return this.toolName; }
 
-  getBuffer() {
-    return this.buffer;
-  }
-
-  /**
-   * Manually reset the extractor (useful on stream end / abort).
-   */
-  reset(): void {
-    this.state = 'idle';
-    this.escaped = false;
-  }
+  getBuffer(): string {return this.valueBuffer; }
 }

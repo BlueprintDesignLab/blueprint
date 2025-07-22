@@ -1,5 +1,8 @@
 import { StreamParamExtractor } from './StreamParamExtractor'; // wherever it lives
+import type { ChatHistory } from './ChatHistory';
 import { graphCode } from '$lib/state/graph.svelte';
+import { editorState, proposeCurrSrc, proposePlan } from '$lib/state/editor.svelte';
+import type { LLMStream } from './LLMClient';
 
 /* UIUpdater.types.ts (or wherever you keep shared types) */
 export type StreamDeltaFn   = (delta: string) => void;
@@ -9,23 +12,12 @@ export type ShowToolFn      = (payload: {
   delta?: string;
   approvalId?: string;
 }) => void;
-
 export type StopGeneratingFn  = () => void;
-export type UpdateModeFn      = (mode: AgentRoles) => void;
-export type UpdateNodeFn      = (node: string) => void;
-export type UpdatePlanFn      = (plan: string) => void;
-export type UpdateGraphFn     = (graph: string) => void;
-export type UpdateSrcFn       = (src: string) => void;
 
 export interface UIUpdaterCallbacks {
   streamDelta:    StreamDeltaFn;
   showTool:       ShowToolFn;
   stopGenerating: StopGeneratingFn;
-  updateMode:     UpdateModeFn;
-  updateNode:     UpdateNodeFn;
-  updatePlan:     UpdatePlanFn;
-  updateGraph:    UpdateGraphFn;
-  updateCurrSrc:  UpdateSrcFn;
 }
 
 type Call = {name: string, args: any};
@@ -34,8 +26,8 @@ export interface ApprovalGateway {
   ask(message: Call): Promise<string | null>;
 }
 
-export class UIUpdater implements ApprovalGateway {
-  constructor(private callbacks: UIUpdaterCallbacks) {}
+export class StreamHandler implements ApprovalGateway {
+  constructor(private history: ChatHistory, private callbacks: UIUpdaterCallbacks) {}
 
   /* ---------- ApprovalGateway implementation ---------- */
   private pendings = new Map<string, { resolve: (v: string | null) => void; reject: (e: Error) => void }>();
@@ -54,20 +46,6 @@ export class UIUpdater implements ApprovalGateway {
     if (!p) return;
     p.resolve(result);
     this.pendings.delete(id);
-  }
-
-  showToolCalling(tc: any) {
-    // this.updateUI(`\n> Task Completed!`);
-    const callingObj = {
-      type: "function_call_output",
-      call_id: tc.call_id,
-      arguments: tc.args,
-      status: "calling",
-      name: tc.name,
-      timestamp: new Date().toISOString()
-    };
-
-    this.callbacks.showTool({id: tc.id, tool: callingObj});
   }
 
   showToolCallResult(tc: any, output: string) {
@@ -95,6 +73,10 @@ export class UIUpdater implements ApprovalGateway {
     // Track active tool calls via StreamParamExtractor
     const activeToolCalls = new Map<string, StreamParamExtractor>();
 
+    const pathExtractor = new StreamParamExtractor('path', 'write_project_file');
+
+    let buffer = "";
+
     for await (const ev of stream.events()) {
       switch (ev.type) {
         case 'text':
@@ -109,21 +91,28 @@ export class UIUpdater implements ApprovalGateway {
         }
 
         case 'toolCallArgs': {
+          buffer += ev.delta;
+          // console.log(ev.delta);
           const extractor = activeToolCalls.get(ev.id)!;
           extractor.feed(ev.delta);
+          pathExtractor.feed(ev.delta);
 
           switch (extractor.getToolName()) {
             case 'write_plan_md_file':
-              this.callbacks.updatePlan(extractor.getBuffer());
+              proposePlan(extractor.getBuffer());
               break;
+
             case 'write_graph_yaml_file':
-              try {
-                graphCode.loadGraph(extractor.getBuffer(), '');
-              } catch {}
+              graphCode.proposeGraph(extractor.getBuffer());
               break;
+
             case 'write_project_file':
-              this.callbacks.updateCurrSrc(extractor.getBuffer());
+              // console.log(extractor.getBuffer());
+              // console.log(pathExtractor.getBuffer());
+              editorState.currSrcPath = pathExtractor.getBuffer();
+              proposeCurrSrc(extractor.getBuffer());
               break;
+
             default:
               this.callbacks.showTool({ id: ev.id, delta: ev.delta });
           }
@@ -131,11 +120,14 @@ export class UIUpdater implements ApprovalGateway {
         }
 
         case 'toolCallEnd': {
+          console.log(ev.raw);
+          this.history.appendTool(ev.raw.item);
           const extractor = activeToolCalls.get(ev.id)!;
           toolCalls.push({
             id: ev.id,
+            call_id: ev.raw.item.call_id,
             name: extractor.getToolName(),
-            args: JSON.parse(extractor.getBuffer()),
+            args: JSON.parse(ev.raw.item.arguments),
           });
           activeToolCalls.delete(ev.id);
           break;
@@ -143,6 +135,7 @@ export class UIUpdater implements ApprovalGateway {
       }
     }
 
+    // console.log(buffer);
     return { assistantContent, toolCalls };
   }
 }

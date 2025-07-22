@@ -47,7 +47,7 @@
 
     const newNode: Node = {
       id,
-      type: "c4FlowNode",
+      type: "bpNode",
       position: {
         x: centreX,
         y: centreY,

@@ -1,6 +1,6 @@
 <script>
   import { encoder } from "$lib/state/contextWindow.svelte";
-  import Button from "../ui/button/button.svelte";
+  import Button from "$lib/components/ui/button/button.svelte";
   import MdRenderer from "./MDRenderer.svelte";
 
   let {ch, approve, reject} = $props();
@@ -34,11 +34,10 @@
             <div class="bg-background border rounded-lg p-3 shadow-sm mt-1">
                 <MdRenderer content={chItem.tool.arguments} />
             </div>
-        {:else if chItem.tool.status === "calling"}
+        <!-- {:else if chItem.tool.status === "calling"}
         <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
             {#each Object.entries(chItem.tool.arguments) as [key, value]}
             {#if key === "content"}
-                <!-- full-width, scrollable Markdown block -->
                 <div class="col-span-2">
                 <div class="max-h-60 overflow-auto rounded border bg-muted p-2">
                     <MdRenderer content={value} />
@@ -49,7 +48,7 @@
                 <dd class="text-gray-600 break-words">{value}</dd>
             {/if}
             {/each}
-        </dl>
+        </dl> -->
 
         {:else if chItem.tool.status === "resolved"}
             <div class="bg-background border rounded-lg p-3 shadow-sm mt-1">

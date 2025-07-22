@@ -2,10 +2,10 @@ import type { Tool } from "openai/resources/responses/responses.mjs";
 
 import type { ToolKey } from "./ToolRole";
 import { toolMap } from "./ToolMap";
-import type { ApprovalGateway } from "./UIUpdater";
+import type { ApprovalGateway } from "./StreamHandler";
 
 interface InternalToolHandler {
-  handler: (args: any) => Promise<any>;
+  handler: (args: any) => Promise<string>;
   schema:  BPTool;
 }
 
@@ -25,8 +25,8 @@ export class ToolRegistry {
   }
 
   async execute(name: string, args: any) {
-    console.log(args);
-    console.log(this.handlers.get(name)?.handler)
-    return this.handlers.get(name)?.handler(args);
+    // console.log(args);
+    // console.log(this.handlers.get(name)?.handler)
+    return this.handlers.get(name)!.handler(args);
   }
 }

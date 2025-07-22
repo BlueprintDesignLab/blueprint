@@ -1,29 +1,28 @@
 export const editorState = $state({
-    planMD: "",
-    graphYAML: "",
-    currSrc: "",
+  planMD: "",
+  currSrc: "",
+  currSrcPath: "",
 
-    proposedPlanMD: "",
-    proposedGraphYaml: "",
-    proposedCurrSrc: "",
+  proposedPlanMD: "",
+  proposedCurrSrc: "",
 });
 
-export const proposePlan = (newPlan: string) => {
-    editorState.proposedPlanMD = newPlan;
-}
+// ---------------------------------------------
+// Plan helpers
+// ---------------------------------------------
+export const proposePlan       = (md: string) => (editorState.proposedPlanMD = md);
+export const commitPlan        = () => {
+  editorState.planMD = editorState.proposedPlanMD;
+  editorState.proposedPlanMD = "";
+};
+export const clearProposedPlan = () => (editorState.proposedPlanMD = "");
 
-export const proposeCurrSrc = (newSrc: string) => {
-    editorState.proposedCurrSrc = newSrc;
-}
-
-export const commit = () => {
-    editorState.planMD = editorState.proposedPlanMD;
-    editorState.graphYAML = editorState.proposedGraphYaml;
-    editorState.currSrc = editorState.proposedCurrSrc;
-}
-
-export const revert = () => {
-    editorState.proposedPlanMD = editorState.planMD;
-    editorState.proposedGraphYaml = editorState.graphYAML;
-    editorState.proposedCurrSrc = editorState.currSrc;
-}
+// ---------------------------------------------
+// Curr-src helpers
+// ---------------------------------------------
+export const proposeCurrSrc       = (src: string) => (editorState.proposedCurrSrc = src);
+export const commitCurrSrc        = () => {
+  editorState.currSrc = editorState.proposedCurrSrc;
+  editorState.proposedCurrSrc = "";
+};
+export const clearProposedCurrSrc = () => (editorState.proposedCurrSrc = "");

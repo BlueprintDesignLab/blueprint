@@ -18,6 +18,14 @@ export class ChatHistory {
     return prompt;
   }
 
+  buildOpenaiPrompt(): any[] {
+    const combined = [...this.chat, ...this.tools]
+      .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
+      .map(({ timestamp, ...rest }) => rest);
+
+    return combined;
+  }
+
   async load() { /* read from disk */ }
   async persist() { /* write to disk */ }
 }

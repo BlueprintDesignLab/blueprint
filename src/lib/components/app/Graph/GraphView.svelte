@@ -15,25 +15,26 @@
     Panel,
   } from "@xyflow/svelte";
 
-  import C4FlowNode from "$lib/components/app/C4FlowNode.svelte";
-  import C4FlowEdge from "$lib/components/app/C4FlowEdge.svelte";
+  import BPNode from "$lib/components/app/Graph/BPNode.svelte";
+  import BPEdge from "$lib/components/app/Graph/BPEdge.svelte";
 
-  import { graphCode } from "$lib/state/graph.svelte";
-  import { DEFAULT_MARKEREND } from "$lib/util/graphIO";
+  import { DEFAULT_MARKEREND, type MergedGraph } from "$lib/util/graphIO";
+
+  let { nodes = $bindable(), edges = $bindable() }: MergedGraph = $props();
 
   const edgeTypes = {
-    c4FlowEdge: C4FlowEdge,
+    bpEdge: BPEdge,
   };
 
-  const nodeTypes: NodeTypes = { c4FlowNode: C4FlowNode };
+  const nodeTypes: NodeTypes = { bpNode: BPNode };
 
-  const nodes = useNodes();
+  const sfNodes = useNodes();
 
   function onConnect(c: Connection): Edge | void {
     const id = `${c.source}-${c.target}`;
     
-    const source = nodes.current.find(n => n.id === c.source)!;
-    const target = nodes.current.find(n => n.id === c.target)!;
+    const source = sfNodes.current.find(n => n.id === c.source)!;
+    const target = sfNodes.current.find(n => n.id === c.target)!;
 
     if (source.data.type != target.data.type) {
       alert("Can't connect between different layers");
@@ -44,7 +45,7 @@
       id,
       source: c.source,
       target: c.target,
-      type: "c4FlowEdge",
+      type: "bpEdge",
       animated: true,
       zIndex: 1,
       markerEnd: DEFAULT_MARKEREND as EdgeMarkerType,
@@ -57,14 +58,13 @@
 
 
 <SvelteFlow
-  bind:nodes={graphCode.nodes}
-  bind:edges={graphCode.edges}
+  bind:nodes
+  bind:edges
   fitView
   {nodeTypes}
   {edgeTypes}
   connectionLineType={ConnectionLineType.Straight}
   onbeforeconnect={(d) => {
-    // return false;
     return onConnect(d);
   }}
 >

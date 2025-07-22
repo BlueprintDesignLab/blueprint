@@ -14,6 +14,8 @@ import { parse, stringify } from "yaml";
 import { type Node, type Edge, MarkerType, type EdgeMarkerType, Position } from "@xyflow/svelte";
 
 import dagre from "@dagrejs/dagre";
+import { invoke } from "@tauri-apps/api/core";
+import { debounce } from "./debounce";
 
 type NodeSem = Record<string, unknown>;
 type EdgeSem = Record<string, unknown>;
@@ -103,7 +105,6 @@ export function loadGraph(yamlText: string, viewText: string): MergedGraph {
 
   const sem = parse(yamlText) as GraphSemYAML;
 
-  // console.log(viewText);
   const view = (
     viewText ? JSON.parse(viewText) : { nodes: [], edges: [] }
   ) as Partial<GraphViewJSON>;
@@ -119,7 +120,7 @@ export function loadGraph(yamlText: string, viewText: string): MergedGraph {
 
     const combNode: Node = {
       id,
-      type: "c4FlowNode",
+      type: "bpNode",
       data: { ...(semNode as NodeSem) },
       position: v?.position ?? { x: 40, y: 40 },
       width: v?.width ?? 150,
@@ -135,7 +136,7 @@ export function loadGraph(yamlText: string, viewText: string): MergedGraph {
     const { source, target } = semEdge as EdgeSem;
     return {
       id,
-      type: "c4FlowEdge",
+      type: "bpEdge",
       source,
       target,
       sourceHandle: v?.sourceHandle ?? 'a',
@@ -164,7 +165,7 @@ export function saveGraphView(merged: MergedGraph): string {
       ({ id, type, position, width, height, zIndex }): NodeView => ({
         id,
         position,
-        type: type ?? "c4FlowNode",
+        type: type ?? "bpNode",
         width: width ?? 150,
         height: height ?? 40,
         zIndex: zIndex ?? 0,
@@ -188,6 +189,7 @@ export function saveGraphView(merged: MergedGraph): string {
 }
 
 export function saveGraphSemantic(merged: MergedGraph): string {
+  console.log(merged);
   const outNodes: GraphSemYAML["nodes"] = {};
   const outEdges: GraphSemYAML["edges"] = {};
 
@@ -214,3 +216,31 @@ export function saveGraphSemantic(merged: MergedGraph): string {
 
   return yamlStr;
 }
+
+export const loadGraphFiles = async () => {
+  const [yaml, view] = await Promise.allSettled([
+    invoke<string>('read_file', { path: '.blueprint/graph.yaml' }).catch(() => ''),
+    invoke<string>('read_file', { path: '.blueprint/view.json' }).catch(() => ''),
+  ]);
+  return { yaml: yaml.status === 'fulfilled' ? yaml.value : '', 
+           view:  view.status  === 'fulfilled' ? view.value  : '' };
+};
+
+
+const graphYamlDebounced = debounce((graph: MergedGraph) => {
+  const src = saveGraphSemantic(graph);
+  invoke('write_project_file', { path: './.blueprint/graph.yaml', content: src })
+}, 1000);
+
+const viewJsonDebounced  = debounce((graph: MergedGraph) => {
+  const src = saveGraphView(graph);
+  invoke('write_project_file', { path: './.blueprint/view.json', content: src })
+}, 1000);
+
+export const saveGraphYaml = graphYamlDebounced;
+export const saveViewJson  = viewJsonDebounced;
+
+type PartialGraph = {
+  nodes?: Node[];
+  edges?: Edge[];
+};

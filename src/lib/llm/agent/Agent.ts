@@ -1,18 +1,19 @@
 import { tauriStore } from "$lib/state/tauriStore";
-import OpenAI from "openai";
 import { ChatHistory } from "./ChatHistory";
 import { OpenAIAdapter } from "./LLMClient";
 import { ToolRegistry } from "./ToolRegistry";
-import { UIUpdater, type UIUpdaterCallbacks } from "./UIUpdater";
+import { StreamHandler, type UIUpdaterCallbacks } from "./StreamHandler";
 import { toolsFor } from "./ToolRole";
 import { getSystemPromptFor } from "./SystemPrompts";
+
+import OpenAI from "openai";
 
 const MAX_STEPS = 20;
 
 export class Agent {
   private history = new ChatHistory();
   private registry: ToolRegistry;
-  private ui: UIUpdater;
+  private streamHandler: StreamHandler;
 
   private done = true;
   private systemPrompt;
@@ -26,10 +27,10 @@ export class Agent {
     this.history.tools = deps.tools;
     this.systemPrompt = getSystemPromptFor(role);
 
-    this.ui = new UIUpdater(callbacks);
+    this.streamHandler = new StreamHandler(this.history, callbacks);
 
-    const tools = toolsFor("architect");
-    this.registry = new ToolRegistry(tools, this.ui); 
+    const tools = toolsFor(role);
+    this.registry = new ToolRegistry(tools, this.streamHandler); 
   }
 
   async run(userMessage: string, controller: AbortController) {
@@ -38,7 +39,7 @@ export class Agent {
     let step = 0;
 
     while (!this.done && step++ < MAX_STEPS) {
-      const prompt = this.history.buildPrompt(this.systemPrompt);
+      const prompt = this.history.buildOpenaiPrompt();
 
       const openai = new OpenAI({
         baseURL: await tauriStore.get('url-endpoint'),
@@ -47,25 +48,30 @@ export class Agent {
       });
     
       const model: string = await tauriStore.get('model-name') ?? "gpt-4.1";
-      const adapter = new OpenAIAdapter(openai, model, prompt, this.registry.asOpenAITools(), this.systemPrompt, controller.signal);
+      const tools = this.registry.asOpenAITools()
+      // console.log(tools);
+      // console.log(this.systemPrompt);
+      const adapter = new OpenAIAdapter(openai, model, prompt, tools, this.systemPrompt, controller.signal);
 
-      const { assistantContent, toolCalls } = await this.ui.consume(adapter);
+      const { assistantContent, toolCalls } = await this.streamHandler.consume(adapter);
+      // console.log(toolCalls);
       this.history.appendChat({ role: "assistant", content: assistantContent });
 
       for (const tc of toolCalls) {
-        this.ui.showToolCalling(tc);
+        console.log(tc.name, tc.args);
         const output = await this.registry.execute(tc.name, tc.args);
+        console.log(output);
         this.history.appendTool({ type: "function_call_output", call_id: tc.call_id, output });
-        this.ui.showToolCallResult(tc, output);        
+        this.streamHandler.showToolCallResult(tc, output);        
       }
 
       if (toolCalls.length === 0) this.done = true;
     }
 
-    this.ui.stop();
+    this.streamHandler.stop();
   }
 
   handleApproval(id: string, result: string | null) {
-    this.ui.handleApproval(id, result);
+    this.streamHandler.handleApproval(id, result);
   }
 }
