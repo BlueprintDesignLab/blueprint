@@ -76,22 +76,22 @@ class GraphCode {
     const dispNodes = [...this.selectedNodes];
     const dispEdges = [...this.selectedEdges];
 
-    const selectedNodeIds = new Set(this.selectedNodes.map((n) => n.id));
+    // const selectedNodeIds = new Set(this.selectedNodes.map((n) => n.id));
 
-    if (this.selectedNodes.length > 0) {
-      const edgeAdjacentToNodes = this.edges.filter(edge =>
-        selectedNodeIds.has(edge.source) || selectedNodeIds.has(edge.target)
-      )
+    // if (this.selectedNodes.length > 0) {
+    //   const edgeAdjacentToNodes = this.edges.filter(edge =>
+    //     selectedNodeIds.has(edge.source) || selectedNodeIds.has(edge.target)
+    //   )
 
-      dispEdges.push(...edgeAdjacentToNodes);
-    }
+    //   dispEdges.push(...edgeAdjacentToNodes);
+    // }
 
-    if (this.selectedEdges.length > 0) {
-      for (const dispEdge of dispEdges) {
-        dispNodes.push(this.nodes.find((n) => dispEdge.source === n.id)!)
-        dispNodes.push(this.nodes.find((n) => dispEdge.target === n.id)!)
-      }
-    }
+    // if (this.selectedEdges.length > 0) {
+    //   for (const dispEdge of dispEdges) {
+    //     dispNodes.push(this.nodes.find((n) => dispEdge.source === n.id)!)
+    //     dispNodes.push(this.nodes.find((n) => dispEdge.target === n.id)!)
+    //   }
+    // }
 
     return {
       nodes: dispNodes,
@@ -106,9 +106,11 @@ class GraphCode {
     if (!patch.nodes && !patch.edges) return; // nothing to do
 
     if (this.selectedNodes.length === 0) {
-      throw new Error(
-        "overwritePartial: no nodes are selected – nothing to merge into."
-      );
+      console.log("no nodes are selected");
+      return;
+      // throw new Error(
+      //   "overwritePartial: no nodes are selected – nothing to merge into."
+      // );
     }
 
     /* ---------- Helper sets ---------- */

@@ -40,6 +40,7 @@ export class Agent {
 
     while (!this.done && step++ < MAX_STEPS) {
       const prompt = this.history.buildOpenaiPrompt();
+      console.log(prompt);
 
       const openai = new OpenAI({
         baseURL: await tauriStore.get('url-endpoint'),
@@ -58,11 +59,11 @@ export class Agent {
       this.history.appendChat({ role: "assistant", content: assistantContent });
 
       for (const tc of toolCalls) {
-        console.log(tc.name, tc.args);
+        // console.log(tc.name, tc.args);
         const output = await this.registry.execute(tc.name, tc.args);
-        console.log(output);
+        // console.log(output);
         this.history.appendTool({ type: "function_call_output", call_id: tc.call_id, output });
-        this.streamHandler.showToolCallResult(tc, output);        
+        this.streamHandler.showToolCallResult(tc, tc.args, output);        
       }
 
       if (toolCalls.length === 0) this.done = true;

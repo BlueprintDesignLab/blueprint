@@ -14,6 +14,7 @@ export const proposePlan       = (md: string) => (editorState.proposedPlanMD = m
 export const commitPlan        = () => {
   editorState.planMD = editorState.proposedPlanMD;
   editorState.proposedPlanMD = "";
+  console.log(editorState.planMD)
 };
 export const clearProposedPlan = () => (editorState.proposedPlanMD = "");
 

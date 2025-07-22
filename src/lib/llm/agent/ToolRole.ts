@@ -1,6 +1,6 @@
 export const TOOL = {
   writeProjectFile: "writeProjectFile",
-  writePlanMD:      "writePlanMD",
+  proposePlanMD:      "proposePlanMD",
   writeGraphYAML:   "writeGraphYAML",
   readFile:         "readFile",
   listDirTree:      "listDirTree",
@@ -15,8 +15,8 @@ export const TOOL = {
 export type ToolKey = typeof TOOL[keyof typeof TOOL];
 
 const roleTools: Record<AgentRoles, ToolKey[]> = {
-  plan:   [TOOL.writePlanMD, TOOL.readFile, TOOL.listDirTree, TOOL.refer, TOOL.endSuccess, TOOL.endFailure, TOOL.webSearch],
-  architect: [TOOL.startCoder, TOOL.writeGraphYAML, TOOL.writeProjectFile, TOOL.readFile, TOOL.listDirTree, TOOL.refer, TOOL.endSuccess, TOOL.endFailure, TOOL.webSearch],
+  plan:   [TOOL.proposePlanMD, TOOL.readFile, TOOL.listDirTree, TOOL.refer, TOOL.endSuccess, TOOL.endFailure, TOOL.webSearch],
+  architect: [ TOOL.writeGraphYAML, TOOL.readFile, TOOL.listDirTree, TOOL.refer, TOOL.endSuccess, TOOL.endFailure, TOOL.webSearch],
   code:     [TOOL.writeProjectFile, TOOL.readFile, TOOL.listDirTree, TOOL.runCommand, TOOL.refer, TOOL.endSuccess, TOOL.endFailure, TOOL.webSearch],
 };
 

@@ -57,9 +57,9 @@
       return;
     }
     if ("delta" in payload) {
-      ch[index].tool.arguments += payload.delta;
+      ch[index].tool.args += payload.delta;
     } else {
-      ch.push(payload);
+      ch[index] = payload;
     }
     scrollIfNearBottom();
   }
@@ -87,8 +87,9 @@
 
   const send = () => {
     if (generating) stopGenerating();
-    const userMessage = { role: "user", content: question };
+    const userMessage = { role: "user", content: $state.snapshot(question) };
     ch.push(userMessage);
+
     chAssistant();
     generating = true;
     controller = new AbortController();
@@ -101,8 +102,10 @@
         throw e;
       }
     })();
+
     question = "";
     tick().then(() => autoResize(textarea));
+    
     scroll();
   };
 
@@ -121,15 +124,14 @@
 
   let textarea: HTMLTextAreaElement | null = $state(null);
 
-  function autoResize(el: HTMLTextAreaElement | null) {
+  async function autoResize(el: HTMLTextAreaElement | null) {
     if (!el) return;
 
-    tick().then(() => {
-      const h = Math.min(el.scrollHeight, 160);
+    await tick();                   // wait for Svelte to flush
+    await new Promise(r => requestAnimationFrame(r)); // wait for browser layout
 
-      el.style.height = "auto";
-      el.style.height = `${h}px`;
-    });
+    el.style.height = "auto";       // collapse to natural height
+    el.style.height = Math.min(el.scrollHeight, 160) + "px";
   }
 
   export function handleKeyDown(event: KeyboardEvent) {

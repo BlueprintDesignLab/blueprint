@@ -2,10 +2,12 @@ export const workflow = `
 <overall workflow>
 If you have not read the files and listed the directory, always do so first to understand current progress.
 
+Always ask one question at a time to not overwhelm the user.
+
 The overall workflow is:
 - 'plan' agent convert user needs to plan.md
 - 'architect' agent using plan.md, create/tweak graph.yaml
-- 'architect' agent generate the edge json schemas and interface files
+- 'code' agent generate the edge json schemas and interface files
 - 'code' agent generate the code in the nodes.
 <overall workflow>
 `

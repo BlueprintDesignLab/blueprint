@@ -6,6 +6,7 @@ import type { ApprovalGateway } from "./StreamHandler";
 
 import { clearProposedCurrSrc, clearProposedPlan, commitCurrSrc, commitPlan } from "$lib/state/editor.svelte";
 import { graphCode } from "$lib/state/graph.svelte";
+import { setAgentFocusMode } from "$lib/state/focus.svelte";
 
 export interface ToolHandler {
   handler: (args: any, deps: { approval: ApprovalGateway }) => Promise<string>;
@@ -43,11 +44,11 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     },
   },
 
-  writePlanMD: {
+  proposePlanMD: {
     schema: {
       type: "function",
-      name: "write_plan_md_file",
-      description: "Create or replace the plan.md file.",
+      name: "propose_plan_md_file",
+      description: "Propose the new/adjusted plan.md file. Will automatically write to file upon approval.",
       parameters: {
         type: "object",
         properties: {
@@ -59,7 +60,7 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
       strict: true,
     },
     handler: async ({ content }, { approval }) => {
-      const ok = await approval.ask({ name: "write_plan_md_file", args: { content } });
+      const ok = await approval.ask({ name: "propose_plan_md_file", args: { content } });
       if (!ok) {
         clearProposedPlan();
         return "not approved"
@@ -113,7 +114,15 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     },
     handler: async ({ path }, { approval }) => {
       // const ok = await approval.ask({ name: "read_file", args: { path } });
-      return await invoke("read_file", { path }) ?? "failed";
+
+      let res = "failed";
+      try {
+        res = await invoke("read_file", { path });
+      } catch (e) {
+        return String(e);
+      }
+
+      return res;
     },
   },
 
@@ -132,7 +141,14 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     },
     handler: async ({ path }, { approval }) => {
       // const ok = await approval.ask({ name: "list_directory_tree", args: { path } });
-      return await invoke("list_directory_tree", { path }) ?? "failed";
+      let res = "failed";
+      try {
+        res = await invoke("list_directory_tree", { path });
+      } catch (e) {
+        return String(e);
+      }
+
+      return res;
     },
   },
 
@@ -178,6 +194,8 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     },
     handler: async ({ node }, { approval }) => {
       const ok = await approval.ask({ name: "start_coder", args: { node } });
+      setFocusNode(node);
+
       return ok ? "coder started" : "not approved";
     },
   },
@@ -197,6 +215,8 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     },
     handler: async ({ role }, { approval }) => {
       const ok = await approval.ask({ name: "refer", args: { role } });
+      setAgentFocusMode(role);
+      
       return ok ? "refer successful" : "not approved";
     },
   },
@@ -242,3 +262,7 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     handler: async () => "web search handled natively by provider",
   },
 };
+function setFocusNode(node: any) {
+  throw new Error("Function not implemented.");
+}
+

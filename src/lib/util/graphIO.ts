@@ -189,7 +189,7 @@ export function saveGraphView(merged: MergedGraph): string {
 }
 
 export function saveGraphSemantic(merged: MergedGraph): string {
-  console.log(merged);
+  // console.log(merged);
   const outNodes: GraphSemYAML["nodes"] = {};
   const outEdges: GraphSemYAML["edges"] = {};
 

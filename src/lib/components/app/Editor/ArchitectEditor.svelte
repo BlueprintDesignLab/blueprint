@@ -1,7 +1,6 @@
 <script lang="ts">
   import * as Resizable from "$lib/components/ui/resizable/index.js";
 
-  import CodeDiff from './Canvas/CodeDiff.svelte';
   import { yaml } from '@codemirror/lang-yaml';
 
   import { graphCode } from '$lib/state/graph.svelte';
@@ -10,14 +9,15 @@
 
   import GraphDiff from './Canvas/GraphDiff.svelte';
   import { untrack } from "svelte";
+  import CodeSingle from "./Canvas/CodeSingle.svelte";
   
   let semDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
   let viewDerived = $derived(saveGraphView(graphCode.getSelectedGraph()));
 
   // $effect(() => {
-  //   semDerived;
+  //   // semDerived;
   //   // viewDerived;
-  //   // graphCode.loadGraph(semDerived, viewDerived);
+  //   graphCode.loadGraph(semDerived, viewDerived);
   //   saveGraphYaml(untrack(() => graphCode.getGraph()));
   //   saveViewJson(untrack(() => graphCode.getGraph()));
   // });
@@ -27,7 +27,7 @@
   {#if graphCode.filtering}
     <Resizable.Pane defaultSize={50}>
       <div class="editor-shell">
-          <CodeDiff
+          <CodeSingle
           bind:content={semDerived}
           lineWrapping={true}
           lang={yaml}

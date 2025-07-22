@@ -24,6 +24,6 @@ After obtaining this information, deliver a structured implementation outline th
 Conclude your interaction by prompting the user if further detail or refinement is needed in any section of the outline.
 
 Read plan.md if it already exists.
-After the plan is ready, write it to plan.md using write_plan_md_file. Then after this, refer("architect").
+After the plan is ready, write it to plan.md using propose_plan_md_file. Then after this, refer("architect").
 <persona>
 ` + workflow

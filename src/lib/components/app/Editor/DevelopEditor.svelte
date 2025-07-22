@@ -2,8 +2,6 @@
   import * as Resizable from "$lib/components/ui/resizable/index.js";
   import { onMount } from 'svelte';
 
-  import CodeDiff from './Canvas/CodeDiff.svelte';
-
   import { markdown } from '@codemirror/lang-markdown';
   
   import { editorState } from '$lib/state/editor.svelte';
@@ -13,21 +11,26 @@
   import { FileText } from 'lucide-svelte';
 
   import Terminal from "./Canvas/Terminal.svelte";
+  import CodeDynam from "./Canvas/CodeDynam.svelte";
 
-  onMount(() => {
+  // onMount(() => {
+  //   loadSrcFile(editorState.currSrcPath).then(text => (editorState.currSrc = text));
+  //   // const unlisten = fileWatcher.addListener(e => {
+  //   //   if (e.kind.includes('data') && e.paths.some(p => p.includes('/src')))
+  //   //     loadSrcFile(editorState.currSrcPath).then(text => (editorState.currSrc = text));
+  //   // });
+  //   // return () => unlisten();
+  // });
+
+  $effect(() => {
     loadSrcFile(editorState.currSrcPath).then(text => (editorState.currSrc = text));
-    // const unlisten = fileWatcher.addListener(e => {
-    //   if (e.kind.includes('data') && e.paths.some(p => p.includes('/src')))
-    //     loadSrcFile(editorState.currSrcPath).then(text => (editorState.currSrc = text));
-    // });
-    // return () => unlisten();
-  });
+  })
 
-  // $effect(() => {
-  //   console.log("saving src");
-  //   editorState.currSrc;
-  //   saveSrcFile(editorState.currSrcPath, editorState.currSrc);
-  // })
+  $effect(() => {
+    console.log("saving src");
+    editorState.currSrc;
+    saveSrcFile(editorState.currSrcPath, editorState.currSrc);
+  })
 </script>
 
 <Resizable.PaneGroup direction="vertical" autoSaveId="terminalSRCSplit">
@@ -51,7 +54,7 @@
 
     <!-- Editor -->
     <div class="editor-shell">
-      <CodeDiff
+      <CodeDynam
         bind:content={editorState.currSrc}
         bind:propose={editorState.proposedCurrSrc}
         lineWrapping

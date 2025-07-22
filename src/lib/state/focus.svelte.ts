@@ -8,8 +8,8 @@ export const focus: Focus = $state({
     agentRole: "plan"
 })
 
-export const setFocusMode = (newFocusMode: AgentRoles) => {
-    focus.agentRole = newFocusMode;
+export const setAgentFocusMode = (newFocusRole: AgentRoles) => {
+    focus.agentRole = newFocusRole;
 }
 
 export const setFocuNode = (newFocusMode: string) => {

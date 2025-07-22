@@ -54,6 +54,7 @@
     "@tauri-apps/cli": "^2",
     "@types/jest": "^30.0.0",
     "bits-ui": "^2.8.10",
+    "jest-environment-jsdom": "^30.0.5",
     "mode-watcher": "^1.1.0",
     "paneforge": "^1.0.0",
     "svelte": "^5.0.0",

@@ -35,7 +35,7 @@ export class TerminalController {
   setUpPtyToXTerm() {
     this.pty.onData((chunk) => {
       this.buffer += stripAnsi(chunk);
-      console.log(this.buffer);
+      // console.log(this.buffer);
       
       // if (this.buffer.includes(SHELL_SENTINEL)) {
       //   this.firstSentinel = true;

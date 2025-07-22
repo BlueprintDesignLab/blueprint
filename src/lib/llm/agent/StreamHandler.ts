@@ -1,7 +1,10 @@
 import { StreamParamExtractor } from './StreamParamExtractor'; // wherever it lives
 import type { ChatHistory } from './ChatHistory';
+
 import { graphCode } from '$lib/state/graph.svelte';
 import { editorState, proposeCurrSrc, proposePlan } from '$lib/state/editor.svelte';
+import { focus } from '$lib/state/focus.svelte';
+
 import type { LLMStream } from './LLMClient';
 
 /* UIUpdater.types.ts (or wherever you keep shared types) */
@@ -48,13 +51,14 @@ export class StreamHandler implements ApprovalGateway {
     this.pendings.delete(id);
   }
 
-  showToolCallResult(tc: any, output: string) {
+  showToolCallResult(tc: any, args: any, output: string) {
     // this.updateUI(`\n> Task Completed!`);
     const resObj = {
       type: "function_call_output",
       call_id: tc.call_id,
       output: output,
       status: "resolved",
+      args,
       name: tc.name,
       timestamp: new Date().toISOString()
     };
@@ -85,7 +89,7 @@ export class StreamHandler implements ApprovalGateway {
           break;
 
         case 'toolCallStart': {
-          this.callbacks.showTool({ id: ev.id, tool: { name: ev.name, arguments: "", status: "in_progress" } });
+          this.callbacks.showTool({ id: ev.id, tool: { name: ev.name, args: "", status: "in_progress" } });
           activeToolCalls.set(ev.id, new StreamParamExtractor('content', ev.name));
           break;
         }
@@ -98,7 +102,7 @@ export class StreamHandler implements ApprovalGateway {
           pathExtractor.feed(ev.delta);
 
           switch (extractor.getToolName()) {
-            case 'write_plan_md_file':
+            case 'propose_plan_md_file':
               proposePlan(extractor.getBuffer());
               break;
 
@@ -107,11 +111,14 @@ export class StreamHandler implements ApprovalGateway {
               break;
 
             case 'write_project_file':
+              if (focus.agentRole === "code") {
+                editorState.currSrcPath = pathExtractor.getBuffer();
+                proposeCurrSrc(extractor.getBuffer());
+                break;
+              }
               // console.log(extractor.getBuffer());
               // console.log(pathExtractor.getBuffer());
-              editorState.currSrcPath = pathExtractor.getBuffer();
-              proposeCurrSrc(extractor.getBuffer());
-              break;
+              
 
             default:
               this.callbacks.showTool({ id: ev.id, delta: ev.delta });
@@ -127,7 +134,7 @@ export class StreamHandler implements ApprovalGateway {
             id: ev.id,
             call_id: ev.raw.item.call_id,
             name: extractor.getToolName(),
-            args: JSON.parse(ev.raw.item.arguments),
+            args: JSON.parse(ev.args),
           });
           activeToolCalls.delete(ev.id);
           break;

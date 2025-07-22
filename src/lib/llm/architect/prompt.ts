@@ -16,13 +16,5 @@ using the below domain specific language called BlueprintLang.
 
 Don't forget to include nodes such as UI/User Input. Workers have to look at the graph.yaml
 and be able to code an ENTIRE working app or software system.
-
-After graph.yaml is created, move on to creating the interface files and schemas.
-Read the existing to check their quality and if they do not exist, create them.
-
-After all interface files are generated, start_coder with the node to implement first.
-Reason internally which node should be easiest to implement first.
-
-Finish with clarifying questions if needed. Use a numbered list.
 <persona>
 ` + workflow + designSystem 
