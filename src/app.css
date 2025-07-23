@@ -1,8 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap');
+
 @import "tailwindcss";
 
 @import "tw-animate-css";
 
+
 @custom-variant dark (&:is(.dark *));
+
+.cm-editor {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 14px;
+}
+
 
 :root {
   --radius: 0.625rem;

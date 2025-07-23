@@ -7,6 +7,7 @@
   import { loadGraphFiles } from "$lib/util/graphIO";
   import { graphCode } from "$lib/state/graph.svelte";
   import { fileWatcher } from "$lib/watcher/fileWatcher";
+  import Button from "$lib/components/ui/button/button.svelte";
 
   onMount(() => {
     loadGraphFiles().then((graph) => {
@@ -34,6 +35,7 @@
       <GraphView bind:nodes={graphCode.nodes} bind:edges={graphCode.edges} />
     {:else}
       <GraphView bind:nodes={graphCode.previewGraph.nodes} bind:edges={graphCode.previewGraph.edges} />
+      <!-- <Button onclick={() => graphCode.commitGraph()}>Save</Button> -->
     {/if}
   </Resizable.Pane>
 

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import * as Resizable from "$lib/components/ui/resizable/index.js";
+
   import { graphCode } from "$lib/state/graph.svelte";
   import { yaml } from "@codemirror/lang-yaml";
 
@@ -48,7 +50,7 @@
 
 
 <!-- FloatingCodeMirror.svelte -->
-<div
+<!-- <div
   class="
     fixed top-4 left-4 z-50
     max-w-sm w-11/12 sm:w-96
@@ -66,6 +68,27 @@
       onChange={() => updateGraph()}
     />
   </div>
-</div>
+</div> -->
 
-<GraphDiff />
+<Resizable.PaneGroup direction="horizontal" autoSaveId="graphYamlEditor">
+  <!-- {#if graphCode.filtering} -->
+    <Resizable.Pane defaultSize={20}>
+      <div class="editor-shell">
+          <CodeSingle
+          bind:content={semDerived}
+          lineWrapping={true}
+          lang={yaml}
+
+          />
+      </div>
+    </Resizable.Pane>
+    <Resizable.Handle withHandle />
+  <!-- {/if} -->
+
+  <Resizable.Pane defaultSize={50}>
+    <GraphDiff  />
+
+  </Resizable.Pane>
+</Resizable.PaneGroup>
+
+<!-- <GraphDiff /> -->

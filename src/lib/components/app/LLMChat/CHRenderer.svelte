@@ -19,9 +19,7 @@
                     <MdRenderer content={chItem.tool.args} />
                 </div>
                 <div class="text-xs text-gray-500">
-                    {chItem.tool.output.length > 400
-                        ? chItem.tool.output.slice(0, 400) + '…'
-                        : chItem.tool.output}
+                    {chItem.tool.output}
                 </div>
             </div>
             {/if}
@@ -42,7 +40,13 @@
 
             {:else if chItem.tool.status === "resolved"}
                 <div class="bg-background border rounded-lg p-3 shadow-sm mt-1">
-                    <MdRenderer content={chItem.tool.output} />
+                    <MdRenderer content={chItem.tool.args} />
+                </div>
+                <div class="bg-background border rounded-lg p-3 shadow-sm mt-1">
+                    <!-- <MdRenderer content={chItem.tool.output} /> -->
+                    {chItem.tool.output.length > 80
+                        ? chItem.tool.output.slice(0, 80) + '…'
+                        : chItem.tool.output}
                 </div>
             {/if}
 
