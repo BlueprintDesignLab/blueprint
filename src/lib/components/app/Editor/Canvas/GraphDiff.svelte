@@ -24,19 +24,24 @@
     // return () => unlisten();
   });
 
+  
+
 </script>
 
 <Resizable.PaneGroup direction="horizontal" autoSaveId="graphDiff">
   <Resizable.Pane defaultSize={50}>
-    <GraphView bind:nodes={graphCode.nodes} bind:edges={graphCode.edges} />
+    {#if graphCode.previewGraph === null}
+      <GraphView bind:nodes={graphCode.nodes} bind:edges={graphCode.edges} />
+    {:else}
+      <GraphView bind:nodes={graphCode.previewGraph.nodes} bind:edges={graphCode.previewGraph.edges} />
+    {/if}
   </Resizable.Pane>
 
-  {#if graphCode.proposedNodes.length !== 0}
-    <!-- {propose} -->
+  <!-- {#if graphCode.proposedNodes.length !== 0}
     <Resizable.Handle withHandle />
 
     <Resizable.Pane defaultSize={50}>
       <GraphView bind:nodes={graphCode.proposedNodes} bind:edges={graphCode.proposedEdges} />
     </Resizable.Pane>
-  {/if}
+  {/if} -->
 </Resizable.PaneGroup>

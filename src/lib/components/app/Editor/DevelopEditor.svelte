@@ -16,8 +16,6 @@
   import { graphCode } from "$lib/state/graph.svelte";
 
   import { parse } from "yaml";
-  import FileTree from "./Canvas/FileTree.svelte";
-  import FileTreeExample from "./Canvas/FileTreeExample.svelte";
 
   let unlisten: (() => void) | null = null;
 
@@ -77,14 +75,7 @@
   $inspect(semFiles);
 </script>
 
-<Resizable.PaneGroup direction="horizontal" autoSaveId="explorerSrcSplit">
-  <Resizable.Pane defaultSize={10}>
-    <FileTreeExample filteredSem={semDerived} />
-  </Resizable.Pane>
 
-  <Resizable.Handle withHandle />
-
-  <Resizable.Pane defaultSize={25}>
     <Resizable.PaneGroup direction="vertical" autoSaveId="terminalSRCSplit">
       <Resizable.Pane>
         <!-- Header -->
@@ -122,6 +113,3 @@
         <Terminal />
       </Resizable.Pane>
     </Resizable.PaneGroup>
-
-  </Resizable.Pane>
-</Resizable.PaneGroup>

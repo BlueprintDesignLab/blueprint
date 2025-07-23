@@ -1,4 +1,6 @@
-import { loadGraph, type MergedGraph } from "$lib/util/graphIO";
+import { buildPreview, type PreviewGraph } from "$lib/util/graphDiff";
+
+import { loadGraph, saveGraphSemantic } from "$lib/util/graphIO";
 
 import { type Node, type Edge } from "@xyflow/svelte";
 
@@ -16,10 +18,47 @@ class GraphCode {
   selectedNodes:Node[] = $state.raw([]);
   selectedEdges:Edge[] = $state.raw([]);
 
-  proposedNodes:Node[] = $state.raw([]);
-  proposedEdges:Edge[] = $state.raw([]);
+  proposedSem = "";
 
   filtering = $derived(this.selectedNodes.length > 0 || this.selectedEdges.length);
+
+  previewGraph = $state.raw<PreviewGraph | null>(null); // null == no preview
+
+  /* build/clear preview without touching live graph */
+  showPreview = () => {
+    if (!this.proposedSem) {
+      this.previewGraph = null;
+      return;
+    }
+    try {
+      this.previewGraph = buildPreview(
+        saveGraphSemantic(this.getGraph()),
+        this.proposedSem
+      );
+    } catch (e) {
+      console.error('Invalid proposed YAML', e);
+      this.previewGraph = null;
+    }
+  };
+
+  /* accept the proposal and make it live */
+  commitGraph = () => {
+    if (!this.previewGraph) return;
+    this.nodes = this.previewGraph.nodes.filter(
+      n => !this.previewGraph!.status.get(n.id)?.startsWith('destroyed')
+    );
+    this.edges = this.previewGraph.edges.filter(
+      e => !this.previewGraph!.status.get(e.id)?.startsWith('destroyed')
+    );
+    this.clearProposed();
+    this.previewGraph = null;
+  };
+
+  /* throw away proposal and preview */
+  clearProposed = () => {
+    this.proposedSem = '';
+    this.previewGraph = null;
+  };
 
   loadGraph = (semDerived: string, viewDerived: string) => {
     const newMerged = loadGraph(semDerived, viewDerived);
@@ -34,29 +73,7 @@ class GraphCode {
 
   /** load external data into the *proposed* buffers */
   proposeGraph = (newSem: string) => {
-    // let proposedGraph: MergedGraph = {nodes: [], edges: []};
-
-    // try {
-    //   proposedGraph = loadGraph(newSem, "");
-    // } catch (e) {
-    //   return;
-    // }
-
-    // this.proposedNodes = proposedGraph.nodes;
-    // this.proposedEdges = proposedGraph.edges;
-  };
-
-  /** move proposed → live, then wipe proposed */
-  commitGraph = () => {
-    this.nodes = this.proposedNodes;
-    this.edges = this.proposedEdges;
-    this.clearProposed();
-  };
-
-  /** discard proposed changes */
-  clearProposed = () => {
-    this.proposedNodes = [];
-    this.proposedEdges = [];
+    this.proposedSem = newSem;
   };
 
   getGraph = () => {

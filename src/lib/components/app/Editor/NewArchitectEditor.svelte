@@ -1,7 +1,6 @@
 <script lang="ts">
   import { graphCode } from "$lib/state/graph.svelte";
   import { yaml } from "@codemirror/lang-yaml";
-  import { tomorrow } from "thememirror";
 
   import { saveGraphSemantic, saveGraphView } from "$lib/util/graphIO";
 
