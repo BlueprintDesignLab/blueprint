@@ -108,6 +108,7 @@ export class StreamHandler implements ApprovalGateway {
 
             case 'write_graph_yaml_file':
               graphCode.proposeGraph(extractor.getBuffer());
+              graphCode.showPreview();
               break;
 
             case 'write_project_file':

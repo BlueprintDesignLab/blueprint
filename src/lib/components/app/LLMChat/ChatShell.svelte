@@ -8,19 +8,20 @@
 
   import { tick } from "svelte";
   import { agentRole } from "$lib/state/agentRole.svelte";
-  import { StopCircle } from "lucide-svelte";
-  import { contextWindow } from "$lib/state/contextWindow.svelte";
+  import { Code, StopCircle } from "lucide-svelte";
+  import { contextWindow, encoder } from "$lib/state/contextWindow.svelte";
 
   import { toast } from "svelte-sonner";
-  
-  import { Agent } from "$lib/llm/agent/Agent";
 
-  import type { UIUpdaterCallbacks } from "$lib/llm/agent/StreamHandler";
-
-  let ch: any = $state([]);
+  let { ch, generating, agent } = $props();
   let chDiv: HTMLDivElement | null = $state(null);
 
   let question = $state("");
+
+  $effect(() => {
+    ch;
+    scrollIfNearBottom();
+  })
 
   function scroll() {
     tick().then(() => {
@@ -37,75 +38,25 @@
     if (autoscroll) scroll();
   }
 
-  function chAssistant() {
-    if (ch[ch.length - 1]?.role !== "assistant") {
-      ch.push({ role: "assistant", content: "" });
-    }
-  }
-
-  function streamDelta(delta: string) {
-    chAssistant();
-    ch.at(-1).content += delta;
-    scrollIfNearBottom();
-  }
-
-  function showTool(payload: any) {
-    const index = ch.findIndex((obj: { id: any }) => obj?.id === payload.id);
-    if (index === -1) {
-      if (ch.at(-1)?.content === "") ch.pop();
-      ch.push(payload);
-      scrollIfNearBottom();
-      return;
-    }
-    if ("delta" in payload) {
-      ch[index].tool.args += payload.delta;
-    } else {
-      ch[index] = payload;
-    }
-    scrollIfNearBottom();
-  }
-
-  export const dummyCallbacks: UIUpdaterCallbacks = {
-    streamDelta,
-    showTool,
-    stopGenerating,
-  };
-
-  let agents = {
-    plan: new Agent({ chat: [] }, "plan", dummyCallbacks),
-    architect: new Agent({ chat: [] }, "architect", dummyCallbacks),
-    code: new Agent({ chat: [] }, "code", dummyCallbacks),
-  };
-
-  let agent = $state(agents.plan);
-  $effect(() => {
-    agentRole.agentRole;
-    agent = agents[agentRole.agentRole];
-  });
-
-  let generating = $state(false);
-
   const send = () => {
     if (generating) stopGenerating();
     const userMessage = { role: "user", content: $state.snapshot(question) };
     ch.push(userMessage);
 
-    chAssistant();
+    // chAssistant();
     generating = true;
     (async () => {
       try {
         await agent.run(question);
       } catch (e) {
         toast.error(String(e));
-        streamDelta(String(e));
+        // streamDelta(String(e));
         throw e;
       }
     })();
 
     question = "";
     tick().then(() => autoResize(textarea));
-    
-    scroll();
   };
 
   function stopGenerating() {
@@ -142,36 +93,78 @@
       }
     }
   }
+
+  $inspect(ch);
 </script>
 
 <!-- full-height flex wrapper -->
 <div class="flex flex-col h-screen">
   <!-- fixed-height header -->
-  <header class="flex items-center gap-4 px-4 py-2 border-b border-slate-200 dark:border-slate-700 shrink-0">
+  <header
+  class="flex items-center gap-4 px-4 py-2 border-b border-slate-200 dark:border-slate-700 shrink-0"
+  >
     <span class="text-xs font-medium text-foreground">
-      Role: {agentRole.agentRole}
-      <span class="mx-2 text-muted-foreground">·</span>
-      agentRole: {agentRole.node}
-      <span class="mx-2 text-muted-foreground">·</span>
-      Context: {contextWindow.length}
+        Role: {agentRole.agentRole}
+        <span class="mx-2 text-muted-foreground">·</span>
+        Context: {encoder.encode(JSON.stringify(ch)).length}
+        <span class="mx-2 text-muted-foreground">·</span>
+        <br/>
+        <span class="text-xs text-muted-foreground">Each agent has its own memory</span>
     </span>
 
     <div class="ml-auto">
-      <SettingsDialog />
+        <SettingsDialog />
     </div>
   </header>
 
   <!-- takes all remaining height -->
   <main class="flex flex-col flex-1 overflow-hidden">
     <div class="flex flex-col flex-1 min-h-0 mx-auto max-w-2xl w-full p-4">
-      <!-- Scrollable messages -->
       <div
         bind:this={chDiv}
-        class="flex-1 overflow-y-auto space-y-3 px-2 py-3 bg-muted rounded-xl border"
+        class="flex-1 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 px-6 py-5"
       >
-        <ChRenderer {ch} {approve} {reject} />
-      </div>
+        {#if agentRole.agentRole === "code" && agentRole.node === ""}
+          <div class="flex flex-col items-center justify-center h-full text-center">
+            <div
+              class="inline-flex items-center justify-center w-14 h-14 rounded-full mb-4"
+            >
+              <Code />
+            </div>
 
+            <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">
+              Select a node to focus on
+            </h3>
+
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400 max-w-xs">
+              Each node keeps its own context so the LLM never gets confused.
+            </p>
+
+            <p class="mt-4 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+              Psssssss: you can generate multiple nodes at once!
+            </p>
+          </div>
+        {:else}
+          <div class="flex flex-col h-full">
+            <div
+              class="shrink-0 px-4 py-2 border-b border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"
+            >
+              <p class="text-sm font-medium text-slate-700 dark:text-slate-200">
+                Coding node: <span class="font-mono">{agentRole.node}</span>
+              </p>
+            </div>
+
+            <!-- Divider line -->
+            <div class="h-px bg-slate-200 dark:bg-slate-700"></div>
+
+            <!-- Renderer -->
+            <div class="flex-1 overflow-y-auto">
+              <ChRenderer {ch} {approve} {reject} />
+            </div>
+          </div>
+        {/if}
+      </div>
+      
       <!-- Tabs + Input -->
       <div class="mt-4 shrink-0">
         <Tabs.Root bind:value={agentRole.agentRole}>
@@ -184,15 +177,14 @@
           </Tabs.List>
         </Tabs.Root>
 
-        <div class="flex items-end gap-2">
+        <div class="flex items-center gap-2">
           <textarea
             bind:value={question}
             onkeydown={handleKeyDown}
             placeholder="Type your message…"
             class="flex-1 resize-none rounded border p-2 bg-background text-sm leading-snug
-                   agentRole:outline-none agentRole:ring-1 agentRole:ring-accent"
+                   agentRole:outline-none agentRole:ring-1 agentRole:ring-accent rounded-lg"
             rows="1"
-            style="min-height: 2.5rem; max-height: 160px;"
             oninput={() => autoResize(textarea)}
             bind:this={textarea}
           ></textarea>

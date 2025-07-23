@@ -4,7 +4,7 @@ interface Focus {
 }
 
 export const agentRole: Focus = $state({
-    node: "All",
+    node: "",
     agentRole: "plan"
 })
 

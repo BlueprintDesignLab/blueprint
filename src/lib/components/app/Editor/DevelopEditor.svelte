@@ -1,53 +1,15 @@
 <script lang="ts">
   import * as Resizable from "$lib/components/ui/resizable/index.js";
-
-  import { markdown } from '@codemirror/lang-markdown';
   
   import { editorState } from '$lib/state/editor.svelte';
   import { fileWatcher } from '$lib/watcher/fileWatcher';
   import { loadSrcFile, saveSrcFile } from '$lib/util/srcFileIO';
 
-  import { FileText } from 'lucide-svelte';
-
   import Terminal from "./Canvas/Terminal.svelte";
-  import CodeDynam from "./Canvas/CodeDynam.svelte";
 
-  import { saveGraphSemantic } from "$lib/util/graphIO";
-  import { graphCode } from "$lib/state/graph.svelte";
-
-  import { parse } from "yaml";
+  import GraphDiff from "./Canvas/GraphDiff.svelte";
 
   let unlisten: (() => void) | null = null;
-
-  /**
-   * Strip a full blueprint YAML down to the minimal subset
-   * we care about for tooling.
-   */
-  export function stripBlueprint(
-    inputStr: string
-  ): Pick<typeof input, 'nodes' | 'edges'> {
-    const input = parse(inputStr);
-    const out: ReturnType<typeof stripBlueprint> = { nodes: {}, edges: {} };
-
-    // --- nodes ----------------------------------------------------------
-    for (const [id, node] of Object.entries<any>(input.nodes ?? {})) {
-      out.nodes[id] = {
-        main_file: node.main_file,
-        ...(node.helper_files?.length && { helper_files: node.helper_files }),
-      };
-    }
-
-    // --- edges ----------------------------------------------------------
-    for (const [id, edge] of Object.entries<any>(input.edges ?? {})) {
-      out.edges[id] = {
-        ...(edge.schema && { schema_file: edge.schema }),
-        ...(edge.stubs && { stub_files: edge.stubs }),
-        ...(edge.interface_file && { interface_file: edge.interface_file }),
-      };
-    }
-
-    return out;
-  }
 
   $effect(() => {
     unlisten?.();
@@ -66,20 +28,12 @@
     editorState.currSrc;
     saveSrcFile(editorState.currSrcPath, editorState.currSrc);
   })
-
-  let semDerived = $derived(saveGraphSemantic(graphCode.getGraph()));
-
-  let semFiles = $derived(stripBlueprint(semDerived));
-
-  $inspect(semDerived);
-  $inspect(semFiles);
 </script>
-
 
     <Resizable.PaneGroup direction="vertical" autoSaveId="terminalSRCSplit">
       <Resizable.Pane>
-        <!-- Header -->
-        <header
+        <GraphDiff />
+        <!-- <header
           class="flex items-center gap-2 border-b border-gray-200 bg-gray-50 px-3 py-2 dark:border-gray-800 dark:bg-gray-950"
         >
           <FileText size={16} class="text-gray-500 dark:text-gray-400" />
@@ -95,7 +49,6 @@
           </span>
         </header>
 
-        <!-- Editor -->
         <div class="editor-shell">
           <CodeDynam
             bind:content={editorState.currSrc}
@@ -104,7 +57,7 @@
             lang={markdown}
             onChange={() => saveSrcFile(editorState.currSrcPath, editorState.currSrc)}
           />
-        </div>
+        </div> -->
       </Resizable.Pane>
 
       <Resizable.Handle withHandle />

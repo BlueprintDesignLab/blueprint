@@ -18,13 +18,14 @@ export class Agent {
   private done = true;
   private systemPrompt;
 
+  private controller = new AbortController();
+   
   constructor(
-    deps: { chat: ChatTurn[], tools: any[] },
+    deps: { chat: ChatTurn[] },
     role: AgentRoles,
     callbacks: UIUpdaterCallbacks
   ) {
     this.history.chat = deps.chat;
-    this.history.tools = deps.tools;
     this.systemPrompt = getSystemPromptFor(role);
 
     this.streamHandler = new StreamHandler(this.history, callbacks);
@@ -33,7 +34,7 @@ export class Agent {
     this.registry = new ToolRegistry(tools, this.streamHandler); 
   }
 
-  async run(userMessage: string, controller: AbortController) {
+  async run(userMessage: string) {
     this.history.appendChat({ role: "user", content: userMessage });
     this.done = false;
     let step = 0;
@@ -52,7 +53,8 @@ export class Agent {
       const tools = this.registry.asOpenAITools()
       // console.log(tools);
       // console.log(this.systemPrompt);
-      const adapter = new OpenAIAdapter(openai, model, prompt, tools, this.systemPrompt, controller.signal);
+      this.controller = new AbortController();
+      const adapter = new OpenAIAdapter(openai, model, prompt, tools, this.systemPrompt, this.controller.signal);
 
       const { assistantContent, toolCalls } = await this.streamHandler.consume(adapter);
       // console.log(toolCalls);
@@ -74,5 +76,9 @@ export class Agent {
 
   handleApproval(id: string, result: string | null) {
     this.streamHandler.handleApproval(id, result);
+  }
+
+  stop() {
+    this.controller.abort();
   }
 }

@@ -39,9 +39,10 @@
                 </div>
 
             {:else if chItem.tool.status === "resolved"}
-                <div class="bg-background border rounded-lg p-3 shadow-sm mt-1">
-                    <MdRenderer content={chItem.tool.args} />
-                </div>
+                {#each Object.entries(chItem.tool.args) as [key, value]}
+                    <dt class="font-medium text-gray-700 min-w-[6rem]">{key}</dt>
+                    <dd class="text-gray-600 break-words">{value}</dd>
+                {/each}
                 <div class="bg-background border rounded-lg p-3 shadow-sm mt-1">
                     <!-- <MdRenderer content={chItem.tool.output} /> -->
                     {chItem.tool.output.length > 80
