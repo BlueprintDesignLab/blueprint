@@ -16,5 +16,11 @@ type ChatTurn = {
 type StreamDeltaFn = (delta: string) => void;
 type ShowToolFn   = (tool: any) => void;
 
+type FileNode = {
+    name: string;
+    type: 'file' | 'folder';
+    path: string;
+    children?: FileNode[];
+  };
 
 type BPTool = Tool;

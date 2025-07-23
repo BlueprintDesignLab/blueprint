@@ -8,24 +8,13 @@
   import { editorState } from '$lib/state/editor.svelte';
   import { fileWatcher } from '$lib/watcher/fileWatcher';
   import { FileText } from 'lucide-svelte';
-  import CodeSingle from './Canvas/CodeSingle.svelte';
   import CodeDynam from './Canvas/CodeDynam.svelte';
 
-  onMount(async () => {
-    let text = await loadPlanFile();
-    // console.log(text);
-    editorState.planMD = text;
-    // console.log(editorState.planMD);
-    // const unlisten = fileWatcher.addListener(e => {
-    //   if (e.kind.includes('data') && e.paths.some(p => p.endsWith('/.blueprint/plan.md')))
-    //     loadPlanFile().then(text => (editorState.planMD = text));
-    // });
-    // return () => unlisten();
-  });
+  
 
   // $inspect(editorState.planMD);
   $effect(() => {
-    console.log("save src");
+    console.log("save plan");
     savePlanMd(editorState.planMD);
   })
 </script>

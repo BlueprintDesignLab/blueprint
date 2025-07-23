@@ -7,7 +7,7 @@
   import SettingsDialog from "$lib/components/settings/SettingsDialog.svelte";
 
   import { tick } from "svelte";
-  import { focus } from "$lib/state/focus.svelte";
+  import { agentRole } from "$lib/state/agentRole.svelte";
   import { StopCircle } from "lucide-svelte";
   import { contextWindow } from "$lib/state/contextWindow.svelte";
   import { toast } from "svelte-sonner";
@@ -78,8 +78,8 @@
 
   let agent = $state(agents.plan);
   $effect(() => {
-    focus.agentRole;
-    agent = agents[focus.agentRole];
+    agentRole.agentRole;
+    agent = agents[agentRole.agentRole];
   });
 
   let controller = new AbortController();
@@ -151,9 +151,9 @@
   <!-- fixed-height header -->
   <header class="flex items-center gap-4 px-4 py-2 border-b border-slate-200 dark:border-slate-700 shrink-0">
     <span class="text-xs font-medium text-foreground">
-      Mode: {focus.agentRole}
+      Mode: {agentRole.agentRole}
       <span class="mx-2 text-muted-foreground">·</span>
-      Focus: {focus.node}
+      agentRole: {agentRole.node}
       <span class="mx-2 text-muted-foreground">·</span>
       Context: {contextWindow.length}
     </span>
@@ -176,7 +176,7 @@
 
       <!-- Tabs + Input -->
       <div class="mt-4 shrink-0">
-        <Tabs.Root bind:value={focus.agentRole}>
+        <Tabs.Root bind:value={agentRole.agentRole}>
           <Tabs.List
             class="w-full flex items-center gap-2 flex-nowrap border-b border-slate-200 dark:border-slate-700 mb-2"
           >
@@ -192,7 +192,7 @@
             onkeydown={handleKeyDown}
             placeholder="Type your message…"
             class="flex-1 resize-none rounded border p-2 bg-background text-sm leading-snug
-                   focus:outline-none focus:ring-1 focus:ring-accent"
+                   agentRole:outline-none agentRole:ring-1 agentRole:ring-accent"
             rows="1"
             style="min-height: 2.5rem; max-height: 160px;"
             oninput={() => autoResize(textarea)}

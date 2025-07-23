@@ -3,7 +3,7 @@ import type { ChatHistory } from './ChatHistory';
 
 import { graphCode } from '$lib/state/graph.svelte';
 import { editorState, proposeCurrSrc, proposePlan } from '$lib/state/editor.svelte';
-import { focus } from '$lib/state/focus.svelte';
+import { agentRole } from '$lib/state/agentRole.svelte';
 
 import type { LLMStream } from './LLMClient';
 
@@ -111,7 +111,7 @@ export class StreamHandler implements ApprovalGateway {
               break;
 
             case 'write_project_file':
-              if (focus.agentRole === "code") {
+              if (agentRole.agentRole === "code") {
                 editorState.currSrcPath = pathExtractor.getBuffer();
                 proposeCurrSrc(extractor.getBuffer());
                 break;

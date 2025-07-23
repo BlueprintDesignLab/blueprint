@@ -6,7 +6,7 @@ import type { ApprovalGateway } from "./StreamHandler";
 
 import { clearProposedCurrSrc, clearProposedPlan, commitCurrSrc, commitPlan } from "$lib/state/editor.svelte";
 import { graphCode } from "$lib/state/graph.svelte";
-import { setAgentFocusMode } from "$lib/state/focus.svelte";
+import { setAgentFocusMode } from "$lib/state/agentRole.svelte";
 
 export interface ToolHandler {
   handler: (args: any, deps: { approval: ApprovalGateway }) => Promise<string>;

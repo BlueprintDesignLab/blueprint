@@ -10,16 +10,17 @@
   import { useOnSelectionChange } from '@xyflow/svelte';
 
   import { graphCode } from "$lib/state/graph.svelte";
-  
-  import { focus } from "$lib/state/focus.svelte";
+  import NewArchitectEditor from "./app/Editor/NewArchitectEditor.svelte";
+  import Editors from "./app/Editor/Editors.svelte";
+  import { agentRole } from "$lib/state/agentRole.svelte";
 
   useOnSelectionChange(({ nodes, edges }) => {
     graphCode.setSelectedNodesEdges(nodes, edges);
 
-    if (nodes.length && focus.node !== nodes[0].id) {
-      focus.node = nodes[0].id;   // update only when different
-    } else if (nodes.length === 0 && focus.node !== "All") {
-        focus.node = "All";
+    if (nodes.length && agentRole.node !== nodes[0].id) {
+      agentRole.node = nodes[0].id;   // update only when different
+    } else if (nodes.length === 0 && agentRole.node !== "All") {
+        agentRole.node = "All";
     }
   });
   
@@ -27,13 +28,7 @@
 
 <Resizable.PaneGroup direction="horizontal" autoSaveId="canvasAISplit">
   <Resizable.Pane >
-    {#if focus.agentRole === "plan"}
-      <PlanEditor />
-    {:else if focus.agentRole === "architect"}
-      <ArchitectEditor />
-    {:else if focus.agentRole === "code"}
-      <DevelopEditor />
-    {/if}
+    <Editors />
   </Resizable.Pane>
   <Resizable.Handle withHandle />
 
@@ -60,7 +55,7 @@
 
         </Resizable.Pane>
 
-        {#if focus.agentRole === "code"}
+        {#if agentRole.agentRole === "code"}
             <Resizable.Handle withHandle />
             <Resizable.Pane order={2} defaultSize={15}>
             <Terminal />
