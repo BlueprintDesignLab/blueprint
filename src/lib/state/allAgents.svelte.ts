@@ -23,7 +23,7 @@ class AgentAndChatState {
 
     if (role === "code") {
       if (node === "All Edges") {
-        console.log(edgeCodePrompt);
+        // console.log(edgeCodePrompt);
         sysPrompt = edgeCodePrompt;
       } else {
         sysPrompt += `Your focus node is ${node}`

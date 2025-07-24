@@ -82,7 +82,7 @@
   bind:nodes
   bind:edges
   fitView
-  onnodedragstop={(e) => patchNode(e)}
+  onnodedragstop={(e) => patchNode(e as {targetNode: Node})}
   {nodeTypes}
   {edgeTypes}
   connectionLineType={ConnectionLineType.Straight}

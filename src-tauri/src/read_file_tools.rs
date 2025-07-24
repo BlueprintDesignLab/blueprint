@@ -1,14 +1,14 @@
 // src-tauri/src/fs_tools.rs (replaces the previous walker)
 use anyhow::{Context, Result};
 use ignore::WalkBuilder;
-use std::{ffi::OsStr, path::PathBuf};
 use std::fmt::Write as _;
-use std::path::Path;
+
+use std::{ffi::OsStr, path::PathBuf};
 use tauri::{command, Window};
 use tokio::{fs, task};
 
+use crate::project::get_window_root;
 use crate::resolve;
-use crate::{project::get_window_root};
 
 #[command]
 pub async fn read_file(path: String, window: Window) -> Result<String, String> {
@@ -24,10 +24,7 @@ pub async fn read_file(path: String, window: Window) -> Result<String, String> {
 }
 
 #[command]
-pub async fn list_directory_tree(
-    path: String,
-    window: Window
-) -> Result<String, String> {
+pub async fn list_directory_tree(path: String, window: Window) -> Result<String, String> {
     let root: PathBuf = get_window_root(&window).unwrap();
     let rel: PathBuf = path.into();
 

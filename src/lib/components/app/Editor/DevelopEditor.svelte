@@ -6,7 +6,6 @@
   import { loadSrcFile, saveSrcFile } from '$lib/util/srcFileIO';
 
   import Terminal from "./Canvas/Terminal.svelte";
-
   import GraphDiff from "./Canvas/GraphDiff.svelte";
 
   let unlisten: (() => void) | null = null;
@@ -21,12 +20,19 @@
       if (e.kind.includes('data') && e.paths.some(p => p.includes(editorState.currSrcPath)))
         loadSrcFile(editorState.currSrcPath).then(text => (editorState.currSrc = text));
     }).then((unl) => unlisten = unl);
+
+    return (() => {
+      unlisten?.();
+    });
   })
 
   $effect(() => {
     console.log("saving src");
     editorState.currSrc;
-    saveSrcFile(editorState.currSrcPath, editorState.currSrc);
+
+    if (editorState.currSrcPath !== "") {
+      saveSrcFile(editorState.currSrcPath, editorState.currSrc);
+    }
   })
 </script>
 

@@ -13,7 +13,7 @@ use std::{
 };
 use tauri::{command, Emitter, Window};
 
-use crate::{project::get_window_root};
+use crate::project::get_window_root;
 
 // inside src/watcher.rs
 #[derive(Serialize, Clone)]
@@ -37,7 +37,7 @@ struct Snapshot {
 const WATCHER_PATH: &str = ".blueprint/blueprintwatcher.json";
 
 // ---------- helper utilities ----------
-fn build_gitignore(root: &Path) -> Gitignore {
+pub fn build_gitignore(root: &Path) -> Gitignore {
     let mut builder = GitignoreBuilder::new(root);
 
     // 1. built-ins that always apply
@@ -53,7 +53,7 @@ fn build_gitignore(root: &Path) -> Gitignore {
     builder.build().unwrap_or_else(|_| Gitignore::empty())
 }
 
-fn is_ignored(gi: &Gitignore, p: &Path) -> bool {
+pub fn is_ignored(gi: &Gitignore, p: &Path) -> bool {
     matches!(
         gi.matched_path_or_any_parents(p, p.is_dir()),
         ignore::Match::Ignore(_)

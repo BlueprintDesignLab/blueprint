@@ -1,9 +1,9 @@
 // src-tauri/src/write_file_tools.rs
 use anyhow::{Context, Result};
-use tauri::{Window};
+use tauri::Window;
 use tokio::fs;
 
-use crate::{project::get_window_root};
+use crate::project::get_window_root;
 
 use std::path::{Path, PathBuf};
 
@@ -11,11 +11,9 @@ use std::path::{Path, PathBuf};
 fn resolve_no_canonicalize(root: PathBuf, user_rel: &Path) -> Result<PathBuf, String> {
     // Treat absolute paths as relative to root
     let rel = match user_rel.components().next() {
-        Some(std::path::Component::RootDir) => {
-            user_rel
-                .strip_prefix(std::path::Component::RootDir)
-                .map_err(|_| "Invalid absolute path".to_string())?
-        }
+        Some(std::path::Component::RootDir) => user_rel
+            .strip_prefix(std::path::Component::RootDir)
+            .map_err(|_| "Invalid absolute path".to_string())?,
         _ => user_rel,
     };
 
@@ -37,7 +35,7 @@ pub async fn write_project_file(
     window: Window,
 ) -> Result<(), String> {
     let root: PathBuf = get_window_root(&window).unwrap();
-    
+
     // ── A. clean & validate ──────────────────────────────────────────────
     let rel: PathBuf = path.into();
     let full = resolve_no_canonicalize(root, &rel).unwrap();

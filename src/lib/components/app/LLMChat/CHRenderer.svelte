@@ -35,7 +35,7 @@
 
             {#if chItem.tool.status === "in_progress"}
                 <!-- {chItem.tool.args} -->
-                {crop(chItem.tool.args)}
+                {chItem.tool.args}
             {:else if chItem.tool.status === "resolved"}
                 <!-- {chItem.tool.args} -->
                 {crop(chItem.tool.args)}

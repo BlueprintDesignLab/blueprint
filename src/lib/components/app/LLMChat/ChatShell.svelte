@@ -30,6 +30,7 @@
     console.log("scroll?");
     ch.length;
     ch.at(-1)?.content;
+    ch.at(-1)?.tool?.args;
     scrollIfNearBottom();
   })
 

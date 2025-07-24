@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder, Window};
 
-use crate::{ProjectRoots};
+use crate::ProjectRoots;
 
 use tokio::fs::{create_dir, metadata, OpenOptions};
 use tokio::io::AsyncWriteExt;
@@ -59,7 +59,9 @@ pub fn get_project_root(window: Window) -> Result<PathBuf, String> {
 
 pub fn get_window_root(window: &Window) -> Result<PathBuf, String> {
     let state: tauri::State<'_, ProjectRoots> = window.state::<ProjectRoots>();
-    let map = state.0.read()
+    let map = state
+        .0
+        .read()
         .map_err(|e| format!("RwLock poisoned: {e}"))?;
 
     // 2. Look up the entry for this window

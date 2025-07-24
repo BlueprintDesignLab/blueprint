@@ -74,10 +74,10 @@
       </div>
     {/if}
 
-    <p class="text-xs text-center text-muted-foreground/70 max-w-xs mx-auto leading-snug">
+    <!-- <p class="text-xs text-center text-muted-foreground/70 max-w-xs mx-auto leading-snug">
         “Give me six hours to chop down a tree and I will spend the first four sharpening the axe.”
         <br />
         <span class="text-teal-400 font-medium">- Abraham Lincoln</span>
-    </p>
+    </p> -->
   </div>
 </main>

@@ -11,6 +11,8 @@
   import { graphCode } from "$lib/state/graph.svelte";
   import { invoke } from "@tauri-apps/api/core";
   import { saveGraphYaml, saveViewJson, type MergedGraph } from "$lib/util/graphIO";
+  import { schemaCompiledWatcher } from "$lib/watcher/schemaWatcher";
+  import { compileSchemaPathAndWrite } from "$lib/util/schemaCompiler";
 
   /* ---- file loaders ---- */
   async function loadGraphFiles() {
@@ -23,6 +25,7 @@
   }
 
   let planUnlisten: (() => void) | null = null;
+  let schemaUnlisten: (() => void) | null = null;
 
   onMount(() => {
     loadPlanFile().then((text) => {editorState.planMD = text;});
@@ -33,7 +36,26 @@
         loadPlanFile().then(text => (editorState.planMD = text));
     }).then((unl) => planUnlisten = unl);
 
-    return () => {planUnlisten?.(); };
+    schemaCompiledWatcher.addListener(async (e) => {
+      console.log(e.path);
+      const schemaPath = e.path;
+      const edgeWithSchema = graphCode.getGraph().edges.find((e) => {
+        return e.data?.schema_file === schemaPath
+      });
+
+      if (!edgeWithSchema) return;
+
+      const stubPaths = edgeWithSchema?.data?.stub_files as {source: string, target: string};
+
+      const sourceStubPath = stubPaths.source;
+      const targetStubPath = stubPaths.target!;
+
+      compileSchemaPathAndWrite(schemaPath, sourceStubPath);
+      compileSchemaPathAndWrite(schemaPath, targetStubPath);
+
+    }).then((unl) => schemaUnlisten = unl);
+
+    return () => {planUnlisten?.(); schemaUnlisten?.();};
   });
 
   $inspect(graphCode.nodes);
