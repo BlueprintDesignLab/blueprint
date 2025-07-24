@@ -60,9 +60,21 @@
   let nodes = $derived(graphCode.nodes.map(n => ({ ...n })));
   let edges = $derived(graphCode.edges.map(e => ({ ...e })));
 
-  function patchNode(updatedNodes: {nodes: Node[]}) {
-    // console.log(updatedNodes);
-    graphCode.nodes = updatedNodes.nodes;
+  function patchNode(updatedNodes: {targetNode: Node}) {
+    console.log(updatedNodes);
+    const { targetNode } = updatedNodes;
+    if (!targetNode) return;
+
+    const nodes = graphCode.nodes;
+    const idx = nodes.findIndex(n => n.id === targetNode.id);
+
+    if (idx !== -1) {
+      // in-place replacement keeps array reference stable
+      nodes.splice(idx, 1, targetNode);
+    } else {
+      // optionally push if not found
+      // nodes.push(targetNode);
+    }
   }
 </script>
 

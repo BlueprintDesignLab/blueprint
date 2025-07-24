@@ -15,11 +15,16 @@
 
   import { StopCircle } from "lucide-svelte";
 
+  import { useSvelteFlow } from '@xyflow/svelte';
+
+  const { fitView } = useSvelteFlow();
+
   let { ch, generating, agent }: ChatState = $props();
 
   let chDiv: HTMLDivElement | null = $state(null);
 
   let question = $state("");
+  let contextWindowLength = $derived(encoder.encode(JSON.stringify(ch)).length);
 
   $effect(() => {
     console.log("scroll?");
@@ -43,6 +48,13 @@
     if (autoscroll) scroll();
   }
 
+  function streamDelta(delta: string) {
+    if (ch.at(-1)?.role !== 'assistant') {
+      ch.push({ role: 'assistant', content: '' });
+    }
+    ch.at(-1)!.content += delta;
+  }
+
   const send = () => {
     if (generating) stopGenerating();
     const userMessage = { role: "user", content: $state.snapshot(question) };
@@ -55,7 +67,7 @@
         await agent.run(question);
       } catch (e) {
         toast.error(String(e));
-        // streamDelta(String(e));
+        streamDelta(String(e));
         throw e;
       }
     })();
@@ -70,6 +82,10 @@
 
   function approve(id: string) {
     agent.handleApproval(id, "approve");
+
+    requestAnimationFrame(() => {
+      fitView();
+    })
   }
 
   function reject(id: string) {
@@ -109,7 +125,7 @@
     <span class="text-xs font-medium text-foreground">
         Role: {agentRole.agentRole}
         <span class="mx-2 text-muted-foreground">·</span>
-        Context: {encoder.encode(JSON.stringify(ch)).length}
+        Context: {contextWindowLength}
         <span class="mx-2 text-muted-foreground">·</span>
         <br/>
         <span class="text-xs text-muted-foreground">Each agent has its own memory</span>

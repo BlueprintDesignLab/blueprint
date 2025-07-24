@@ -2,8 +2,7 @@ import { StreamParamExtractor } from './StreamParamExtractor'; // wherever it li
 import type { ChatHistory } from './ChatHistory';
 
 import { graphCode } from '$lib/state/graph.svelte';
-import { editorState, proposeCurrSrc, proposePlan } from '$lib/state/editor.svelte';
-import { agentRole } from '$lib/state/agentRole.svelte';
+import { proposePlan } from '$lib/state/editor.svelte';
 
 import type { LLMStream } from './LLMClient';
 
@@ -108,7 +107,7 @@ export class StreamHandler implements ApprovalGateway {
 
             case 'write_graph_yaml_file':
               graphCode.proposeGraph(extractor.getBuffer());
-              graphCode.showPreview();
+              // graphCode.showPreview();
               break;
 
             // case 'write_project_file':

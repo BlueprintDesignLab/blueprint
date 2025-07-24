@@ -14,13 +14,12 @@
 
   /* ---- file loaders ---- */
   async function loadGraphFiles() {
-    
     let graphYaml = '';
     let viewJSON  = '';
     try { graphYaml = await invoke('read_file', { path: '.blueprint/graph.yaml' }); } catch {}
     try { viewJSON  = await invoke('read_file', { path: '.blueprint/view.json'  }); } catch {}
 
-    graphCode.loadGraph(graphYaml, viewJSON);
+    graphCode.setGraph(graphYaml, viewJSON);
   }
 
   let planUnlisten: (() => void) | null = null;

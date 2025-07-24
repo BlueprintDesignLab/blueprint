@@ -18,28 +18,9 @@ class GraphCode {
   selectedNodes:Node[] = $state.raw([]);
   selectedEdges:Edge[] = $state.raw([]);
 
-  proposedSem = "";
-
-  filtering = $derived(this.selectedNodes.length > 0 || this.selectedEdges.length);
+  filtering: boolean = $derived(this.selectedNodes.length > 0 || this.selectedEdges.length > 0);
 
   previewGraph = $state.raw<PreviewGraph | null>(null); // null == no preview
-
-  /* build/clear preview without touching live graph */
-  showPreview = () => {
-    if (!this.proposedSem) {
-      this.previewGraph = null;
-      return;
-    }
-    try {
-      this.previewGraph = buildPreview(
-        this.getGraph(),
-        this.proposedSem
-      );
-    } catch (e) {
-      console.error('Invalid proposed YAML', e);
-      this.previewGraph = null;
-    }
-  };
 
   /* accept the proposal and make it live */
   commitGraph = () => {
@@ -56,24 +37,34 @@ class GraphCode {
 
   /* throw away proposal and preview */
   clearProposed = () => {
-    this.proposedSem = '';
     this.previewGraph = null;
   };
 
-  loadGraph = (semDerived: string, viewDerived: string) => {
+  setGraph = (semDerived: string, viewDerived: string) => {
     const newMerged = yamlViewToGraph(semDerived, viewDerived);
     
-    if (this.filtering) {
-      this.overwritePartial(newMerged);
-    } else {
-      this.nodes = newMerged.nodes;
-      this.edges = newMerged.edges;
-    }
+    this.nodes = newMerged.nodes;
+    this.edges = newMerged.edges;
+  }
+
+  applyPatch = (semDerived: string, viewDerived: string) => {
+    const newMerged = yamlViewToGraph(semDerived, viewDerived);
+    
+    this.overwritePartial(newMerged);
   }
 
   /** load external data into the *proposed* buffers */
   proposeGraph = (newSem: string) => {
-    this.proposedSem = newSem;
+    try {
+      this.previewGraph = buildPreview(
+        this.getGraph(),
+        newSem
+      );
+    } catch (e) {
+      // suppress intermediate state
+      // console.error('Invalid proposed YAML', e);
+      return;
+    }
   };
 
   getGraph = () => {
@@ -81,6 +72,26 @@ class GraphCode {
   }
 
   setSelectedNodesEdges = (newSelectedNodes: Node[], newSelectedEdges: Edge[]) => {
+    const nodeIds = new Set(newSelectedNodes.map(n => n.id));
+    const edgeIds = new Set(newSelectedEdges.map(e => e.id));
+
+    /* 1️⃣  early-exit if nothing changed */
+    const sameNodes =
+      this.selectedNodes.length === newSelectedNodes.length &&
+      newSelectedNodes.every(n => this.selectedNodes.find(s => s.id === n.id));
+    const sameEdges =
+      this.selectedEdges.length === newSelectedEdges.length &&
+      newSelectedEdges.every(e => this.selectedEdges.find(s => s.id === e.id));
+    if (sameNodes && sameEdges) return;
+
+    /* 2️⃣  only now create new arrays */
+    this.nodes = this.nodes.map(n =>
+      n.selected !== nodeIds.has(n.id) ? { ...n, selected: nodeIds.has(n.id) } : n
+    );
+    this.edges = this.edges.map(e =>
+      e.selected !== edgeIds.has(e.id) ? { ...e, selected: edgeIds.has(e.id) } : e
+    );
+
     this.selectedNodes = newSelectedNodes;
     this.selectedEdges = newSelectedEdges;
   }

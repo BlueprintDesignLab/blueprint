@@ -9,16 +9,24 @@
   import ChatShell from "./app/LLMChat/ChatShell.svelte";
   import Editors from "./app/Editor/Editors.svelte";
 
-  import { architectAgent, createDeveloperAgentForNode, getDeveloperAgentForNode, planAgent } from "$lib/state/allAgents.svelte";
+  import { 
+    architectAgent, 
+    createDeveloperAgentForNode, 
+    edgeCodingAgent, 
+    getDeveloperAgentForNode, 
+    planAgent 
+  } from "$lib/state/allAgents.svelte";
 
   useOnSelectionChange(({ nodes, edges }) => {
     graphCode.setSelectedNodesEdges(nodes, edges);
 
-    if (nodes.length && agentRole.node !== nodes[0].id) {
-      agentRole.node = nodes[0].id;   // update only when different
-    } else if (nodes.length === 0 && agentRole.node !== "All Edges") {
-      agentRole.node = "All Edges";
-      createDeveloperAgentForNode(agentRole.node);
+    if (agentRole.agentRole === "code") {
+      if (nodes.length && agentRole.node !== nodes[0].id) {
+        agentRole.node = nodes[0].id;   // update only when different
+      } else if (nodes.length === 0 && agentRole.node !== "All Edges") {
+        agentRole.node = "All Edges";
+        createDeveloperAgentForNode(agentRole.node);
+      }
     }
   });
 
@@ -27,8 +35,9 @@
       return planAgent;
     } else if (agentRole.agentRole === "architect") {
       return architectAgent;
-    } 
-
+    } else if (agentRole.agentRole === "code" && agentRole.node === "All Edges") {
+      return edgeCodingAgent;
+    }
     return getDeveloperAgentForNode(agentRole.node);
   })
   

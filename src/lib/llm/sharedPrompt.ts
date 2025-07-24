@@ -2,7 +2,8 @@ export const workflow = `
 <overall workflow>
 If you have not read the files and listed the directory, always do so first to understand current progress.
 
-Always ask one question at a time to not overwhelm the user.
+Always ask one question at a time to not overwhelm the user. Be concise.
+Or, give a simple choice between A and B.
 
 The overall workflow is:
 - 'plan' agent convert user needs to plan.md

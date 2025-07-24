@@ -1,9 +1,13 @@
-<script>
+<script lang="ts">
   import { encoder } from "$lib/state/contextWindow.svelte";
   import Button from "$lib/components/ui/button/button.svelte";
   import MdRenderer from "./MDRenderer.svelte";
 
   let {ch, approve, reject} = $props();
+
+  function crop(str: string) {
+    return str.length > 80 ? str.slice(0, 80) + '…' : str;
+  }
 </script>
 
 {#each ch as chItem}
@@ -15,7 +19,7 @@
                 {chItem.tool.name}
                 </div>
                 <div class="text-xs text-gray-500">
-                    {chItem.tool.output}
+                    {crop(chItem.tool.output)}
                 </div>
             </div>
             {/if}
@@ -30,24 +34,14 @@
             </div>
 
             {#if chItem.tool.status === "in_progress"}
-                {chItem.tool.args}
-                <!-- {#each Object.entries(chItem.tool.args) as [key, value]}
-                    <dt class="font-medium text-gray-700 min-w-[6rem]">{key}</dt>
-                    <dd class="text-gray-600 break-words">{value}</dd>
-                {/each} -->
-
+                <!-- {chItem.tool.args} -->
+                {crop(chItem.tool.args)}
             {:else if chItem.tool.status === "resolved"}
-                {chItem.tool.args}
-
-                <!-- {#each Object.entries(chItem.tool.args) as [key, value]}
-                    <dt class="font-medium text-gray-700 min-w-[6rem]">{key}</dt>
-                    <dd class="text-gray-600 break-words">{value}</dd>
-                {/each} -->
+                <!-- {chItem.tool.args} -->
+                {crop(chItem.tool.args)}
                 <div class="bg-background border rounded-lg p-3 shadow-sm mt-1">
                     <!-- <MdRenderer content={chItem.tool.output} /> -->
-                    {chItem.tool.output.length > 80
-                        ? chItem.tool.output.slice(0, 80) + '…'
-                        : chItem.tool.output}
+                    {crop(chItem.tool.output)}
                 </div>
             {/if}
 

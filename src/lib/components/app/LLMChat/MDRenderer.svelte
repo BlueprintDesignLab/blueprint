@@ -151,7 +151,7 @@
             Copy
           </Button>
 
-          {#if section[1].includes("language-yaml") && section[1].includes("nodes")}
+          <!-- {#if section[1].includes("language-yaml") && section[1].includes("nodes")}
             <Button
               size="sm"
               variant="secondary"
@@ -159,7 +159,7 @@
             >
               Set Graph
             </Button>
-          {/if}
+          {/if} -->
         </div>
       </div>
     {:else}

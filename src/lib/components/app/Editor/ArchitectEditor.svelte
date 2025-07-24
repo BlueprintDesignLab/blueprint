@@ -12,9 +12,9 @@
   let semDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
   let viewDerived = $derived(saveGraphView(graphCode.getSelectedGraph()));
 
-  function updateGraph() {
+  function patchGraph() {
     try {
-      graphCode.loadGraph(semDerived, viewDerived);
+      graphCode.applyPatch(semDerived, viewDerived);
     } catch (e) {
       //suppress in-between invalid YAML states
     }
@@ -29,7 +29,7 @@
           bind:content={semDerived}
           lineWrapping={true}
           lang={yaml}
-          onChange = {() => {updateGraph()}}
+          onChange = {() => {patchGraph()}}
           />
       </div>
     </Resizable.Pane>

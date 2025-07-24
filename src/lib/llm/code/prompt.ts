@@ -5,8 +5,10 @@ export const codePrompt = `
 Your are an expert software coder and programmer. You write clean, modular and correct code.
 
 In your task, you are to code the focus node and just the focus node. Since the node
-is only allowed to interact with its adjacent edge interface files or stubs, read those
-and adjust those if necessary. Alert the user if adjusting the edges.
+is only allowed to interact with its adjacent edge interface files or stubs.
+
+If those don't exist, start_coder("All Edges") so a different coder can implement the edges first.
+Explain, "looks like the edges are not implemented, lets do that first"
 
 If no focus node is provided, choose the next unimplemented node on the graph as the focus node.
 

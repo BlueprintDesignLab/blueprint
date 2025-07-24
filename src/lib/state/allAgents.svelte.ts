@@ -4,7 +4,6 @@ import { getSystemPromptFor } from '$lib/llm/agent/SystemPrompts';
 import { toolsFor } from '$lib/llm/agent/ToolRole';
 import { edgeCodePrompt } from '$lib/llm/edgeCoderPrompt';
 import { SvelteMap } from 'svelte/reactivity';
-import { agentRole } from './agentRole.svelte';
 
 export type NodeId = string;
 
@@ -19,17 +18,18 @@ class AgentAndChatState {
   ch: any[] = $state([]);
   generating: boolean = $state(false);
 
-  constructor(role: AgentRoles, callbacks: UIUpdaterCallbacks) {
+  constructor(role: AgentRoles, callbacks: UIUpdaterCallbacks, node?: NodeId) {
     let sysPrompt = getSystemPromptFor(role);
 
     if (role === "code") {
-      if (agentRole.node === "All Edges") {
-        // console.log(edgeCodePrompt);
+      if (node === "All Edges") {
+        console.log(edgeCodePrompt);
         sysPrompt = edgeCodePrompt;
       } else {
-        sysPrompt += `Your focus node is ${agentRole.node}`
+        sysPrompt += `Your focus node is ${node}`
       }
     }
+    
 
     this.agent = new Agent({ chat: [] }, sysPrompt, toolsFor(role), callbacks);
   }
@@ -39,9 +39,9 @@ const developerAgentMap = new SvelteMap<NodeId, AgentAndChatState>();
 
 export const planAgent = createAgentAndChatState('plan');
 export const architectAgent = createAgentAndChatState('architect');
-export const edgeCodingAgent = createAgentAndChatState('code');
+export const edgeCodingAgent = createAgentAndChatState('code', "All Edges");
 
-function createAgentAndChatState(role: AgentRoles): AgentAndChatState {
+function createAgentAndChatState(role: AgentRoles, node?: NodeId): AgentAndChatState {
     const callbacks: UIUpdaterCallbacks = {
       streamDelta(delta: string) {
         const st = store;               // always the live object
@@ -66,25 +66,24 @@ function createAgentAndChatState(role: AgentRoles): AgentAndChatState {
 
       stopGenerating() {
         store.generating = false;
-        store.agent.abort();
+        store.agent.abort(); // whatever your agent exposes
       },
     };
 
     // -----------------------------------------------------------------
-    const store: AgentAndChatState = new AgentAndChatState(role, callbacks);
+    const store: AgentAndChatState = new AgentAndChatState(role, callbacks, node);
     return store;
 }
 
 export function createDeveloperAgentForNode(nodeId: NodeId): AgentAndChatState {
   if (!developerAgentMap.has(nodeId)) {
-    const store = createAgentAndChatState('code');
+    const store = createAgentAndChatState('code', nodeId);
     developerAgentMap.set(nodeId, store);
     return store;
   }
-
   return developerAgentMap.get(nodeId)!;
 }
 
 export function getDeveloperAgentForNode(nodeId: NodeId): AgentAndChatState {
-  return developerAgentMap.get(nodeId)!;
+  return createDeveloperAgentForNode(nodeId);
 }
