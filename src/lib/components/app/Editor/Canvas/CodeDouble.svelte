@@ -40,7 +40,6 @@
       EditorState.readOnly.of(readOnly),
       EditorView.theme(
         {
-            // each individual editor pane (left, right, gap)
             '.cm-editor': { height: '100%' },
         },
         { dark: theme === 'dark' }

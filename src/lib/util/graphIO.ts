@@ -94,7 +94,7 @@ function getLayoutedElements(nodes: Node[], edges: Edge[], direction = "TB") {
 }
 
 /* ───────────────────── Loader ───────────────────────── */
-export function loadGraph(yamlText: string, viewText: string): MergedGraph {
+export function yamlViewToGraph(yamlText: string, viewText: string): MergedGraph {
   if (yamlText === "") {
     yamlText = "nodes: []\nedges: []\n";
   }
@@ -230,12 +230,12 @@ export const loadGraphFiles = async () => {
 const graphYamlDebounced = debounce((graph: MergedGraph) => {
   const src = saveGraphSemantic(graph);
   invoke('write_project_file', { path: './.blueprint/graph.yaml', content: src })
-}, 1000);
+}, 100);
 
 const viewJsonDebounced  = debounce((graph: MergedGraph) => {
   const src = saveGraphView(graph);
   invoke('write_project_file', { path: './.blueprint/view.json', content: src })
-}, 1000);
+}, 100);
 
 export const saveGraphYaml = graphYamlDebounced;
 export const saveViewJson  = viewJsonDebounced;

@@ -3,8 +3,7 @@ import { ChatHistory } from "./ChatHistory";
 import { OpenAIAdapter } from "./LLMClient";
 import { ToolRegistry } from "./ToolRegistry";
 import { StreamHandler, type UIUpdaterCallbacks } from "./StreamHandler";
-import { toolsFor } from "./ToolRole";
-import { getSystemPromptFor } from "./SystemPrompts";
+import { type ToolKey } from "./ToolRole";
 
 import OpenAI from "openai";
 
@@ -22,15 +21,14 @@ export class Agent {
    
   constructor(
     deps: { chat: ChatTurn[] },
-    role: AgentRoles,
+    systemPrompt: string,
+    tools: ToolKey[],
     callbacks: UIUpdaterCallbacks
   ) {
     this.history.chat = deps.chat;
-    this.systemPrompt = getSystemPromptFor(role);
+    this.systemPrompt = systemPrompt;
 
     this.streamHandler = new StreamHandler(this.history, callbacks);
-
-    const tools = toolsFor(role);
     this.registry = new ToolRegistry(tools, this.streamHandler); 
   }
 
@@ -41,7 +39,7 @@ export class Agent {
 
     while (!this.done && step++ < MAX_STEPS) {
       const prompt = this.history.buildOpenaiPrompt();
-      console.log(prompt);
+      // console.log(prompt);
 
       const openai = new OpenAI({
         baseURL: await tauriStore.get('url-endpoint'),
@@ -61,9 +59,8 @@ export class Agent {
       this.history.appendChat({ role: "assistant", content: assistantContent });
 
       for (const tc of toolCalls) {
-        // console.log(tc.name, tc.args);
-        const output = await this.registry.execute(tc.name, tc.args);
-        // console.log(output);
+        const argsObj = JSON.parse(tc.args);
+        const output = await this.registry.execute(tc.name, argsObj);
         this.history.appendTool({ type: "function_call_output", call_id: tc.call_id, output });
         this.streamHandler.showToolCallResult(tc, tc.args, output);        
       }
@@ -78,7 +75,7 @@ export class Agent {
     this.streamHandler.handleApproval(id, result);
   }
 
-  stop() {
+  abort() {
     this.controller.abort();
   }
 }

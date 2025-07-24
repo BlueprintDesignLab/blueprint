@@ -1,28 +1,24 @@
 <script lang="ts">
   import * as Resizable from "$lib/components/ui/resizable/index.js";
 
-  import PlanEditor from "./app/Editor/PlanEditor.svelte";
-  import DevelopEditor from "./app/Editor/DevelopEditor.svelte";
-  import ArchitectEditor from "$lib/components/app/Editor/ArchitectEditor.svelte";
-
-  import LlmChat from "$lib/components/app/LLMChat/LLMChat.svelte";
-
   import { useOnSelectionChange } from '@xyflow/svelte';
 
   import { graphCode } from "$lib/state/graph.svelte";
-  import NewArchitectEditor from "./app/Editor/NewArchitectEditor.svelte";
-  import Editors from "./app/Editor/Editors.svelte";
   import { agentRole } from "$lib/state/agentRole.svelte";
+  
   import ChatShell from "./app/LLMChat/ChatShell.svelte";
-  import { architectAgent, getDeveloperAgentForNode, planAgent } from "$lib/state/developers.svelte";
+  import Editors from "./app/Editor/Editors.svelte";
+
+  import { architectAgent, createDeveloperAgentForNode, getDeveloperAgentForNode, planAgent } from "$lib/state/allAgents.svelte";
 
   useOnSelectionChange(({ nodes, edges }) => {
     graphCode.setSelectedNodesEdges(nodes, edges);
 
     if (nodes.length && agentRole.node !== nodes[0].id) {
       agentRole.node = nodes[0].id;   // update only when different
-    } else if (nodes.length === 0 && agentRole.node !== "") {
-        agentRole.node = "";
+    } else if (nodes.length === 0 && agentRole.node !== "All Edges") {
+      agentRole.node = "All Edges";
+      createDeveloperAgentForNode(agentRole.node);
     }
   });
 
@@ -31,7 +27,7 @@
       return planAgent;
     } else if (agentRole.agentRole === "architect") {
       return architectAgent;
-    }
+    } 
 
     return getDeveloperAgentForNode(agentRole.node);
   })

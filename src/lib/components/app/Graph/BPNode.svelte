@@ -7,9 +7,9 @@
   import { graphCode } from '$lib/state/graph.svelte';
 
   import { onMount } from 'svelte';
+  import { getDeveloperAgentForNode } from '$lib/state/allAgents.svelte';
 
   let { id, data = $bindable() }: NodeProps = $props();
-  let aiStatus = $derived(data.aiStatus ?? '');
 
   /* pick one of the diff states (or empty string) */
   let diffClass = $derived.by(() => {
@@ -20,6 +20,9 @@
     if (diffStatus === "modified")  return 'border-yellow-500';
     return 'border-neutral-300';
   });
+
+  let agentAndChatState = getDeveloperAgentForNode(id);
+  // let generating = $derived(agentAndChatState.generating ?? false);
 
   let ref: HTMLDivElement | null = $state(null);
   const { updateNode } = useSvelteFlow();
@@ -52,15 +55,17 @@
 <div
   bind:this={ref}
   class="auto-node border-2 {diffClass} w-24"
-  class:animate-pulse={aiStatus === 'generating'}
 >
-  {#if aiStatus}
+  <!-- {#if generating}
     <Badge variant="secondary" class="absolute -top-2 -right-2 text-[10px] px-1.5 py-0.5">
-      AI: {aiStatus}
+      AI: Generating
     </Badge>
-  {/if}
+  {/if} -->
   {data.label}
 </div>
+
+  <!-- class:animate-pulse={generating} -->
+
 
 <style>
   .auto-node {

@@ -35,8 +35,7 @@
       (lang ?? markdown)(),
       EditorView.theme(
         {
-          '&': { height: '100%' },
-          '.cm-scroller': { overflow: 'auto' },
+            '.cm-editor': { height: '100%', overflow: 'auto' },
         },
         { dark: theme === 'dark' }
       ),
@@ -74,4 +73,6 @@
   });
 </script>
 
-<div bind:this={host} class="{klass} w-full h-full"></div>
+<div class="overflow-auto h-full">
+    <div bind:this={host} class="{klass} w-full h-full"></div>
+</div>

@@ -1,47 +1,43 @@
 <script lang="ts">
   import * as Resizable from "$lib/components/ui/resizable/index.js";
 
-  import { yaml } from '@codemirror/lang-yaml';
+  import { graphCode } from "$lib/state/graph.svelte";
+  import { yaml } from "@codemirror/lang-yaml";
 
-  import { graphCode } from '$lib/state/graph.svelte';
+  import { saveGraphSemantic, saveGraphView } from "$lib/util/graphIO";
 
-  import { saveGraphSemantic, saveGraphView, saveGraphYaml, saveViewJson } from '$lib/util/graphIO';
+  import GraphDiff from "./Canvas/GraphDiff.svelte";
+  import CodeDynam from "./Canvas/CodeDynam.svelte";
 
-  import GraphDiff from './Canvas/GraphDiff.svelte';
-  import { untrack } from "svelte";
-  import CodeSingle from "./Canvas/CodeSingle.svelte";
-  
   let semDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
   let viewDerived = $derived(saveGraphView(graphCode.getSelectedGraph()));
 
-  // $effect(() => {
-  //   // semDerived;
-  //   // viewDerived;
-  //   graphCode.loadGraph(semDerived, viewDerived);
-  //   saveGraphYaml(untrack(() => graphCode.getGraph()));
-  //   saveViewJson(untrack(() => graphCode.getGraph()));
-  // });
+  function updateGraph() {
+    try {
+      graphCode.loadGraph(semDerived, viewDerived);
+    } catch (e) {
+      //suppress in-between invalid YAML states
+    }
+  }
 </script>
 
 <Resizable.PaneGroup direction="horizontal" autoSaveId="graphYamlEditor">
-  {#if graphCode.filtering}
-    <Resizable.Pane defaultSize={50}>
-      <div class="editor-shell">
-          <CodeSingle
+  <!-- {#if graphCode.filtering} -->
+    <Resizable.Pane defaultSize={20}>
+      <div class="h-screen">
+          <CodeDynam
           bind:content={semDerived}
           lineWrapping={true}
           lang={yaml}
-
+          onChange = {() => {updateGraph()}}
           />
       </div>
     </Resizable.Pane>
     <Resizable.Handle withHandle />
-  {/if}
+  <!-- {/if} -->
 
   <Resizable.Pane defaultSize={50}>
     <GraphDiff  />
 
   </Resizable.Pane>
 </Resizable.PaneGroup>
-
-

@@ -6,7 +6,7 @@ import type { ApprovalGateway } from "./StreamHandler";
 
 import { clearProposedCurrSrc, clearProposedPlan, commitCurrSrc, commitPlan } from "$lib/state/editor.svelte";
 import { graphCode } from "$lib/state/graph.svelte";
-import { setAgentFocusMode } from "$lib/state/agentRole.svelte";
+import { setAgentFocusMode, setAgentFocusNode } from "$lib/state/agentRole.svelte";
 
 export interface ToolHandler {
   handler: (args: any, deps: { approval: ApprovalGateway }) => Promise<string>;
@@ -179,11 +179,11 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
   },
 
   /* ---- meta / shared ---- */
-  startCoder: {
+  startNodeCoder: {
     schema: {
       type: "function",
-      name: "start_coder",
-      description: "Refer the current chat to a coder which can implement a node inside graph.yaml.",
+      name: "start_node_coder",
+      description: "Start a dedicated node coder which will implement a node inside graph.yaml.",
       parameters: {
         type: "object",
         properties: { node: { type: "string", description: "The focus node for the code to implement." } },
@@ -193,8 +193,8 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
       strict: true,
     },
     handler: async ({ node }, { approval }) => {
-      const ok = await approval.ask({ name: "start_coder", args: { node } });
-      setFocusNode(node);
+      const ok = await approval.ask({ name: "start_node_coder", args: { node } });
+      setAgentFocusNode(node);
 
       return ok ? "coder started" : "not approved";
     },
@@ -262,7 +262,4 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     handler: async () => "web search handled natively by provider",
   },
 };
-function setFocusNode(node: any) {
-  throw new Error("Function not implemented.");
-}
 

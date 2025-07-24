@@ -13,5 +13,5 @@ const ROLE_PROMPTS: Record<AgentRoles, string> = {
  * Keeps the public API stable even when internal parts change.
  */
 export function getSystemPromptFor(role: AgentRoles): string {
-  return ROLE_PROMPTS[role] ?? ROLE_PROMPTS.code;
+  return ROLE_PROMPTS[role];
 }

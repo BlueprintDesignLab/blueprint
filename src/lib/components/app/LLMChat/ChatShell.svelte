@@ -7,19 +7,24 @@
   import SettingsDialog from "$lib/components/settings/SettingsDialog.svelte";
 
   import { tick } from "svelte";
-  import { agentRole } from "$lib/state/agentRole.svelte";
-  import { Code, StopCircle } from "lucide-svelte";
-  import { contextWindow, encoder } from "$lib/state/contextWindow.svelte";
-
   import { toast } from "svelte-sonner";
 
-  let { ch, generating, agent } = $props();
+  import { agentRole } from "$lib/state/agentRole.svelte";
+  import { encoder } from "$lib/state/contextWindow.svelte";
+  import type { ChatState } from "$lib/state/allAgents.svelte";
+
+  import { StopCircle } from "lucide-svelte";
+
+  let { ch, generating, agent }: ChatState = $props();
+
   let chDiv: HTMLDivElement | null = $state(null);
 
   let question = $state("");
 
   $effect(() => {
-    ch;
+    console.log("scroll?");
+    ch.length;
+    ch.at(-1)?.content;
     scrollIfNearBottom();
   })
 
@@ -32,9 +37,9 @@
 
   function scrollIfNearBottom() {
     if (!chDiv) return;
-    const TOLERANCE = 50;
+    const TOLERANCE = 150;
     const autoscroll =
-      chDiv.offsetHeight + chDiv.scrollTop > chDiv.scrollHeight - TOLERANCE;
+      (chDiv.offsetHeight + chDiv.scrollTop) > (chDiv.scrollHeight - TOLERANCE);
     if (autoscroll) scroll();
   }
 
@@ -93,8 +98,6 @@
       }
     }
   }
-
-  $inspect(ch);
 </script>
 
 <!-- full-height flex wrapper -->
@@ -117,6 +120,17 @@
     </div>
   </header>
 
+  {#if agentRole.agentRole === "code"}
+    <div
+      class="shrink-0 px-4 py-2 border-b border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"
+    >
+      <p class="text-sm font-medium text-slate-700 dark:text-slate-200">
+        Coding: <span class="font-mono">{agentRole.node}</span>
+      </p>
+    </div>
+    <div class="h-px bg-slate-200 dark:bg-slate-700"></div>
+  {/if}
+
   <!-- takes all remaining height -->
   <main class="flex flex-col flex-1 overflow-hidden">
     <div class="flex flex-col flex-1 min-h-0 mx-auto max-w-2xl w-full p-4">
@@ -124,45 +138,9 @@
         bind:this={chDiv}
         class="flex-1 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 px-6 py-5"
       >
-        {#if agentRole.agentRole === "code" && agentRole.node === ""}
-          <div class="flex flex-col items-center justify-center h-full text-center">
-            <div
-              class="inline-flex items-center justify-center w-14 h-14 rounded-full mb-4"
-            >
-              <Code />
-            </div>
-
-            <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">
-              Select a node to focus on
-            </h3>
-
-            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400 max-w-xs">
-              Each node keeps its own context so the LLM never gets confused.
-            </p>
-
-            <p class="mt-4 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
-              Psssssss: you can generate multiple nodes at once!
-            </p>
-          </div>
-        {:else}
-          <div class="flex flex-col h-full">
-            <div
-              class="shrink-0 px-4 py-2 border-b border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"
-            >
-              <p class="text-sm font-medium text-slate-700 dark:text-slate-200">
-                Coding node: <span class="font-mono">{agentRole.node}</span>
-              </p>
-            </div>
-
-            <!-- Divider line -->
-            <div class="h-px bg-slate-200 dark:bg-slate-700"></div>
-
-            <!-- Renderer -->
-            <div class="flex-1 overflow-y-auto">
-              <ChRenderer {ch} {approve} {reject} />
-            </div>
-          </div>
-        {/if}
+        <div class="flex-1 overflow-y-auto">
+          <ChRenderer {ch} {approve} {reject} />
+        </div>
       </div>
       
       <!-- Tabs + Input -->

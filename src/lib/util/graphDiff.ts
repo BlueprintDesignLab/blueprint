@@ -1,6 +1,5 @@
 import type { Node, Edge } from "@xyflow/svelte";
-import { parse } from "yaml";
-import { loadGraph } from "./graphIO";
+import { yamlViewToGraph, type MergedGraph } from "./graphIO";
 
 export type DiffRecord = {
   added: string[];
@@ -46,13 +45,27 @@ function deepEqual(a: unknown, b: unknown): boolean {
   return false;
 }
 
+type NodePayload = Node['data']; // whatever the semantic part is
+type EdgePayload = Edge['data'];
+
+/* ---- helpers ---------------------------------------------------------- */
+function payloadOf<T extends Node | Edge>(obj: T): T extends Node ? NodePayload : EdgePayload {
+  return obj.data as any;
+}
+
+function nodeWithPayload(base: Node, payload: NodePayload): Node {
+  return { ...base, data: payload };
+}
+
+function edgeWithPayload(base: Edge, payload: EdgePayload): Edge {
+  return { ...base, data: payload };
+}
 
 export function buildPreview(
-  currSem: string,
+  liveGraph: MergedGraph,
   proposedSem: string
 ): PreviewGraph {
-  const proposed = loadGraph(proposedSem, ''); // may throw → caller should catch
-  const liveGraph = loadGraph(currSem, ''); // may throw → caller should catch
+  const proposed = yamlViewToGraph(proposedSem, ''); // may throw
 
   const liveNodes = new Map(liveGraph.nodes.map(n => [n.id, n]));
   const liveEdges = new Map(liveGraph.edges.map(e => [e.id, e]));
@@ -61,39 +74,52 @@ export function buildPreview(
   const previewNodes: Node[] = [];
   const previewEdges: Edge[] = [];
 
-  // --- nodes ---
-  for (const n of proposed.nodes) {
-    if (!liveNodes.has(n.id)) {
-      status.set(n.id, 'added');
-    } else if (!deepEqual(liveNodes.get(n.id), n)) {
-      status.set(n.id, 'modified');
+  /* --- nodes --- */
+  for (const proposedNode of proposed.nodes) {
+    const live = liveNodes.get(proposedNode.id);
+
+    if (!live) {
+      // brand-new → use proposed as-is
+      status.set(proposedNode.id, 'added');
+      previewNodes.push(proposedNode);
+    } else if (!deepEqual(payloadOf(live), payloadOf(proposedNode))) {
+      // semantic change → keep live meta, replace data
+      status.set(proposedNode.id, 'modified');
+      previewNodes.push(nodeWithPayload(live, payloadOf(proposedNode)));
     } else {
-      status.set(n.id, 'unchanged');
-    }
-    previewNodes.push(n);
-  }
-  for (const [id, n] of liveNodes) {
-    if (!proposed.nodes.find(p => p.id === id)) {
-      status.set(id, 'destroyed');
-      previewNodes.push(n); // keep it so we can render it as red
+      // identical payload → keep live object untouched
+      status.set(proposedNode.id, 'unchanged');
+      previewNodes.push(live);
     }
   }
 
-  // --- edges (same pattern) ---
-  for (const e of proposed.edges) {
-    if (!liveEdges.has(e.id)) {
-      status.set(e.id, 'added');
-    } else if (!deepEqual(liveEdges.get(e.id), e)) {
-      status.set(e.id, 'modified');
-    } else {
-      status.set(e.id, 'unchanged');
+  for (const [id, liveNode] of liveNodes) {
+    if (!proposed.nodes.find(p => p.id === id)) {
+      status.set(id, 'destroyed');
+      previewNodes.push(liveNode); // still render it
     }
-    previewEdges.push(e);
   }
-  for (const [id, e] of liveEdges) {
+
+  /* --- edges (same pattern) --- */
+  for (const proposedEdge of proposed.edges) {
+    const live = liveEdges.get(proposedEdge.id);
+
+    if (!live) {
+      status.set(proposedEdge.id, 'added');
+      previewEdges.push(proposedEdge);
+    } else if (!deepEqual(payloadOf(live), payloadOf(proposedEdge))) {
+      status.set(proposedEdge.id, 'modified');
+      previewEdges.push(edgeWithPayload(live, payloadOf(proposedEdge)));
+    } else {
+      status.set(proposedEdge.id, 'unchanged');
+      previewEdges.push(live);
+    }
+  }
+
+  for (const [id, liveEdge] of liveEdges) {
     if (!proposed.edges.find(p => p.id === id)) {
       status.set(id, 'destroyed');
-      previewEdges.push(e);
+      previewEdges.push(liveEdge);
     }
   }
 

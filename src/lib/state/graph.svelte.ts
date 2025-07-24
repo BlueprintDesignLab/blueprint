@@ -1,6 +1,6 @@
 import { buildPreview, type PreviewGraph } from "$lib/util/graphDiff";
 
-import { loadGraph, saveGraphSemantic } from "$lib/util/graphIO";
+import { yamlViewToGraph, type MergedGraph } from "$lib/util/graphIO";
 
 import { type Node, type Edge } from "@xyflow/svelte";
 
@@ -32,7 +32,7 @@ class GraphCode {
     }
     try {
       this.previewGraph = buildPreview(
-        saveGraphSemantic(this.getGraph()),
+        this.getGraph(),
         this.proposedSem
       );
     } catch (e) {
@@ -61,7 +61,7 @@ class GraphCode {
   };
 
   loadGraph = (semDerived: string, viewDerived: string) => {
-    const newMerged = loadGraph(semDerived, viewDerived);
+    const newMerged = yamlViewToGraph(semDerived, viewDerived);
     
     if (this.filtering) {
       this.overwritePartial(newMerged);
@@ -77,7 +77,7 @@ class GraphCode {
   };
 
   getGraph = () => {
-    return {nodes: this.nodes, edges: this.edges};
+    return {nodes: this.nodes, edges: this.edges} as MergedGraph;
   }
 
   setSelectedNodesEdges = (newSelectedNodes: Node[], newSelectedEdges: Edge[]) => {

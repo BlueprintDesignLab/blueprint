@@ -111,16 +111,12 @@ export class StreamHandler implements ApprovalGateway {
               graphCode.showPreview();
               break;
 
-            case 'write_project_file':
-              if (agentRole.agentRole === "code") {
-                editorState.currSrcPath = pathExtractor.getBuffer();
-                proposeCurrSrc(extractor.getBuffer());
-                break;
-              }
-              // console.log(extractor.getBuffer());
-              // console.log(pathExtractor.getBuffer());
-              
-
+            // case 'write_project_file':
+            //   if (agentRole.agentRole === "code") {
+            //     editorState.currSrcPath = pathExtractor.getBuffer();
+            //     proposeCurrSrc(extractor.getBuffer());
+            //     break;
+            //   }
             default:
               this.callbacks.showTool({ id: ev.id, delta: ev.delta });
           }
@@ -128,14 +124,14 @@ export class StreamHandler implements ApprovalGateway {
         }
 
         case 'toolCallEnd': {
-          console.log(ev.raw);
+          // console.log(ev.raw);
           this.history.appendTool(ev.raw.item);
           const extractor = activeToolCalls.get(ev.id)!;
           toolCalls.push({
             id: ev.id,
             call_id: ev.raw.item.call_id,
             name: extractor.getToolName(),
-            args: JSON.parse(ev.args),
+            args: ev.args,
           });
           activeToolCalls.delete(ev.id);
           break;

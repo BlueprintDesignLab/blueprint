@@ -1,18 +1,13 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { loadPlanFile, savePlanMd } from '$lib/util/planIO';
-
+  import { savePlanMd } from '$lib/util/planIO';
 
   import { markdown } from '@codemirror/lang-markdown';
   
   import { editorState } from '$lib/state/editor.svelte';
-  import { fileWatcher } from '$lib/watcher/fileWatcher';
   import { FileText } from 'lucide-svelte';
+
   import CodeDynam from './Canvas/CodeDynam.svelte';
 
-  
-
-  // $inspect(editorState.planMD);
   $effect(() => {
     console.log("save plan");
     savePlanMd(editorState.planMD);
@@ -36,18 +31,11 @@
   </span>
 </header>
 
-<!-- parent -->
+<CodeDynam
+  bind:content={editorState.planMD}
+  bind:propose={editorState.proposedPlanMD}
 
-    <CodeDynam
-      bind:content={editorState.planMD}
-      bind:propose={editorState.proposedPlanMD}
-
-      lineWrapping={true}
-      lang={() => markdown()}
-    />
-
-<!-- <div class="flex-1">
-  
-</div> -->
-  <!-- onChange={() => savePlanMd(editorState.planMD)} -->
+  lineWrapping={true}
+  lang={() => markdown()}
+/>
 
