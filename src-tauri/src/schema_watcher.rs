@@ -52,9 +52,12 @@ pub async fn start_schema_watcher(window: Window) -> Result<(), String> {
         // log::info!("Path = {}", path.display());
 
         let rel = path.strip_prefix(&root).unwrap_or(&path);
-        let _ = window.emit("schema-changed", SchemaChangedEvent {
-            path: rel.to_path_buf(),
-        });
+        let _ = window.emit(
+            "schema-changed",
+            SchemaChangedEvent {
+                path: rel.to_path_buf(),
+            },
+        );
     }
 
     // 2️⃣  Spawn the watcher thread
@@ -78,9 +81,12 @@ pub async fn start_schema_watcher(window: Window) -> Result<(), String> {
 
                 for path in ev.paths {
                     let rel = path.strip_prefix(&root).unwrap_or(&path);
-                    let _ = window.emit("schema-changed", SchemaChangedEvent {
-                        path: rel.to_path_buf(),
-                    });
+                    let _ = window.emit(
+                        "schema-changed",
+                        SchemaChangedEvent {
+                            path: rel.to_path_buf(),
+                        },
+                    );
                 }
             }
         }

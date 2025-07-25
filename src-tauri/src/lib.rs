@@ -66,6 +66,7 @@ fn setup_app(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let handle = app.handle();
+
     let menu = build_menu(&handle);
     app.set_menu(menu)?;
     app.on_menu_event(handle_menu_event);
@@ -76,6 +77,7 @@ fn setup_app(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_shell::init())
         .manage(ProjectRoots::default())
         .plugin(tauri_plugin_opener::init())

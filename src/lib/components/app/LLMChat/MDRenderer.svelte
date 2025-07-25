@@ -8,6 +8,8 @@
   import { Copy, CopyCheck } from "lucide-svelte";
   import Button from "$lib/components/ui/button/button.svelte";
 
+  import DOMPurify from 'dompurify';
+
   interface Props {
     content: string
   }
@@ -165,7 +167,7 @@
     {:else}
       <!-- 🟢 MARKDOWN / RICH TEXT -->
       <article class="prose prose-neutral dark:prose-invert max-w-none">
-        <span class="text-container" data-testid="responseContent">{@html section[1]}</span>
+        <span class="text-container" data-testid="responseContent">{@html DOMPurify.sanitize(section[1])}</span>
       </article>
     {/if}
   {/each}

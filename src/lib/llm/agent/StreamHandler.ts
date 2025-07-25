@@ -123,15 +123,15 @@ export class StreamHandler implements ApprovalGateway {
         }
 
         case 'toolCallEnd': {
-          // console.log(ev.raw);
-          this.history.appendTool(ev.raw.item);
-          const extractor = activeToolCalls.get(ev.id)!;
-          toolCalls.push({
+          const tc = {
             id: ev.id,
-            call_id: ev.raw.item.call_id,
-            name: extractor.getToolName(),
-            args: ev.args,
-          });
+            call_id: ev.call_id,
+            name: ev.name,
+            args: ev.args
+          };
+
+          this.history.addToolCall({...tc, arguments: tc.args});
+          toolCalls.push(tc);
           activeToolCalls.delete(ev.id);
           break;
         }

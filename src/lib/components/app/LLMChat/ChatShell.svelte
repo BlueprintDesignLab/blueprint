@@ -62,7 +62,7 @@
     ch.push(userMessage);
 
     // chAssistant();
-    generating = true;
+    generating.current = true;
     (async () => {
       try {
         await agent.run(question);
@@ -78,7 +78,7 @@
   };
 
   function stopGenerating() {
-    generating = false;
+    generating.current = false;
   }
 
   function approve(id: string) {
@@ -184,7 +184,7 @@
             bind:this={textarea}
           ></textarea>
 
-          {#if generating}
+          {#if generating.current}
             <Button onclick={stopGenerating} size="sm"><StopCircle /></Button>
           {:else}
             <Button onclick={send} size="sm">Send</Button>

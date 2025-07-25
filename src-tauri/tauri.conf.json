@@ -4,10 +4,15 @@
   "version": "0.0.1",
   "identifier": "com.blurprint.dev",
   "build": {
-    "frontendDist": "../public",
+    "frontendDist": "../build",
     "devUrl": "http://localhost:1420",
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build"
+  },
+  "plugins": {
+    "deep-link": {
+      "schemes": ["blueprint"] 
+    }
   },
   "app": {
     "windows": [

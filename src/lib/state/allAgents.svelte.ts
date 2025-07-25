@@ -10,20 +10,19 @@ export type NodeId = string;
 export type ChatState = {
   agent: Agent,
   ch: any[],
-  generating: boolean,
+  generating: {current: boolean},
 }
 
 class AgentAndChatState {
   agent: Agent;
   ch: any[] = $state([]);
-  generating: boolean = $state(false);
+  generating = $state({current: false});
 
   constructor(role: AgentRoles, callbacks: UIUpdaterCallbacks, node?: NodeId) {
     let sysPrompt = getSystemPromptFor(role);
 
     if (role === "code") {
       if (node === "All Edges") {
-        // console.log(edgeCodePrompt);
         sysPrompt = edgeCodePrompt;
       } else {
         sysPrompt += `Your focus node is ${node}`
@@ -32,6 +31,11 @@ class AgentAndChatState {
     
 
     this.agent = new Agent({ chat: [] }, sysPrompt, toolsFor(role), callbacks);
+  }
+
+  stopGenerating() {
+    console.log("pp");
+    this.generating.current = false
   }
 }
 
@@ -65,7 +69,8 @@ function createAgentAndChatState(role: AgentRoles, node?: NodeId): AgentAndChatS
       },
 
       stopGenerating() {
-        store.generating = false;
+        console.log("generating state is false");
+        store.stopGenerating()
         store.agent.abort(); // whatever your agent exposes
       },
     };

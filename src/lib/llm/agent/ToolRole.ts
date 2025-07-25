@@ -15,9 +15,9 @@ export const TOOL = {
 export type ToolKey = typeof TOOL[keyof typeof TOOL];
 
 const roleTools: Record<AgentRoles, ToolKey[]> = {
-  plan:   [TOOL.proposePlanMD, TOOL.readFile, TOOL.listDirTree, TOOL.refer, TOOL.endSuccess, TOOL.endFailure, TOOL.webSearch],
-  architect: [TOOL.writeGraphYAML, TOOL.readFile, TOOL.listDirTree, TOOL.refer, TOOL.endSuccess, TOOL.endFailure, TOOL.webSearch],
-  code:     [TOOL.writeProjectFile, TOOL.startNodeCoder, TOOL.readFile, TOOL.listDirTree, TOOL.runCommand, TOOL.refer, TOOL.endSuccess, TOOL.endFailure, TOOL.webSearch],
+  plan:   [TOOL.proposePlanMD, TOOL.readFile, TOOL.listDirTree, TOOL.refer, TOOL.endSuccess, TOOL.endFailure],
+  architect: [TOOL.writeGraphYAML, TOOL.readFile, TOOL.listDirTree, TOOL.refer, TOOL.endSuccess, TOOL.endFailure],
+  code:     [TOOL.writeProjectFile, TOOL.startNodeCoder, TOOL.readFile, TOOL.listDirTree, TOOL.runCommand, TOOL.refer, TOOL.endSuccess, TOOL.endFailure],
 };
 
 export function toolsFor(role: AgentRoles): ToolKey[] {

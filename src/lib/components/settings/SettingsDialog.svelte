@@ -4,13 +4,15 @@
 	import * as Dialog from "$lib/components/ui/dialog/index.js";
 	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
 
-  	import { Bolt, Bot, Heart } from "lucide-svelte";
+  import { Bolt, Bot, CircleUser, Heart } from "lucide-svelte";
 
-  	import SettingsLlm from "./SettingsLLM.svelte";
+  import SettingsLlm from "./SettingsLLM.svelte";
   import SettingsFeedback from "./SettingsFeedback.svelte";
+  import SettingsAccount from "./SettingsAccount.svelte";
 	
 	const data = {
 		nav: [
+			{ name: "Account", icon: CircleUser },
 			{ name: "LLM", icon: Bot },
 			{ name: "Feedback", icon: Heart },
 		],
@@ -19,7 +21,7 @@
 	let open = $state(false);
 	let active = $state(0);
 
-	let pages = [SettingsLlm, SettingsFeedback];
+	let pages = [SettingsAccount, SettingsLlm, SettingsFeedback];
 
 	let ActivePage = $derived(pages[active]);
 </script>

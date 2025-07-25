@@ -24,6 +24,13 @@ export class ToolRegistry {
     return [...this.handlers.values()].map(h => h.schema);
   }
 
+  asOpenAICompletionTools(): any[] {
+    return [...this.handlers.values()].map(h => ({
+      type: "function",
+      function: h.schema
+    }));
+  }
+
   async execute(name: string, args: any) {
     // console.log(args);
     // console.log(this.handlers.get(name)?.handler)

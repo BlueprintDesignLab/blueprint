@@ -30,7 +30,7 @@
     }
   });
 
-  let {agent, ch, generating} = $derived.by(() => {
+  let agentAndState = $derived.by(() => {
     if (agentRole.agentRole === "plan") {
       return planAgent;
     } else if (agentRole.agentRole === "architect") {
@@ -52,6 +52,6 @@
   <!-- 3. Right pane -->
   <Resizable.Pane defaultSize={35}>
     <!-- <LlmChat /> -->
-     <ChatShell {agent} {ch} {generating}/>
+     <ChatShell agent={agentAndState.agent} ch={agentAndState.ch} generating={agentAndState.generating}/>
   </Resizable.Pane>
 </Resizable.PaneGroup>
