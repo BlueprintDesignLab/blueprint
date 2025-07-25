@@ -1,4 +1,4 @@
-### Graph-centric project layout
+### Blueprint project layout
 
 ```
 /.blueprint/
