@@ -1,4 +1,4 @@
-# Blueprint Design AI
+# Blueprint
 
 **Join our community:** [Discord](https://discord.gg/aT2mYAVVzk) | [Website](PLACEHOLDER_LANDING_PAGE) | [Report Issues](https://github.com/BlueprintDesignLab/blueprint/issues) | [Contribute](CONTRIBUTING.md)
 
