@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { terminalController } from "$lib/state/terminal.svelte";
 
 import type { ToolKey } from "./ToolRole";
-import type { ApprovalGateway } from "./StreamHandler";
+import type { ApprovalGateway } from "../Stream/StreamHandler";
 
 import { clearProposedCurrSrc, clearProposedPlan, commitCurrSrc, commitPlan } from "$lib/state/editor.svelte";
 import { graphCode } from "$lib/state/graph.svelte";

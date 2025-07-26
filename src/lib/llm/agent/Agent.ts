@@ -1,11 +1,14 @@
 import { tauriStore } from "$lib/state/tauriStore";
+
 import { ChatHistory } from "./ChatHistory";
 import { OpenAIAdapter, OpenAICompletionsAdapter } from "./LLMClient";
-import { ToolRegistry } from "./ToolRegistry";
-import { StreamHandler, type UIUpdaterCallbacks } from "./StreamHandler";
-import { type ToolKey } from "./ToolRole";
+import { ToolRegistry } from "../Tool/ToolRegistry";
+import { StreamHandler, type UIUpdaterCallbacks } from "../Stream/StreamHandler";
+import { type ToolKey } from "../Tool/ToolRole";
 
 import OpenAI from "openai";
+import { OpenAICompletionsLLMClient } from "./OpenaiCompletionLLMClient";
+import { OpenAIResponsesLLMClient } from "./OpenaiResponsesLLMClient";
 
 const MAX_STEPS = 20;
 
@@ -48,15 +51,13 @@ export class Agent {
 
       this.controller = new AbortController();
 
-      const prompt = this.history.toResponsesMessages();
-      const tools = this.registry.asOpenAITools();
-      const adapter = new OpenAIAdapter(openai, model, prompt, tools, this.systemPrompt, this.controller.signal);
+      // const client = new OpenAICompletionsLLMClient(openai, model);
+      // const stream = client.createStream(this.history, this.registry.listToolSchemas(), this.systemPrompt, this.controller.signal)
 
-      // const prompt = this.history.toChatMessages();
-      // const tools = this.registry.asOpenAICompletionTools();
-      // const adapter = new OpenAICompletionsAdapter(openai, model, prompt, tools, this.systemPrompt, this.controller.signal);
+      const client = new OpenAIResponsesLLMClient(openai, model);
+      const stream = client.createStream(this.history, this.registry.listToolSchemas(), this.systemPrompt, this.controller.signal)
 
-      const { assistantContent, toolCalls } = await this.streamHandler.consume(adapter);
+      const { assistantContent, toolCalls } = await this.streamHandler.consume(stream);
 
       if (assistantContent) {
         this.history.addAssistant(assistantContent);

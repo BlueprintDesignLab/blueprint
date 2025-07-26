@@ -2,7 +2,7 @@ import type { Tool } from "openai/resources/responses/responses.mjs";
 
 import type { ToolKey } from "./ToolRole";
 import { toolMap } from "./ToolMap";
-import type { ApprovalGateway } from "./StreamHandler";
+import type { ApprovalGateway } from "../Stream/StreamHandler";
 
 interface InternalToolHandler {
   handler: (args: any) => Promise<string>;
@@ -20,15 +20,8 @@ export class ToolRegistry {
     }
   }
 
-  asOpenAITools(): Tool[] {
+  listToolSchemas(): Tool[] {
     return [...this.handlers.values()].map(h => h.schema);
-  }
-
-  asOpenAICompletionTools(): any[] {
-    return [...this.handlers.values()].map(h => ({
-      type: "function",
-      function: h.schema
-    }));
   }
 
   async execute(name: string, args: any) {

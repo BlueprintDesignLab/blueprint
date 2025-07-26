@@ -1,7 +1,7 @@
-import { Agent } from '$lib/llm/agent/Agent.js';
-import type { UIUpdaterCallbacks } from '$lib/llm/agent/StreamHandler.js';
-import { getSystemPromptFor } from '$lib/llm/agent/SystemPrompts';
-import { toolsFor } from '$lib/llm/agent/ToolRole';
+import { Agent } from '$lib/llm/Agent/Agent.js';
+import type { UIUpdaterCallbacks } from '$lib/llm/Stream/StreamHandler.js';
+import { getSystemPromptFor } from '$lib/llm/SystemPrompts';
+import { toolsFor } from '$lib/llm/Tool/ToolRole';
 import { edgeCodePrompt } from '$lib/llm/edgeCoderPrompt';
 import { SvelteMap } from 'svelte/reactivity';
 

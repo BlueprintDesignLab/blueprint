@@ -1,4 +1,4 @@
-import { designSystem, workflow } from "../sharedPrompt";
+import { designSystem, workflow } from "./sharedPrompt";
 
 export const architectPrompt: string = `
 <persona>

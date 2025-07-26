@@ -16,10 +16,11 @@
   import { StopCircle } from "lucide-svelte";
 
   import { useSvelteFlow } from '@xyflow/svelte';
+  import { Badge } from "$lib/components/ui/badge";
 
   const { fitView } = useSvelteFlow();
 
-  let { ch, generating, agent }: ChatState = $props();
+  let { ch, generating = $bindable(), agent }: ChatState = $props();
 
   let chDiv: HTMLDivElement | null = $state(null);
 
@@ -58,6 +59,8 @@
 
   const send = () => {
     if (generating) stopGenerating();
+    if (question.trim() === "") return;
+
     const userMessage = { role: "user", content: $state.snapshot(question) };
     ch.push(userMessage);
 
@@ -78,6 +81,7 @@
   };
 
   function stopGenerating() {
+    agent.abort();
     generating.current = false;
   }
 
@@ -110,6 +114,8 @@
       event.preventDefault();
       if (event.shiftKey) {
         // allow newline
+        question += "\n";
+        autoResize(textarea);
       } else {
         send();
       }
@@ -117,7 +123,6 @@
   }
 </script>
 
-<!-- full-height flex wrapper -->
 <div class="flex flex-col h-screen">
   <!-- fixed-height header -->
   <header
@@ -168,28 +173,55 @@
           >
             <Tabs.Trigger value="plan">Plan</Tabs.Trigger>
             <Tabs.Trigger value="architect">Architect</Tabs.Trigger>
-            <Tabs.Trigger value="code">Develop</Tabs.Trigger>
+            <Tabs.Trigger value="code">
+              Develop
+              <Badge variant="outline" class="text-xs px-1 py-0">α</Badge>
+            </Tabs.Trigger>
           </Tabs.List>
         </Tabs.Root>
 
-        <div class="flex items-center gap-2">
+        <div class="flex flex-col gap-2">
+          <!-- Textarea for typing messages -->
           <textarea
             bind:value={question}
             onkeydown={handleKeyDown}
             placeholder="Type your message…"
-            class="flex-1 resize-none rounded border p-2 bg-background text-sm leading-snug
-                   agentRole:outline-none agentRole:ring-1 agentRole:ring-accent rounded-lg"
+            class="w-full resize-none rounded border p-2 bg-background text-sm leading-snug focus:outline-none focus:ring-1 focus:ring-accent agentRole:outline-none agentRole:ring-1 agentRole:ring-accent rounded-lg"
             rows="1"
             oninput={() => autoResize(textarea)}
             bind:this={textarea}
           ></textarea>
 
-          {#if generating.current}
-            <Button onclick={stopGenerating} size="sm"><StopCircle /></Button>
-          {:else}
-            <Button onclick={send} size="sm">Send</Button>
-          {/if}
-        </div>
+          <!-- Toolbar row below textarea -->
+          <div class="flex items-center justify-between">
+            <!-- Left side buttons (formatting, attachments, etc.) -->
+            <div class="flex items-center gap-1">
+              <!-- Example formatting buttons - add your own icons -->
+              
+              <!-- <button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-700">
+                IDK
+              </button> -->
+             
+            </div>
+
+            <!-- Right side buttons (send, etc.) -->
+            <div class="flex items-center gap-2">
+              <Button class="sm" variant="secondary">
+                IDK
+              </Button>
+
+              {#if generating.current}
+                <Button onclick={stopGenerating} size="sm">
+                  <StopCircle class="h-4 w-4" />
+                </Button>
+              {:else}
+                <Button onclick={send} size="sm">
+                  Send
+                </Button>
+              {/if}
+            </div>
+          </div>
+        </div>      
       </div>
     </div>
   </main>

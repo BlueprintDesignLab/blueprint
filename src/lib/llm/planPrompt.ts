@@ -1,4 +1,4 @@
-import { workflow } from "../sharedPrompt";
+import { workflow } from "./sharedPrompt";
 
 export const plannerPrompt = `
 <persona>

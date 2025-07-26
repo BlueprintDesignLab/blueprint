@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 
-type LLMEvent =
+export type LLMEvent =
   | { type: "text"; delta: string }
   | { type: "toolCallStart"; id: string; name: string; call_id: string }
   | { type: "toolCallArgs"; id: string; delta: string }

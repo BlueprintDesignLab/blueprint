@@ -1,10 +1,10 @@
 import { StreamParamExtractor } from './StreamParamExtractor'; // wherever it lives
-import type { ChatHistory } from './ChatHistory';
+import type { ChatHistory } from '../Agent/ChatHistory';
 
 import { graphCode } from '$lib/state/graph.svelte';
 import { proposePlan } from '$lib/state/editor.svelte';
 
-import type { LLMStream } from './LLMClient';
+import type { LLMStream } from '../Agent/LLMClient';
 
 /* UIUpdater.types.ts (or wherever you keep shared types) */
 export type StreamDeltaFn   = (delta: string) => void;

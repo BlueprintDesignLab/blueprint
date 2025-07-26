@@ -1,6 +1,6 @@
-import { plannerPrompt }   from '../plan/prompt';
-import { architectPrompt } from '../architect/prompt';
-import { codePrompt }      from '../code/prompt';
+import { plannerPrompt }   from './planPrompt';
+import { architectPrompt } from './architectPrompt';
+import { codePrompt }      from './codePrompt';
 
 const ROLE_PROMPTS: Record<AgentRoles, string> = {
   plan  : plannerPrompt,

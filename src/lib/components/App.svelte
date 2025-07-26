@@ -52,6 +52,6 @@
   <!-- 3. Right pane -->
   <Resizable.Pane defaultSize={35}>
     <!-- <LlmChat /> -->
-     <ChatShell agent={agentAndState.agent} ch={agentAndState.ch} generating={agentAndState.generating}/>
+     <ChatShell agent={agentAndState.agent} ch={agentAndState.ch} bind:generating={agentAndState.generating}/>
   </Resizable.Pane>
 </Resizable.PaneGroup>
