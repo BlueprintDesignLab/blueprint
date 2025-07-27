@@ -1,24 +1,23 @@
 import { Agent } from '$lib/llm/Agent/Agent.js';
-import type { UIUpdaterCallbacks } from '$lib/llm/Stream/StreamHandler.js';
+
 import { getSystemPromptFor } from '$lib/llm/SystemPrompts';
 import { toolsFor } from '$lib/llm/Tool/ToolRole';
 import { edgeCodePrompt } from '$lib/llm/edgeCoderPrompt';
+
+import { tick } from 'svelte';
 import { SvelteMap } from 'svelte/reactivity';
+import { agentRole } from './agentRole.svelte';
+import { toast } from 'svelte-sonner';
 
 export type NodeId = string;
 
-export type ChatState = {
-  agent: Agent,
-  ch: any[],
-  generating: {current: boolean},
-}
-
-class AgentAndChatState {
+export class AgentAndChatState {
   agent: Agent;
   ch: any[] = $state([]);
-  generating = $state({current: false});
+  generating = $state(false);
+  chDiv: HTMLDivElement | null = $state(null);
 
-  constructor(role: AgentRoles, callbacks: UIUpdaterCallbacks, node?: NodeId) {
+  constructor(role: AgentRoles, node?: NodeId) {
     let sysPrompt = getSystemPromptFor(role);
 
     if (role === "code") {
@@ -28,67 +27,94 @@ class AgentAndChatState {
         sysPrompt += `Your focus node is ${node}`
       }
     }
-    
 
-    this.agent = new Agent({ chat: [] }, sysPrompt, toolsFor(role), callbacks);
+    this.agent = new Agent({ chat: [] }, sysPrompt, toolsFor(role), {
+      streamDelta: this.streamDelta.bind(this),
+      showTool:    this.showTool.bind(this),
+      stopGenerating: this.stopGenerating.bind(this)
+    });
   }
 
   stopGenerating() {
-    console.log("pp");
-    this.generating.current = false
+    this.generating = false;
+    this.agent.abort();
   }
+
+  scrollToBottom() {
+    tick().then(() => {
+      this.chDiv = this.chDiv as HTMLDivElement;
+      this.chDiv.scrollTo(0, this.chDiv.scrollHeight);
+    });
+  }
+
+  scrollIfNearBottom() {
+    if (!this.chDiv) return;
+
+    const TOLERANCE = 150;
+    const autoscroll =
+      (this.chDiv.offsetHeight + this.chDiv.scrollTop) > (this.chDiv.scrollHeight - TOLERANCE);
+    if (autoscroll) this.scrollToBottom();
+  }
+
+  streamDelta(delta: string) {
+    if (this.ch.at(-1)?.role !== 'assistant') {
+      this.ch.push({ role: 'assistant', content: '' });
+    }
+    this.ch.at(-1)!.content += delta;
+    this.scrollIfNearBottom();
+  }
+
+  showTool(payload: any) {
+    const i = this.ch.findIndex((o) => o?.id === payload.id);
+    if (i === -1) {
+      if (this.ch.at(-1)?.content === '') this.ch.pop();
+      this.ch.push(payload);
+    } else if ('delta' in payload) {
+      this.ch[i].tool.args += payload.delta;
+    } else {
+      this.ch[i] = payload;
+    }
+    this.scrollToBottom();
+  }
+
+  send(question: string) {
+    if (this.generating) return;
+    if (question.trim() === "") return;
+
+    const userMessage = { role: "user", content: question };
+    this.ch.push(userMessage);
+
+    this.generating = true;
+    (async () => {
+      try {
+        await this.agent.run(question);
+      } catch (e) {
+        toast.error(String(e));
+        this.streamDelta(String(e));
+        this.stopGenerating();
+        throw e;
+      }
+    })();
+  };
 }
 
-const developerAgentMap = new SvelteMap<NodeId, AgentAndChatState>();
+export const developerAgentMap = new SvelteMap<NodeId, AgentAndChatState>();
 
-export const planAgent = createAgentAndChatState('plan');
-export const architectAgent = createAgentAndChatState('architect');
-export const edgeCodingAgent = createAgentAndChatState('code', "All Edges");
+export const planAgent = new AgentAndChatState("plan")
+export const architectAgent = new AgentAndChatState('architect');
+export const edgeCodingAgent = new AgentAndChatState('code', "All Edges");
 
-function createAgentAndChatState(role: AgentRoles, node?: NodeId): AgentAndChatState {
-    const callbacks: UIUpdaterCallbacks = {
-      streamDelta(delta: string) {
-        const st = store;               // always the live object
-        if (st.ch.at(-1)?.role !== 'assistant') {
-          st.ch.push({ role: 'assistant', content: '' });
-        }
-        st.ch.at(-1)!.content += delta;
-      },
+export const currAgentAndChatState = {
+  get current() {
+    if (agentRole.agentRole === 'plan') return planAgent;
+    if (agentRole.agentRole === 'architect') return architectAgent;
+    if (agentRole.agentRole === 'code' && agentRole.node === 'All Edges')
+      return edgeCodingAgent;
+    return getDeveloperAgentForNode(agentRole.node);
+  },
+};
 
-      showTool(payload: any) {
-        const st = store;
-        const i = st.ch.findIndex((o) => o?.id === payload.id);
-        if (i === -1) {
-          if (st.ch.at(-1)?.content === '') st.ch.pop();
-          st.ch.push(payload);
-        } else if ('delta' in payload) {
-          st.ch[i].tool.args += payload.delta;
-        } else {
-          st.ch[i] = payload;
-        }
-      },
-
-      stopGenerating() {
-        console.log("generating state is false");
-        store.stopGenerating()
-        store.agent.abort(); // whatever your agent exposes
-      },
-    };
-
-    // -----------------------------------------------------------------
-    const store: AgentAndChatState = new AgentAndChatState(role, callbacks, node);
-    return store;
-}
-
-export function createDeveloperAgentForNode(nodeId: NodeId): AgentAndChatState {
-  if (!developerAgentMap.has(nodeId)) {
-    const store = createAgentAndChatState('code', nodeId);
-    developerAgentMap.set(nodeId, store);
-    return store;
-  }
+export function getDeveloperAgentForNode(nodeId: NodeId): AgentAndChatState {
   return developerAgentMap.get(nodeId)!;
 }
 
-export function getDeveloperAgentForNode(nodeId: NodeId): AgentAndChatState {
-  return createDeveloperAgentForNode(nodeId);
-}

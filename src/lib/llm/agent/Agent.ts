@@ -12,6 +12,26 @@ import { OpenAIResponsesLLMClient } from "./OpenaiResponsesLLMClient";
 
 const MAX_STEPS = 20;
 
+async function getProvider() {
+  const provider = await tauriStore.get('provider');
+
+  if (provider === "openai") {
+    const openai = new OpenAI({
+      baseURL: await tauriStore.get('url-endpoint'),
+      apiKey: await tauriStore.get('api-key'),
+      dangerouslyAllowBrowser: true
+    });
+
+    return openai;
+  }
+}
+
+// async function getProviderClient(provider: any) {
+//   const 
+
+//   if 
+// }
+
 export class Agent {
   private history = new ChatHistory();
 
@@ -31,7 +51,7 @@ export class Agent {
   ) {
     this.systemPrompt = systemPrompt;
 
-    this.streamHandler = new StreamHandler(this.history, callbacks);
+    this.streamHandler = new StreamHandler(callbacks);
     this.registry = new ToolRegistry(tools, this.streamHandler); 
   }
 
@@ -41,29 +61,31 @@ export class Agent {
     let step = 0;
 
     while (!this.done && step++ < MAX_STEPS) {
+      this.controller = new AbortController();
+
       const openai = new OpenAI({
         baseURL: await tauriStore.get('url-endpoint'),
         apiKey: await tauriStore.get('api-key'),
         dangerouslyAllowBrowser: true
       });
-    
       const model: string = await tauriStore.get('model-name') ?? "gpt-4.1";
 
-      this.controller = new AbortController();
-
-      // const client = new OpenAICompletionsLLMClient(openai, model);
-      // const stream = client.createStream(this.history, this.registry.listToolSchemas(), this.systemPrompt, this.controller.signal)
-
-      const client = new OpenAIResponsesLLMClient(openai, model);
+      const client = new OpenAICompletionsLLMClient(openai, model);
       const stream = client.createStream(this.history, this.registry.listToolSchemas(), this.systemPrompt, this.controller.signal)
 
+      // const client = new OpenAIResponsesLLMClient(openai, model);
+      // const stream = client.createStream(this.history, this.registry.listToolSchemas(), this.systemPrompt, this.controller.signal)
+
       const { assistantContent, toolCalls } = await this.streamHandler.consume(stream);
+
+      // this.history.addAssistant(assistantContent);
 
       if (assistantContent) {
         this.history.addAssistant(assistantContent);
       }
 
       for (const tc of toolCalls) {
+        this.history.addToolCall({...tc, arguments: tc.args});
         const argsObj = JSON.parse(tc.args);
         const output = await this.registry.execute(tc.name, argsObj);
         this.history.addToolResult({ call_id: tc.call_id, output });
@@ -73,7 +95,6 @@ export class Agent {
       if (toolCalls.length === 0) this.done = true;
     }
 
-    console.log("here");
     this.streamHandler.stop();
   }
 
