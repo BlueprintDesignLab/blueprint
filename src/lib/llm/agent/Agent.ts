@@ -1,14 +1,12 @@
 import { tauriStore } from "$lib/state/tauriStore";
 
 import { ChatHistory } from "./ChatHistory";
-import { OpenAIAdapter, OpenAICompletionsAdapter } from "./LLMClient";
 import { ToolRegistry } from "../Tool/ToolRegistry";
 import { StreamHandler, type UIUpdaterCallbacks } from "../Stream/StreamHandler";
 import { type ToolKey } from "../Tool/ToolRole";
 
 import OpenAI from "openai";
 import { OpenAICompletionsLLMClient } from "./OpenaiCompletionLLMClient";
-import { OpenAIResponsesLLMClient } from "./OpenaiResponsesLLMClient";
 
 const MAX_STEPS = 20;
 
