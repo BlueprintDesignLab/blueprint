@@ -33,7 +33,7 @@ pub async fn list_directory_tree(path: String, window: Window) -> Result<String,
     let tree = task::spawn_blocking(move || -> Result<String> {
         let walker = WalkBuilder::new(&full)
             .add_custom_ignore_filename(".blueprintignore")
-            .standard_filters(false)
+            .standard_filters(true)
             .follow_links(false)
             .sort_by_file_name(|a: &OsStr, b: &OsStr| a.cmp(b))
             .build();

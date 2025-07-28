@@ -36,6 +36,7 @@
     "firebase": "^12.0.0",
     "highlight.js": "^11.11.1",
     "js-tiktoken": "^1.0.20",
+    "jsonrepair": "^3.13.0",
     "lucide-svelte": "^0.518.0",
     "marked": "^16.0.0",
     "marked-highlight": "^2.2.2",

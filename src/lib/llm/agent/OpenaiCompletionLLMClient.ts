@@ -18,7 +18,7 @@ export class OpenAICompletionsLLMClient implements LLMClient {
   constructor(private openai: OpenAI, private model: string) {}
 
   toThisHistory(history: ChatHistory): any[] {
-    return [
+    const completionHistory = [
       ...history.turns.map(t => {
         switch (t.kind) {
           case "user":      return { role: "user", content: t.content };
@@ -27,7 +27,9 @@ export class OpenAICompletionsLLMClient implements LLMClient {
           case "toolResult":return { role: "tool", tool_call_id: t.result.call_id, content: t.result.output };
         }
       })
-    ];
+    ]
+    // console.log(completionHistory);
+    return completionHistory;
   }
 
   toThisTools(tools: any[]): any[] {
@@ -61,7 +63,7 @@ class OpenAICompletionsStream implements LLMStream {
 
   async *events(): AsyncIterable<LLMEvent> {
     const stream = await this.openai.chat.completions.create(
-      { model: this.model, messages: this.messages, stream: true, tools: this.tools },
+      { model: this.model, messages: this.messages, stream: true, tools: this.tools, parallel_tool_calls: false },
       { signal: this.signal }
     );
 

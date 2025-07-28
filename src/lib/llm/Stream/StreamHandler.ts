@@ -29,7 +29,7 @@ export interface ApprovalGateway {
 }
 
 export class StreamHandler implements ApprovalGateway {
-  constructor(private history: ChatHistory, private callbacks: UIUpdaterCallbacks) {}
+  constructor(private callbacks: UIUpdaterCallbacks) {}
 
   /* ---------- ApprovalGateway implementation ---------- */
   private pendings = new Map<string, { resolve: (v: string | null) => void; reject: (e: Error) => void }>();
@@ -130,7 +130,6 @@ export class StreamHandler implements ApprovalGateway {
             args: ev.args
           };
 
-          this.history.addToolCall({...tc, arguments: tc.args});
           toolCalls.push(tc);
           activeToolCalls.delete(ev.id);
           break;

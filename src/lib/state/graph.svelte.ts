@@ -3,6 +3,8 @@ import { buildPreview, type PreviewGraph } from "$lib/util/graphDiff";
 import { yamlViewToGraph, type MergedGraph } from "$lib/util/graphIO";
 
 import { type Node, type Edge } from "@xyflow/svelte";
+import { AgentAndChatState, developerAgentMap } from "./allAgents.svelte";
+import { agentRole } from "./agentRole.svelte";
 
 
 type PartialGraph = {
@@ -45,6 +47,15 @@ class GraphCode {
     
     this.nodes = newMerged.nodes;
     this.edges = newMerged.edges;
+
+    // create a worker agent for every node
+    for (const node of this.nodes) {
+      const nodeId = node.id;
+      if (!developerAgentMap.has(nodeId)) {
+        const store = new AgentAndChatState("code", nodeId);
+        developerAgentMap.set(nodeId, store);
+      }
+    }
   }
 
   applyPatch = (semDerived: string, viewDerived: string) => {

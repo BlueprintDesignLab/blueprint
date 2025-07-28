@@ -7,83 +7,38 @@
   import SettingsDialog from "$lib/components/settings/SettingsDialog.svelte";
 
   import { tick } from "svelte";
-  import { toast } from "svelte-sonner";
 
   import { agentRole } from "$lib/state/agentRole.svelte";
   import { encoder } from "$lib/state/contextWindow.svelte";
-  import type { ChatState } from "$lib/state/allAgents.svelte";
 
   import { StopCircle } from "lucide-svelte";
 
   import { useSvelteFlow } from '@xyflow/svelte';
   import { Badge } from "$lib/components/ui/badge";
+  import type { AgentAndChatState } from "$lib/state/allAgents.svelte";
 
   const { fitView } = useSvelteFlow();
 
-  let { ch, generating = $bindable(), agent }: ChatState = $props();
+  let { agentAndChatState = $bindable() }: {agentAndChatState: AgentAndChatState} = $props();
 
-  let chDiv: HTMLDivElement | null = $state(null);
+  let ch = $derived(agentAndChatState.ch);
+  let agent = $derived(agentAndChatState.agent);
 
   let question = $state("");
   let contextWindowLength = $derived(encoder.encode(JSON.stringify(ch)).length);
 
+  let chDiv: HTMLDivElement | null = $state(null);
+
   $effect(() => {
-    console.log("scroll?");
-    ch.length;
-    ch.at(-1)?.content;
-    ch.at(-1)?.tool?.args;
-    scrollIfNearBottom();
+    agentAndChatState.chDiv = chDiv;
   })
 
-  function scroll() {
-    tick().then(() => {
-      chDiv = chDiv as HTMLDivElement;
-      chDiv.scrollTo(0, chDiv.scrollHeight);
-    });
-  }
-
-  function scrollIfNearBottom() {
-    if (!chDiv) return;
-    const TOLERANCE = 150;
-    const autoscroll =
-      (chDiv.offsetHeight + chDiv.scrollTop) > (chDiv.scrollHeight - TOLERANCE);
-    if (autoscroll) scroll();
-  }
-
-  function streamDelta(delta: string) {
-    if (ch.at(-1)?.role !== 'assistant') {
-      ch.push({ role: 'assistant', content: '' });
-    }
-    ch.at(-1)!.content += delta;
-  }
-
-  const send = () => {
-    if (generating) stopGenerating();
-    if (question.trim() === "") return;
-
-    const userMessage = { role: "user", content: $state.snapshot(question) };
-    ch.push(userMessage);
-
-    // chAssistant();
-    generating.current = true;
-    (async () => {
-      try {
-        await agent.run(question);
-      } catch (e) {
-        toast.error(String(e));
-        streamDelta(String(e));
-        throw e;
-      }
-    })();
-
+  const sendWrapper = () => {
+    agentAndChatState.send(question);
     question = "";
     tick().then(() => autoResize(textarea));
   };
 
-  function stopGenerating() {
-    agent.abort();
-    generating.current = false;
-  }
 
   function approve(id: string) {
     agent.handleApproval(id, "approve");
@@ -109,7 +64,7 @@
     el.style.height = Math.min(el.scrollHeight, 160) + "px";
   }
 
-  export function handleKeyDown(event: KeyboardEvent) {
+  function handleKeyDown(event: KeyboardEvent) {
     if (event.key === "Enter") {
       event.preventDefault();
       if (event.shiftKey) {
@@ -117,9 +72,14 @@
         question += "\n";
         autoResize(textarea);
       } else {
-        send();
+        sendWrapper();
       }
     }
+  }
+
+  function yolo() {
+    question = "Just use your best judgement";
+    sendWrapper();
   }
 </script>
 
@@ -146,7 +106,7 @@
     <div
       class="shrink-0 px-4 py-2 border-b border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"
     >
-      <p class="text-sm font-medium text-slate-700 dark:text-slate-200">
+      <p class="text-sm font-medium text-slate-700 dark:text-slate-200 animate-pulse">
         Coding: <span class="font-mono">{agentRole.node}</span>
       </p>
     </div>
@@ -204,18 +164,18 @@
              
             </div>
 
-            <!-- Right side buttons (send, etc.) -->
+            <!-- Right side buttons (sendWrapper, etc.) -->
             <div class="flex items-center gap-2">
-              <Button class="sm" variant="secondary">
-                IDK
+              <Button class="sm" variant="secondary" onclick={yolo}>
+                YOLO
               </Button>
 
-              {#if generating.current}
-                <Button onclick={stopGenerating} size="sm">
+              {#if agentAndChatState.generating}
+                <Button onclick={agentAndChatState.stopGenerating} size="sm">
                   <StopCircle class="h-4 w-4" />
                 </Button>
               {:else}
-                <Button onclick={send} size="sm">
+                <Button onclick={sendWrapper} size="sm">
                   Send
                 </Button>
               {/if}

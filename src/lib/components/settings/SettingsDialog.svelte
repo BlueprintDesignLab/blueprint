@@ -12,16 +12,16 @@
 	
 	const data = {
 		nav: [
-			{ name: "Account", icon: CircleUser },
 			{ name: "LLM", icon: Bot },
 			{ name: "Feedback", icon: Heart },
+			{ name: "Account", icon: CircleUser },
 		],
 	};
 
 	let open = $state(false);
 	let active = $state(0);
 
-	let pages = [SettingsAccount, SettingsLlm, SettingsFeedback];
+	let pages = [SettingsLlm, SettingsFeedback, SettingsAccount];
 
 	let ActivePage = $derived(pages[active]);
 </script>

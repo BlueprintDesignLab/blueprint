@@ -1,4 +1,4 @@
-import { designSystem, workflow } from "./sharedPrompt";
+import { designSystem, projectStructure, workflow } from "./sharedPrompt";
 
 export const edgeCodePrompt = `
 <persona>
@@ -12,4 +12,4 @@ Before coding, carefully reason about the requirements in plan.md and graph.yaml
 
 Once the edge files are ready, call start_node_coder with the best recommended node to implement first.
 <persona>
-` + designSystem + workflow
+` + projectStructure + designSystem + workflow

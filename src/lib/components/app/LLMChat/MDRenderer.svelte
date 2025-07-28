@@ -152,20 +152,9 @@
             {/if}
             Copy
           </Button>
-
-          <!-- {#if section[1].includes("language-yaml") && section[1].includes("nodes")}
-            <Button
-              size="sm"
-              variant="secondary"
-              onclick={() => /* TODO: emit event or handle graph set */ null}
-            >
-              Set Graph
-            </Button>
-          {/if} -->
         </div>
       </div>
     {:else}
-      <!-- 🟢 MARKDOWN / RICH TEXT -->
       <article class="prose prose-neutral dark:prose-invert max-w-none">
         <span class="text-container" data-testid="responseContent">{@html DOMPurify.sanitize(section[1])}</span>
       </article>
