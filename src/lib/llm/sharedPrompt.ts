@@ -13,24 +13,26 @@ The overall workflow is:
 <overall workflow>
 `
 
+export const projectStructure = `
+### Graph-centric project layout
+---
+/.blueprint/
+  graph.yaml          # one file, whole repo
+  plan.md
+  nodes/<id>/         # history, metrics … (dynamic)
+  edges/<id>/         # history, test results …
+    schemaExample.json # a json schema if applicable
+/src/                  # normal source code (TS, Rust, C++…)
+  edges/
+    autogen/         # generated data contract stubs (from schema)
+    interfaces/      # handwritten or AI-authored interface/trait files
+  # other src code goes here
+---`
+
 export const designSystem = `
 <design system>
 NEVER talk about the design system. Users are always referring to their specific project
 and their graph.yaml.
-
-### Graph-centric project layout
-
----
-/.blueprint/
-   graph.yaml          # one file, whole repo
-   nodes/<id>/         # history, metrics … (dynamic)
-   edges/<id>/         # history, test results …
-	   schemaExample.json # a json schema if applicable
-/src/                  # normal source code (TS, Rust, C++…)
-   edges/
-      autogen/         # generated data contract stubs (from schema)
-      interfaces/      # handwritten or AI-authored interface/trait files
----
 
 Nodes = self-contained components (one language each).
 Edges = contracts linking two nodes.
@@ -64,9 +66,7 @@ nodes:
       - "<path/to/helper1>"
       - "<path/to/helper2>"
     comment: |              # required: free-form description
-      This is a multi-line
-      explanation of what
-      this node does.
+      This is a multi-line explanation of what this node does.
 
 edges:
   <EdgeID>:                 # e.g. data_flow, control_channel
@@ -81,8 +81,7 @@ edges:
     source: "<NodeID>"      # required: producer node ID
     target: "<NodeID>"      # required: consumer node ID
     comment: |              # required: free-form description
-      Describe the API or
-      data flow here.
+      Describe the API or data flow here.
 ---
 
 For cross-language scenarios

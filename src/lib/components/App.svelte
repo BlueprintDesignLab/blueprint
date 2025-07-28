@@ -4,15 +4,7 @@
   import ChatShell from "./app/LLMChat/ChatShell.svelte";
   import Editors from "./app/Editor/Editors.svelte";
 
-  import { AgentAndChatState, currAgentAndChatState, developerAgentMap } from '$lib/state/allAgents.svelte';
-  import { agentRole } from "$lib/state/agentRole.svelte";
-
-  // $effect(() => {
-  //   if (!developerAgentMap.has(agentRole.node)) {
-  //     const store = new AgentAndChatState("code", agentRole.node);
-  //     developerAgentMap.set(agentRole.node, store);
-  //   }
-  // });
+  import { currAgentAndChatState } from '$lib/state/allAgents.svelte';
 
   let agentAndChatState = $derived(currAgentAndChatState.current); 
 </script>
@@ -25,7 +17,6 @@
 
   <!-- 3. Right pane -->
   <Resizable.Pane defaultSize={35}>
-    <!-- <LlmChat /> -->
      <ChatShell bind:agentAndChatState/>
   </Resizable.Pane>
 </Resizable.PaneGroup>

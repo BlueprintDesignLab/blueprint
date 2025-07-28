@@ -5,6 +5,7 @@
   import { Button } from '$lib/components/ui/button';
 
   import { graphCode } from '$lib/state/graph.svelte';
+
   import { agentRole, setAgentFocusNode } from '$lib/state/agentRole.svelte';
   import { currAgentAndChatState } from '$lib/state/allAgents.svelte';
   import { tick } from 'svelte';
@@ -24,42 +25,39 @@
   const { updateNode } = useSvelteFlow();
 
   $effect(() => {
-    const ro = new ResizeObserver(() => {
-      if (!ref) return;
-      updateNode(id, { width: ref.offsetWidth, height: ref.offsetHeight });
+    data.label; // read it so the effect re-runs
+    tick().then(() => {
+      if (ref) updateNode(id, { width: ref.offsetWidth, height: ref.offsetHeight });
     });
-    ro.observe(ref!);
-    return () => ro.disconnect();
   });
 
   let agentAndChatState = $derived(currAgentAndChatState.current); 
 
   async function scaffold() {
     setAgentFocusNode(id);
-
     agentAndChatState.send("Scaffold the current node, write function signatures, classes etc. Write high level comments but do not implement inner logic.");
   }
 
   function generate() {
-    agentRole.node = id;
+    setAgentFocusNode(id);
     agentAndChatState.send("Fully generate the node. Include all logic.");
   }
 
   function test() {
-    agentRole.node = id;
+    setAgentFocusNode(id);
     agentAndChatState.send("write test cases to comprehensively test the code. Then run the test cases and verify correctness.");
   }
 </script>
 
-<!-- Handles omitted for brevity … -->
-<Handle type="source" position={Position.Top}    id="a" class="w-2 h-2 rounded-full bg-neutral-600" />
-<Handle type="source" position={Position.Right}  id="b" class="w-2 h-2 rounded-full bg-neutral-600" />
-<Handle type="source" position={Position.Bottom} id="c" class="w-2 h-2 rounded-full bg-neutral-600" />
-<Handle type="source" position={Position.Left}   id="d" class="w-2 h-2 rounded-full bg-neutral-600" />
-<Handle type="target" position={Position.Top}    id="a" class="w-2 h-2 rounded-full bg-neutral-600" />
-<Handle type="target" position={Position.Right}  id="b" class="w-2 h-2 rounded-full bg-neutral-600" />
-<Handle type="target" position={Position.Bottom} id="c" class="w-2 h-2 rounded-full bg-neutral-600" />
-<Handle type="target" position={Position.Left}   id="d" class="w-2 h-2 rounded-full bg-neutral-600" />
+
+<Handle type="source" position={Position.Top}    id="a" />
+<Handle type="source" position={Position.Right}  id="b" />
+<Handle type="source" position={Position.Bottom} id="c" />
+<Handle type="source" position={Position.Left}   id="d" />
+<Handle type="target" position={Position.Top}    id="a" />
+<Handle type="target" position={Position.Right}  id="b" />
+<Handle type="target" position={Position.Bottom} id="c" />
+<Handle type="target" position={Position.Left}   id="d" />
 
 <div
   bind:this={ref}

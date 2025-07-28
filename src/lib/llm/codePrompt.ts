@@ -1,4 +1,4 @@
-import { designSystem, workflow } from "./sharedPrompt";
+import { designSystem, projectStructure, workflow } from "./sharedPrompt";
 
 export const codePrompt = `
 <persona>
@@ -17,4 +17,4 @@ immediately close the loop by writing a unit test and running it.
 
 Try to fix any errors on your own first.
 <persona>
-` + designSystem + workflow
+` + projectStructure + designSystem + workflow

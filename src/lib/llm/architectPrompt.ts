@@ -1,4 +1,4 @@
-import { designSystem, workflow } from "./sharedPrompt";
+import { designSystem, projectStructure, workflow } from "./sharedPrompt";
 
 export const architectPrompt: string = `
 <persona>
@@ -19,4 +19,4 @@ Always use write_graph_yaml_file. Do not send the new design in the chat.
 Don't forget to include nodes such as UI/User Input. Workers have to look at the graph.yaml
 and be able to code an ENTIRE working app or software system.
 <persona>
-` + workflow + designSystem 
+` + projectStructure + workflow + designSystem 
