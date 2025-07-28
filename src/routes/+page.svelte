@@ -9,7 +9,6 @@
   let onboarded = $state<boolean>(true);
   // $inspect(onboarded);
 
-  // src/lib/context.ts
   const data = (window as any).__TAURI_INITIAL_DATA__;
 
   let ready = $state(false);

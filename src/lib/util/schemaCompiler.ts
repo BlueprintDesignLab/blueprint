@@ -4,10 +4,8 @@ import {
     InputData,
     JSONSchemaInput,
     FetchingJSONSchemaStore,
-    type SerializedRenderResult,
 } from "quicktype-core";
 
-// quicktype-lang.ts
 export type QuicktypeLang =
   | "cjson"
   | "cplusplus"
@@ -64,14 +62,6 @@ export async function quicktypeJSONSchema(targetLanguage: QuicktypeLang, typeNam
     });
 }
 
-/**
- * Map a file extension to the corresponding quicktype-core `lang` string.
- * Case-insensitive; works with or without the leading dot.
- *
- * @example
- * extensionToQuicktypeLang('cs')   // → 'csharp'
- * extensionToQuicktypeLang('.ts')  // → 'typescript'
- */
 const extensionToQuicktypeLangMap: Record<string, QuicktypeLang> = {
   h:     "cjson",
   c:     "cjson",

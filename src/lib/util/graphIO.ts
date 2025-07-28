@@ -1,15 +1,3 @@
-/* ───────────────────────── graphIO.ts ────────────────────────────
-   Visual-only JSON  ✚  C4-Flow YAML semantics
-   ---------------------------------------------------------------
-   yarn add yaml nanoid            #  or npm i …
-
-   * The YAML file owns **ALL semantic fields** (type, roles, etc.).
-   * The JSON view file stores **ONLY layout data** (pos/size/z).
-   * Loader merges them for the canvas.
-   * Saver writes the YAML first (overwriting semantics),
-     then extracts the pure-view slice and rewrites the JSON file.
------------------------------------------------------------------*/
-
 import { parse, stringify } from "yaml";
 import { type Node, type Edge, MarkerType, type EdgeMarkerType, Position } from "@xyflow/svelte";
 

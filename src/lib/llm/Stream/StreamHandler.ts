@@ -6,7 +6,6 @@ import { proposePlan } from '$lib/state/editor.svelte';
 
 import type { LLMStream } from '../Agent/LLMClient';
 
-/* UIUpdater.types.ts (or wherever you keep shared types) */
 export type StreamDeltaFn   = (delta: string) => void;
 export type ShowToolFn      = (payload: {
   id: string;

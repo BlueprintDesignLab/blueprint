@@ -1,4 +1,3 @@
-// src/lib/authStore.ts
 import { onAuthStateChanged, signInWithCustomToken, type User } from 'firebase/auth';
 import { onOpenUrl } from '@tauri-apps/plugin-deep-link';
 

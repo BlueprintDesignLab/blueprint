@@ -1,4 +1,4 @@
-import { Agent } from '$lib/llm/Agent/Agent.js';
+import { Agent } from '$lib/llm/Agent/Agent';
 
 import { getSystemPromptFor } from '$lib/llm/SystemPrompts';
 import { toolsFor } from '$lib/llm/Tool/ToolRole';
