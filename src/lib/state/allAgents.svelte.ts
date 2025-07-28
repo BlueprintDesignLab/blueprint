@@ -1,4 +1,4 @@
-import { Agent } from '$lib/llm/Agent/BPAgent';
+import { Agent } from '$lib/llm/BPAgent/BPAgent';
 
 import { getSystemPromptFor } from '$lib/llm/SystemPrompts';
 import { toolsFor } from '$lib/llm/Tool/ToolRole';

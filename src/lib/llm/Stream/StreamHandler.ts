@@ -1,10 +1,9 @@
 import { StreamParamExtractor } from './StreamParamExtractor'; // wherever it lives
-import type { ChatHistory } from '../Agent/ChatHistory';
 
 import { graphCode } from '$lib/state/graph.svelte';
 import { proposePlan } from '$lib/state/editor.svelte';
 
-import type { LLMStream } from '../Agent/LLMClient';
+import type { LLMStream } from '../BPAgent/LLMClient';
 
 export type StreamDeltaFn   = (delta: string) => void;
 export type ShowToolFn      = (payload: {

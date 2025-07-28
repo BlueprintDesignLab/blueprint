@@ -10,6 +10,5 @@ node_modules
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 /.vscode
-/src-tauri-backup
 /.obsidian
 /test-*
