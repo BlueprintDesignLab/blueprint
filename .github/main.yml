@@ -37,8 +37,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: v__VERSION__
-          releaseName: 'App v__VERSION__'
-          releaseBody: 'See assets below.'
+          releaseName: 'Blueprint ALPHA v__VERSION__'
+          releaseBody: 'Source code, and compiled binaries for MacOS/Windows/Linux.'
           releaseDraft: true
           includeUpdaterJson: true   # auto-creates latest.json
           args: ''                   # native x86_64 Linux

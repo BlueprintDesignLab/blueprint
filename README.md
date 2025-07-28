@@ -2,7 +2,7 @@
 
 **Join our community:** [Discord](https://discord.gg/aT2mYAVVzk) | [Website](PLACEHOLDER_LANDING_PAGE) | [Report Issues](https://github.com/BlueprintDesignLab/blueprint/issues) | [Contribute](CONTRIBUTING.md)
 
-**Stop fighting with AI coding assistants. Start building with confidence.**
+**Agile development with AI collaborators.**
 
 Current AI tools work great for small tasks, but break down on complex projects. They don't understand how different parts of your codebase fit together, leading to:
 - Hours lost fixing integration bugs
