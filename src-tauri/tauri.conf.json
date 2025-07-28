@@ -12,6 +12,14 @@
   "plugins": {
     "deep-link": {
       "schemes": ["blueprint"] 
+    },
+    "updater": {
+      "active": true,
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDg2QjU5RDEyMjM5RjZCN0UKUldSK2E1OGpFcDIxaHBBWEVNQW05cDdrU1FKZmtxUDlVNk45dGVVZldGYm1NMkxFdkJFQ284Mm8K",
+      "endpoints": [
+        "https://github.com/BlueprintDesignLab/blueprint/releases/latest/download/latest.json"
+      ]
     }
   },
   "app": {

@@ -95,6 +95,8 @@ export class AgentAndChatState {
         throw e;
       }
     })();
+
+    this.scrollToBottom();
   };
 }
 

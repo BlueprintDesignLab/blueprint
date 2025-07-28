@@ -7,6 +7,7 @@ import type { ApprovalGateway } from "../Stream/StreamHandler";
 import { clearProposedCurrSrc, clearProposedPlan, commitCurrSrc, commitPlan } from "$lib/state/editor.svelte";
 import { graphCode } from "$lib/state/graph.svelte";
 import { setAgentFocusMode, setAgentFocusNode } from "$lib/state/agentRole.svelte";
+import { currAgentAndChatState } from "$lib/state/allAgents.svelte";
 
 export interface ToolHandler {
   handler: (args: any, deps: { approval: ApprovalGateway }) => Promise<string>;
@@ -186,15 +187,21 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
       description: "Start a dedicated node coder which will implement a node inside graph.yaml.",
       parameters: {
         type: "object",
-        properties: { node: { type: "string", description: "The focus node for the code to implement." } },
-        required: ["node"],
+        properties: { 
+          node: { type: "string", description: "The focus node for the code to implement." },
+          message: { type: "string", description: "The initial message to send to the agent. It is a blank slate so give it context for the task it needs to accomplish" },
+        },
+        required: ["node", "message"],
         additionalProperties: false,
       },
       strict: true,
     },
-    handler: async ({ node }, { approval }) => {
-      const ok = await approval.ask({ name: "start_node_coder", args: { node } });
+    handler: async ({ node, message }, { approval }) => {
+      const ok = await approval.ask({ name: "start_node_coder", args: { node, message } });
       setAgentFocusNode(node);
+
+      let agentAndChatState = $derived(currAgentAndChatState.current); 
+      agentAndChatState.send(message);
 
       return ok ? "coder started" : "not approved";
     },
@@ -207,15 +214,21 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
       description: "Refer the user to another agent responsible for the task.",
       parameters: {
         type: "object",
-        properties: { role: { type: "string", description: "The agent to refer to: 'plan' | 'architect' | 'code'." } },
-        required: ["role"],
+        properties: { 
+          role: { type: "string", description: "The agent to refer to: 'plan' | 'architect' | 'code'." },
+          message: { type: "string", description: "The initial message to send to the agent. It is a blank slate so give it context for the task it needs to accomplish" },
+        },
+        required: ["role", "message"],
         additionalProperties: false,
       },
       strict: true,
     },
-    handler: async ({ role }, { approval }) => {
-      const ok = await approval.ask({ name: "refer", args: { role } });
+    handler: async ({ role, message }, { approval }) => {
+      const ok = await approval.ask({ name: "refer", args: { role, message } });
       setAgentFocusMode(role);
+
+      let agentAndChatState = $derived(currAgentAndChatState.current); 
+      agentAndChatState.send(message);
       
       return ok ? "refer successful" : "not approved";
     },

@@ -1,0 +1,46 @@
+# name: 'publish'
+# on:
+#   push:
+#     branches:
+#       - release
+
+# jobs:
+#   publish-tauri:
+#     runs-on: windows-latest
+#     steps:
+#       - uses: actions/checkout@v4
+
+#       - name: Setup Node
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: lts/*
+
+#       - name: Install Rust stable
+#         uses: dtolnay/rust-toolchain@stable
+
+#       - name: Install frontend deps
+#         run: npm ci
+
+#       # ---- import certificate ----
+#       - name: Import Windows certificate
+#         env:
+#           WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+#           WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+#         run: |
+#           New-Item -ItemType directory -Path certificate
+#           Set-Content -Path certificate/tempCert.txt -Value $env:WINDOWS_CERTIFICATE
+#           certutil -decode certificate/tempCert.txt certificate/certificate.pfx
+#           Remove-Item -path certificate -include tempCert.txt
+#           Import-PfxCertificate -FilePath certificate/certificate.pfx `
+#             -CertStoreLocation Cert:\CurrentUser\My `
+#             -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText)
+
+#       # ---- build, sign & release ----
+#       - uses: tauri-apps/tauri-action@v0
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         with:
+#           tagName: v__VERSION__
+#           releaseName: 'App v__VERSION__'
+#           releaseBody: 'See the assets below.'
+#           releaseDraft: true

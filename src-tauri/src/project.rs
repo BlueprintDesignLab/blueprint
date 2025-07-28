@@ -26,7 +26,12 @@ pub async fn open_project(app: AppHandle, folder_path: PathBuf) -> Result<(), St
         .map_err(|e| format!("failed to open .gitignore: {e}"))?;
 
     // avoid adding duplicates
-    let expected_lines = ["/.blueprint/view.json", "/.blueprint/blueprintwatcher.json"];
+    let expected_lines = [
+        "/.blueprint/view.json",
+        "/.blueprint/blueprintwatcher.json",
+        "!.blueprint",
+        "!.blueprint/",
+    ];
 
     let contents = tokio::fs::read_to_string(&gitignore_path)
         .await

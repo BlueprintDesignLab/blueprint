@@ -6,9 +6,11 @@
     "linux"
   ],
   "windows": [
-    "main"
+    "**"
   ],
   "permissions": [
-    "window-state:default"
+    "window-state:default",
+    "updater:default",
+    "process:allow-restart"
   ]
 }

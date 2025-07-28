@@ -5,8 +5,15 @@
   import Editors from "./app/Editor/Editors.svelte";
 
   import { currAgentAndChatState } from '$lib/state/allAgents.svelte';
+  import { onMount } from "svelte";
+  
+  import { checkForAppUpdates } from "$lib/hooks/updater";
 
   let agentAndChatState = $derived(currAgentAndChatState.current); 
+
+  onMount(() => {
+    checkForAppUpdates();
+  })
 </script>
 
 <Resizable.PaneGroup direction="horizontal" autoSaveId="canvasAISplit">
