@@ -33,7 +33,7 @@ jobs:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: install frontend dependencies
-        run: yarn install   # or npm ci / pnpm install
+        run: npm ci   # or npm ci / pnpm install
 
       # --- import certificate into keychain ---
       - name: Import signing certificate
