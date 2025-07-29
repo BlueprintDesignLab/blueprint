@@ -15,8 +15,8 @@ jobs:
         include:
           - platform: 'macos-latest'
             args: '--target aarch64-apple-darwin'   # Apple Silicon
-          - platform: 'macos-latest'
-            args: '--target x86_64-apple-darwin'    # Intel
+          # - platform: 'macos-latest'
+          #   args: '--target x86_64-apple-darwin'    # Intel
 
     runs-on: ${{ matrix.platform }} --verbose
     steps:
