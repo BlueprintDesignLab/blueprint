@@ -18,7 +18,7 @@ jobs:
           - platform: 'macos-latest'
             args: '--target x86_64-apple-darwin'    # Intel
 
-    runs-on: ${{ matrix.platform }}
+    runs-on: ${{ matrix.platform }} --verbose
     steps:
       - uses: actions/checkout@v4
 
@@ -26,6 +26,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
+
+      - name: Install create-dmg
+        run: brew install create-dmg
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
