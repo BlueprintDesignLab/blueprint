@@ -23,6 +23,7 @@ class GraphCode {
   filtering: boolean = $derived(this.selectedNodes.length > 0 || this.selectedEdges.length > 0);
 
   previewGraph = $state.raw<PreviewGraph | null>(null); // null == no preview
+  previewStr = $state("");
 
   /* accept the proposal and make it live */
   commitGraph = () => {
@@ -34,12 +35,12 @@ class GraphCode {
       e => !this.previewGraph!.status.get(e.id)?.startsWith('destroyed')
     );
     this.clearProposed();
-    this.previewGraph = null;
   };
 
   /* throw away proposal and preview */
   clearProposed = () => {
     this.previewGraph = null;
+    this.previewStr = "";
   };
 
   setGraph = (semDerived: string, viewDerived: string) => {
@@ -66,6 +67,7 @@ class GraphCode {
 
   /** load external data into the *proposed* buffers */
   proposeGraph = (newSem: string) => {
+    this.previewStr = newSem;
     try {
       this.previewGraph = buildPreview(
         this.getGraph(),
@@ -139,40 +141,16 @@ class GraphCode {
   }
 
   overwritePartial = (
-    patch: PartialGraph,
-    opts: { pruneMissing?: boolean } = {}
+    patch: PartialGraph
   ) => {
     if (!patch.nodes && !patch.edges) return; // nothing to do
-
-    if (this.selectedNodes.length === 0) {
-      // console.log("no nodes are selected");
-      // return;
-      throw new Error(
-        "overwritePartial: no nodes are selected – nothing to merge into."
-      );
-    }
-
-    /* ---------- Helper sets ---------- */
-    const selIds = new Set(this.selectedNodes.map((n) => n.id));
 
     /* ---------- NODES ---------- */
     if (patch.nodes) {
       const nodeMap = new Map(this.nodes.map((n) => [n.id, { ...n }]));
 
       for (const n of patch.nodes) {
-        if (!selIds.has(n.id)) {
-          throw new Error(
-            `patch node '${n.id}' lies outside the current selection`
-          );
-        }
         nodeMap.set(n.id, { ...nodeMap.get(n.id), ...n });
-      }
-
-      if (opts.pruneMissing) {
-        for (const id of [...selIds]) {
-          const stillPresent = patch.nodes.some((n) => n.id === id);
-          if (!stillPresent) nodeMap.delete(id);
-        }
       }
 
       this.nodes = Array.from(nodeMap.values());
@@ -183,21 +161,7 @@ class GraphCode {
       const edgeMap = new Map(this.edges.map((e) => [e.id, { ...e }]));
 
       for (const e of patch.edges) {
-        const touchesSel = selIds.has(e.source) || selIds.has(e.target);
-        if (!touchesSel) {
-          throw new Error(
-            `patch edge '${e.id}' does not touch selected nodes – rejecting patch`
-          );
-        }
         edgeMap.set(e.id, { ...edgeMap.get(e.id), ...e });
-      }
-
-      if (opts.pruneMissing) {
-        for (const [id, edge] of edgeMap) {
-          const inPatch = patch.edges.some((e) => e.id === id);
-          const touchesSel = selIds.has(edge.source) || selIds.has(edge.target);
-          if (touchesSel && !inPatch) edgeMap.delete(id);
-        }
       }
 
       this.edges = Array.from(edgeMap.values());

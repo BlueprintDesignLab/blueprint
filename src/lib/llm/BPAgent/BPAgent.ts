@@ -8,7 +8,7 @@ import { type ToolKey } from "../Tool/ToolRole";
 import OpenAI from "openai";
 import { OpenAICompletionsLLMClient } from "./OpenaiCompletionLLMClient";
 
-const MAX_STEPS = 20;
+const MAX_STEPS = 9999999999999;
 
 async function getProvider() {
   const provider = await tauriStore.get('provider');

@@ -12,7 +12,7 @@
     klass?: string;
     lineWrapping?: boolean;
     lang?: () => Extension;
-    onChange?: () => void;
+    onChange?: (content:string) => void;
   }
 
   let {
@@ -23,7 +23,7 @@
     klass = '',
     lineWrapping = false,
     lang = markdown,
-    onChange = () => {},
+    onChange = (content:string) => {},
   }: Props = $props();
 
 </script>

@@ -7,10 +7,12 @@
   import { saveGraphSemantic, saveGraphView } from "$lib/util/graphIO";
 
   import GraphDiff from "./Canvas/GraphDiff.svelte";
-  import CodeDynam from "./Canvas/CodeDynam.svelte";
+  import CodeSingle from "./Canvas/CodeSingle.svelte";
 
-  let semDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
+  let graphSemDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
   let viewDerived = $derived(saveGraphView(graphCode.getSelectedGraph()));
+
+  let semDerived = $derived(graphCode.previewStr ? graphCode.previewStr : graphSemDerived);
 
   function patchGraph() {
     try {
@@ -25,7 +27,7 @@
   <!-- {#if graphCode.filtering} -->
     <Resizable.Pane defaultSize={20}>
       <div class="h-screen">
-          <CodeDynam
+          <CodeSingle
           bind:content={semDerived}
           lineWrapping={true}
           lang={yaml}

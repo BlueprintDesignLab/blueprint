@@ -6,7 +6,12 @@
   }
   let { key, value, limit = 200 }: Props = $props();
 
-  const str = $derived(JSON.stringify(value));
+  function toDisplay(v: unknown): string {
+    if (typeof v === "string") return v;
+    return JSON.stringify(v, null, 2);           
+  }
+
+  const str   = $derived(toDisplay(value));
   const isLong = $derived(str.length > limit);
 
   let open = $state(false);        // one flag per row
@@ -26,12 +31,11 @@
     {/if}
   </div>
 
-  {#if str && isLong && !open}
+  <!-- {#if str && isLong && !open}
     <span class="text-sm text-slate-400">
       {str?.slice(0, limit)}…
     </span>
-  {:else}
-    <pre class="min-w-0 text-sm text-slate-400 bg-slate-900 p-4 rounded overflow-x-auto">
-{str}</pre>
-  {/if}
+  {:else} -->
+    <pre class="text-sm text-slate-400 bg-slate-900 p-2 rounded overflow-x-auto">{open ? str : str?.slice(0, limit) + "..."}</pre>
+  <!-- {/if} -->
 </div>

@@ -8,7 +8,7 @@
 
   import { tick } from "svelte";
 
-  import { agentRole } from "$lib/state/agentRole.svelte";
+  import { agentRole, setAgentFocusNode } from "$lib/state/agentRole.svelte";
   import { encoder } from "$lib/state/contextWindow.svelte";
 
   import { StopCircle } from "lucide-svelte";
@@ -34,7 +34,7 @@
   })
 
   const sendWrapper = () => {
-    agentAndChatState.send(question);
+    if (!agentAndChatState.send(question)) return;
     question = "";
     tick().then(() => autoResize(textarea));
   };
@@ -104,12 +104,17 @@
 
   {#if agentRole.agentRole === "code"}
     <div
-      class="shrink-0 px-4 py-2 border-b border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"
+      class="shrink-0 px-4 py-2 border-b border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 flex items-center justify-between"
     >
       <p class="text-sm font-medium text-slate-700 dark:text-slate-200 animate-pulse">
         Coding: <span class="font-mono">{agentRole.node}</span>
       </p>
+
+      <Button onclick={() => setAgentFocusNode("All Edges")}>
+        Code All Edges
+      </Button>
     </div>
+
     <div class="h-px bg-slate-200 dark:bg-slate-700"></div>
   {/if}
 

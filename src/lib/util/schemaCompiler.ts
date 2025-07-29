@@ -5,6 +5,7 @@ import {
     JSONSchemaInput,
     FetchingJSONSchemaStore,
 } from "quicktype-core";
+import { toast } from "svelte-sonner";
 
 export type QuicktypeLang =
   | "cjson"
@@ -34,16 +35,20 @@ export type QuicktypeLang =
 export async function compileSchemaPathAndWrite(schemaPath: string, stubPath: string) {
     const schemaContent = await invoke("read_file", {path: schemaPath}) as string;
 
+    console.log(stubPath);
+
     const pathParts = stubPath.split(".");
     const extension = pathParts.at(-1) ?? "";
     const name = pathParts.at(0) ?? "";
 
-    const { lines } = await quicktypeJSONSchema(extensionToQuicktypeLangMap[extension], name, schemaContent);
-    const stubContent = lines.join("\n");
-    console.log(`updating ${stubPath}`);
+    try {
+      const { lines } = await quicktypeJSONSchema(extensionToQuicktypeLangMap[extension], name, schemaContent);
+      const stubContent = lines.join("\n");
+      await invoke("write_project_file", {path: stubPath, content: stubContent}) as string;
 
-    await invoke("write_project_file", {path: stubPath, content: stubContent}) as string;
-    return stubContent;
+    } catch (e) {
+      toast.error(String(e));
+    }
 }
 
 export async function quicktypeJSONSchema(targetLanguage: QuicktypeLang, typeName: string, jsonSchemaString: string) {

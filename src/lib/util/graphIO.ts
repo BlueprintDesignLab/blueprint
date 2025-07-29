@@ -200,7 +200,11 @@ export function saveGraphSemantic(merged: MergedGraph): string {
     };
   });
 
-  const yamlStr = stringify({ nodes: outNodes, edges: outEdges });
+  const yamlStr = stringify({ nodes: outNodes, edges: outEdges }, {
+    // force every string to be quoted
+    defaultStringType: 'QUOTE_DOUBLE',
+    lineWidth: 0
+  });
 
   return yamlStr;
 }

@@ -7,7 +7,7 @@
   import { graphCode } from '$lib/state/graph.svelte';
 
   import { agentRole, setAgentFocusNode } from '$lib/state/agentRole.svelte';
-  import { currAgentAndChatState } from '$lib/state/allAgents.svelte';
+  import { getDeveloperAgentForNode } from '$lib/state/allAgents.svelte';
   import { tick } from 'svelte';
 
   let { id, data = $bindable() }: NodeProps = $props();
@@ -31,20 +31,25 @@
     });
   });
 
-  let agentAndChatState = $derived(currAgentAndChatState.current); 
 
   async function scaffold() {
     setAgentFocusNode(id);
+    let agentAndChatState = getDeveloperAgentForNode(id); 
+
     agentAndChatState.send("Scaffold the current node, write function signatures, classes etc. Write high level comments but do not implement inner logic.");
   }
 
   function generate() {
     setAgentFocusNode(id);
+    let agentAndChatState = getDeveloperAgentForNode(id); 
+
     agentAndChatState.send("Fully generate the node. Include all logic.");
   }
 
   function test() {
     setAgentFocusNode(id);
+    let agentAndChatState = getDeveloperAgentForNode(id); 
+
     agentAndChatState.send("write test cases to comprehensively test the code. Then run the test cases and verify correctness.");
   }
 </script>

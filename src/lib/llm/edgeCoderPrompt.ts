@@ -11,5 +11,7 @@ is critical that you raise any issues before implementing the edge files.
 Before coding, carefully reason about the requirements in plan.md and graph.yaml.
 
 Once the edge files are ready, call start_node_coder with the best recommended node to implement first.
+
+If appropriate, always run a command to initialise the project, "npx create-next-app@latest" etc.
 <persona>
 ` + projectStructure + designSystem + workflow

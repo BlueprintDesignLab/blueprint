@@ -74,12 +74,13 @@ export class AgentAndChatState {
     } else {
       this.ch[i] = payload;
     }
-    this.scrollToBottom();
+    this.scrollIfNearBottom();
   }
 
-  send(question: string) {
-    if (this.generating) return;
-    if (question.trim() === "") return;
+  send(question: string): boolean {
+    if (this.generating) return false;
+    if (question.trim() === "") return false;
+    if ("approvalId" in (this.ch.at(-1) ?? {})) return false;
 
     const userMessage = { role: "user", content: question };
     this.ch.push(userMessage);
@@ -96,7 +97,8 @@ export class AgentAndChatState {
       }
     })();
 
-    this.scrollToBottom();
+    this.scrollIfNearBottom();
+    return true;
   };
 }
 
@@ -108,15 +110,30 @@ export const edgeCodingAgent = new AgentAndChatState('code', "All Edges");
 
 export const currAgentAndChatState = {
   get current() {
-    if (agentRole.agentRole === 'plan') return planAgent;
-    if (agentRole.agentRole === 'architect') return architectAgent;
-    if (agentRole.agentRole === 'code' && agentRole.node === 'All Edges')
-      return edgeCodingAgent;
-    return getDeveloperAgentForNode(agentRole.node);
+    let mainAgent = getAgentForRole(agentRole.agentRole);
+    if (mainAgent) {
+      mainAgent.scrollToBottom();
+      return mainAgent;
+    }
+    const nodeAgent = getDeveloperAgentForNode(agentRole.node);
+    nodeAgent.scrollToBottom();
+    
+    return nodeAgent;
   },
 };
 
+export function getAgentForRole(agentRole: AgentRoles): AgentAndChatState | null {
+  if (agentRole === 'plan') return planAgent;
+  if (agentRole === 'architect') return architectAgent;
+
+  return null;
+}
+
 export function getDeveloperAgentForNode(nodeId: NodeId): AgentAndChatState {
+  if (nodeId === 'All Edges') {
+    return edgeCodingAgent;
+  }
+
   return developerAgentMap.get(nodeId)!;
 }
 

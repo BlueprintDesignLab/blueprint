@@ -11,7 +11,7 @@
     readOnly?: boolean;
     lineWrapping?: boolean;
     lang?: () => Extension;
-    onChange?: () => void;
+    onChange?: (content: string) => void;
     klass?: string;
   }
 
@@ -21,7 +21,7 @@
     readOnly = false,
     lineWrapping = false,
     lang = markdown,
-    onChange = () => {},
+    onChange = (content: string) => {},
     klass = '',
   }: Props = $props();
 
@@ -44,8 +44,8 @@
       ...(lineWrapping ? [EditorView.lineWrapping] : []),
       EditorView.updateListener.of((up) => {
         if (up.docChanged) {
-            onChange();
             content = up.state.doc.toString();
+            onChange(content);
         }
       }),
     ];

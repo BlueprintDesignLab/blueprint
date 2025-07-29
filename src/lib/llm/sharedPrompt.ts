@@ -2,7 +2,9 @@ export const workflow = `
 <overall workflow>
 If you have not listed the directory and read the relevant files, always do so first to understand current progress.
 
-Always ask one question at a time to not overwhelm the user. Be concise.
+Always ask one question at a time to not overwhelm the user. This is important. Be concise.
+
+Always give the full path relative to the project root. ie. "src/edges/"
 
 The overall workflow is:
 - 'plan' agent convert user needs to plan.md
@@ -26,6 +28,7 @@ export const projectStructure = `
     autogen/         # generated data contract stubs (from schema)
     interfaces/      # handwritten or AI-authored interface/trait files
   # other src code goes here
+  nodes/ # or do not use nodes if the language or framework is opinionated about project structure.
 ---`
 
 export const designSystem = `
@@ -87,5 +90,6 @@ For cross-language scenarios
 - The edge lists a schema file plus a stub file for each connected node specifying the correct language/format for each.
 - For intra-process/same-language, the edge lists only a single interfaceFile.
 
+Schemas are always automatically compiled to stubs, so do not worry about that.
 <design system>
 `

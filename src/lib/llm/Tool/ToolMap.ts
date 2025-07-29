@@ -7,7 +7,7 @@ import type { ApprovalGateway } from "../Stream/StreamHandler";
 import { clearProposedCurrSrc, clearProposedPlan, commitCurrSrc, commitPlan } from "$lib/state/editor.svelte";
 import { graphCode } from "$lib/state/graph.svelte";
 import { setAgentFocusMode, setAgentFocusNode } from "$lib/state/agentRole.svelte";
-import { currAgentAndChatState } from "$lib/state/allAgents.svelte";
+import { getAgentForRole, getDeveloperAgentForNode } from "$lib/state/allAgents.svelte";
 
 export interface ToolHandler {
   handler: (args: any, deps: { approval: ApprovalGateway }) => Promise<string>;
@@ -198,11 +198,14 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     },
     handler: async ({ node, message }, { approval }) => {
       const ok = await approval.ask({ name: "start_node_coder", args: { node, message } });
+      if (!ok) return "not approved";
+
+      setAgentFocusMode("code");
       setAgentFocusNode(node);
 
-      let agentAndChatState = $derived(currAgentAndChatState.current); 
-      agentAndChatState.send(message);
+      let agentAndChatState = getDeveloperAgentForNode(node); 
 
+      agentAndChatState.send(message);
       return ok ? "coder started" : "not approved";
     },
   },
@@ -215,7 +218,7 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
       parameters: {
         type: "object",
         properties: { 
-          role: { type: "string", description: "The agent to refer to: 'plan' | 'architect' | 'code'." },
+          role: { type: "string", description: "The agent to refer to: 'plan' | 'architect'." },
           message: { type: "string", description: "The initial message to send to the agent. It is a blank slate so give it context for the task it needs to accomplish" },
         },
         required: ["role", "message"],
@@ -225,10 +228,12 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     },
     handler: async ({ role, message }, { approval }) => {
       const ok = await approval.ask({ name: "refer", args: { role, message } });
+      if (!ok) return "not approved";
+
       setAgentFocusMode(role);
 
-      let agentAndChatState = $derived(currAgentAndChatState.current); 
-      agentAndChatState.send(message);
+      let agentAndChatState = getAgentForRole(role); 
+      agentAndChatState!.send(message);
       
       return ok ? "refer successful" : "not approved";
     },

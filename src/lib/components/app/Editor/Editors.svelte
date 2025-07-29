@@ -38,21 +38,20 @@
 
     schemaCompiledWatcher.addListener(async (e) => {
       console.log(e.path);
+
       const schemaPath = e.path;
       const edgeWithSchema = graphCode.getGraph().edges.find((e) => {
         return e.data?.schema_file === schemaPath
       });
 
       if (!edgeWithSchema) return;
+      console.log(edgeWithSchema);
 
-      const stubPaths = edgeWithSchema?.data?.stub_files as {source: string, target: string};
+      const stubPaths = edgeWithSchema?.data?.stub_files ?? {};
 
-      const sourceStubPath = stubPaths.source;
-      const targetStubPath = stubPaths.target!;
-
-      compileSchemaPathAndWrite(schemaPath, sourceStubPath);
-      compileSchemaPathAndWrite(schemaPath, targetStubPath);
-
+      for (const [key, val] of Object.entries(stubPaths)) {
+        compileSchemaPathAndWrite(schemaPath, val);
+      }     
     }).then((unl) => schemaUnlisten = unl);
 
     return () => {planUnlisten?.(); schemaUnlisten?.();};

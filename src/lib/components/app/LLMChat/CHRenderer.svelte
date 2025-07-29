@@ -3,6 +3,7 @@
   import Button from "$lib/components/ui/button/button.svelte";
   import MdRenderer from "./MDRenderer.svelte";
   import CollapsibleArgs from "./CollapsibleArgs.svelte";
+  import CollapsibleRow from "./CollapsibleRow.svelte";
 
   let {ch, approve, reject} = $props();
 
@@ -15,25 +16,20 @@
         {@const toolStatus = chItem.tool.status}
         {@const toolArgs = chItem.tool.args}
 
-        {#snippet renderOutput(output: string)}
-            Result:
-            <pre class="min-w-0 text-sm text-slate-400 bg-slate-900 p-4 rounded overflow-x-auto">{output}</pre>
-        {/snippet}
-
         <div class="bg-background border rounded-lg p-3 shadow-sm min-w-0">
 
         {#if toolName.includes("end_agentic_loop")}
             {#if toolStatus === "resolved"}
-                <div class="font-semibold text-sm text-accent-foreground">
+                <div class="font-semibold text-sm text-accent-foreground overflow-x-auto">
                 {toolName}
                 </div>
-                {@render renderOutput(toolOutput)}
+                <CollapsibleRow key={"Result"} value={toolOutput}/>
             {/if}
         {:else}
-            <div class="font-semibold text-sm text-accent-foreground">
+            <div class="font-semibold text-sm text-accent-foreground overflow-x-auto">
                 {toolName}
             </div>
-            <div class="text-xs text-gray-500">
+            <div class="text-xs text-gray-500 overflow-x-auto">
                 {toolStatus}
             </div>
 
@@ -43,7 +39,7 @@
             {:else if toolStatus === "resolved"}
                 <CollapsibleArgs rawArgs={toolArgs} />
 
-                {@render renderOutput(toolOutput)}
+                <CollapsibleRow key={"Result"} value={toolOutput}/>
             {/if}
 
             {#if "approvalId" in chItem}
