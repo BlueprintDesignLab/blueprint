@@ -2,8 +2,8 @@ name: 'publish'
 
 on:
   push:
-    branches:
-      - release          # runs when you push to the branch “release”
+    tags:
+      - 'v*'            # e.g. v1.0.0
 
 jobs:
   publish-tauri:

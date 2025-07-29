@@ -49,7 +49,6 @@ Blueprint Design AI solves this by making software architecture explicit and mac
 
 1. Download from releases
 2. Install the desktop app
-3. Try the todo-app template
 
 ## 🌟 Why Developers Love This
 
