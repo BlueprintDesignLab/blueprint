@@ -40,10 +40,6 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           echo "$APPLE_CERTIFICATE" | base64 -d > certificate.p12
-
-          # remove any leftover keychain so create always succeeds
-          security delete-keychain build.keychain 2>/dev/null || true
-
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
@@ -64,7 +60,7 @@ jobs:
           args: --target aarch64-apple-darwin
 
   # --------------------------------------------------------
-  # 🍏 macOS Intel build (GitHub-hosted)
+  # 🍏 macOS Intel build (self-hosted)
   # --------------------------------------------------------
   publish-tauri-x64:
     name: Build macOS x86_64
@@ -117,7 +113,7 @@ jobs:
           args: --target x86_64-apple-darwin
 
   # --------------------------------------------------------
-  # 🐧 Linux x86_64 build (GitHub-hosted)
+  # 🐧 Linux x86_64 build (Github-hosted)
   # --------------------------------------------------------
   publish-tauri-linux:
     name: Build Linux x86_64
