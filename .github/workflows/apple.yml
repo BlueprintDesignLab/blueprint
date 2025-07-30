@@ -56,7 +56,6 @@ jobs:
   #         prerelease: false
   #         args: --target aarch64-apple-darwin
 
-  # 🖥️ Intel build (runs on your Mac mini self-hosted runner)
   publish-tauri-x86:
     name: Build macOS x86 (Local)
     permissions:
