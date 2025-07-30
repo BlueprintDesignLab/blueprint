@@ -1,4 +1,4 @@
-### Blueprint project layout
+### Interface/Contract DD Project Layout
 
 ```
 /.blueprint/
