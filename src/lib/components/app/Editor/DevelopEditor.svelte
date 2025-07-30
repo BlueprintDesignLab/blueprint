@@ -6,7 +6,7 @@
   import { loadSrcFile, saveSrcFile } from '$lib/util/srcFileIO';
 
   import Terminal from "./Canvas/Terminal.svelte";
-  import GraphDiff from "./Canvas/GraphDiff.svelte";
+  import GraphDiff from "../Graph/GraphDiff.svelte";
 
   let unlisten: (() => void) | null = null;
 

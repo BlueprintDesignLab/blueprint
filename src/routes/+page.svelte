@@ -1,31 +1,21 @@
 <script lang="ts">
   import ProjectSelector from "$lib/components/onboard/ProjectSelector.svelte";
 
-  import { tauriStore } from '$lib/state/tauriStore';
-  import { onMount } from "svelte";
+  import { projectRoot } from '$lib/state/tauriStores';
+  
   import App from "$lib/components/App.svelte";
-  import { invoke } from "@tauri-apps/api/core";
 
-  let onboarded = $state<boolean>(true);
-  // $inspect(onboarded);
+  let ready = $state(true);
 
-  const data = (window as any).__TAURI_INITIAL_DATA__;
+  // async function getonboarded() {
+  //   // tauriStore.set('onboarded', false);
+  //   onboarded = await settingsStore.get<boolean>('onboarded') ?? false;
+  //   ready = true;
+  // }
 
-  let ready = $state(false);
-  const projectRoot = data?.projectRoot ?? null;
-
-  async function getonboarded() {
-    // tauriStore.set('onboarded', false);
-    onboarded = await tauriStore.get<boolean>('onboarded') ?? false;
-    ready = true;
-  }
-
-  onMount(async () => {
-    getonboarded();
-
-    const root = await invoke("get_project_root");
-    console.log(root);
-  });
+  // onMount(async () => {
+  //   getonboarded();
+  // });
 </script>
 
 

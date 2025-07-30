@@ -1,6 +1,6 @@
 <!-- Onboarding.svelte -->
 <script lang="ts" module>
-  import { tauriStore } from '$lib/state/tauriStore';
+  import { settingsStore } from '$lib/state/tauriStores';
 
   import {
     Code,
@@ -34,13 +34,13 @@
 
   /* ---------- persistence ---------- */
   onMount(async () => {
-      editor = await tauriStore.get<string>('editor') ?? null;
-      email = await tauriStore.get<string>('email') ?? '';
+      editor = await settingsStore.get<string>('editor') ?? null;
+      email = await settingsStore.get<string>('email') ?? '';
   });
 
   $effect(() => {
-      tauriStore.set('editor', editor);
-      tauriStore.set('email', email);
+      settingsStore.set('editor', editor);
+      settingsStore.set('email', email);
       console.log(step, editor, email);
       // await store.save();
   });
@@ -50,7 +50,7 @@
   const back = () => (step -= 1);
 
   const finish = () => {
-      tauriStore.set('onboarded', true);
+      settingsStore.set('onboarded', true);
       onboarded = true;
   };
 </script>

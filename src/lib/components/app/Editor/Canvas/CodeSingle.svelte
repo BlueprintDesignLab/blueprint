@@ -28,14 +28,21 @@
   let host: HTMLDivElement;
   let view: EditorView;
 
-  /* build extensions once */
   function extensions(): Extension[] {
     return [
       basicSetup,
       (lang ?? markdown)(),
       EditorView.theme(
         {
-            '.cm-editor': { height: '100%', overflow: 'auto' },
+          '&': { 
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+          },
+          '.cm-scroller': { 
+            overflow: 'auto',
+            flex: '1'
+          },
         },
         { dark: theme === 'dark' }
       ),
@@ -44,14 +51,13 @@
       ...(lineWrapping ? [EditorView.lineWrapping] : []),
       EditorView.updateListener.of((up) => {
         if (up.docChanged) {
-            content = up.state.doc.toString();
-            onChange(content);
+          content = up.state.doc.toString();
+          onChange(content);
         }
       }),
     ];
   }
 
-  /* mount once */
   onMount(() => {
     view = new EditorView({
       parent: host,
@@ -73,6 +79,10 @@
   });
 </script>
 
-<div class="overflow-auto h-full">
+<!-- This will adapt to window height -->
+<!-- CodeMirrorEditor.svelte -->
+<div class="w-full h-full flex flex-col">
+  <div class="flex-1 min-h-0">
     <div bind:this={host} class="{klass} w-full h-full"></div>
+  </div>
 </div>

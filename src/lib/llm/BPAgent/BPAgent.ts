@@ -1,4 +1,4 @@
-import { tauriStore } from "$lib/state/tauriStore";
+import { settingsStore } from "$lib/state/tauriStores";
 
 import { ChatHistory } from "./ChatHistory";
 import { ToolRegistry } from "../Tool/ToolRegistry";
@@ -11,12 +11,12 @@ import { OpenAICompletionsLLMClient } from "./OpenaiCompletionLLMClient";
 const MAX_STEPS = 9999999999999;
 
 async function getProvider() {
-  const provider = await tauriStore.get('provider');
+  const provider = await settingsStore.get('provider');
 
   if (provider === "openai") {
     const openai = new OpenAI({
-      baseURL: await tauriStore.get('url-endpoint'),
-      apiKey: await tauriStore.get('api-key'),
+      baseURL: await settingsStore.get('url-endpoint'),
+      apiKey: await settingsStore.get('api-key'),
       dangerouslyAllowBrowser: true
     });
 
@@ -31,7 +31,7 @@ async function getProvider() {
 // }
 
 export class Agent {
-  private history = new ChatHistory();
+  private history: ChatHistory;
 
   private registry: ToolRegistry;
   private streamHandler: StreamHandler;
@@ -42,7 +42,7 @@ export class Agent {
   private controller = new AbortController();
    
   constructor(
-    deps: { chat: ChatTurn[] },
+    history: ChatHistory,
     systemPrompt: string,
     tools: ToolKey[],
     callbacks: UIUpdaterCallbacks
@@ -51,6 +51,8 @@ export class Agent {
 
     this.streamHandler = new StreamHandler(callbacks);
     this.registry = new ToolRegistry(tools, this.streamHandler); 
+
+    this.history = history;
   }
 
   async run(userMessage: string) {
@@ -62,11 +64,11 @@ export class Agent {
       this.controller = new AbortController();
 
       const openai = new OpenAI({
-        baseURL: await tauriStore.get('url-endpoint'),
-        apiKey: await tauriStore.get('api-key'),
+        baseURL: await settingsStore.get('url-endpoint'),
+        apiKey: await settingsStore.get('api-key'),
         dangerouslyAllowBrowser: true
       });
-      const model: string = await tauriStore.get('model-name') ?? "gpt-4.1";
+      const model: string = await settingsStore.get('model-name') ?? "gpt-4.1";
 
       const client = new OpenAICompletionsLLMClient(openai, model);
       const stream = client.createStream(this.history, this.registry.listToolSchemas(), this.systemPrompt, this.controller.signal)
@@ -89,6 +91,8 @@ export class Agent {
         this.history.addToolResult({ call_id: tc.call_id, output });
         this.streamHandler.showToolCallResult(tc, tc.args, output);   
       }
+
+      this.history.save();
 
       if (toolCalls.length === 0) this.done = true;
     }

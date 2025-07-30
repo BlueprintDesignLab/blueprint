@@ -7,7 +7,7 @@
   import { currAgentAndChatState } from '$lib/state/allAgents.svelte';
   import { onMount } from "svelte";
   
-  import { checkForAppUpdates } from "$lib/hooks/updater";
+  import { checkForAppUpdates } from "$lib/util/updater";
 
   let agentAndChatState = $derived(currAgentAndChatState.current); 
 

@@ -6,32 +6,32 @@
 
   import { saveGraphSemantic, saveGraphView } from "$lib/util/graphIO";
 
-  import GraphDiff from "./Canvas/GraphDiff.svelte";
+  import GraphDiff from "../Graph/GraphDiff.svelte";
   import CodeSingle from "./Canvas/CodeSingle.svelte";
 
-  let graphSemDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
-  let viewDerived = $derived(saveGraphView(graphCode.getSelectedGraph()));
+  // let graphSemDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
+  // let viewDerived = $derived(saveGraphView(graphCode.getSelectedGraph()));
 
-  let semDerived = $derived(graphCode.previewStr ? graphCode.previewStr : graphSemDerived);
+  // let semDerived = $derived(graphCode.previewStr ? graphCode.previewStr : graphSemDerived);
 
-  function patchGraph() {
-    try {
-      graphCode.applyPatch(semDerived, viewDerived);
-    } catch (e) {
-      //suppress in-between invalid YAML states
-    }
-  }
+  // function patchGraph() {
+  //   try {
+  //     graphCode.applyPatch(semDerived, viewDerived);
+  //   } catch (e) {
+  //     //suppress in-between invalid YAML states
+  //   }
+  // }
 </script>
+          <!-- onChange = {() => {patchGraph()}} -->
 
 <Resizable.PaneGroup direction="horizontal" autoSaveId="graphYamlEditor">
   <!-- {#if graphCode.filtering} -->
     <Resizable.Pane defaultSize={20}>
       <div class="h-screen">
           <CodeSingle
-          bind:content={semDerived}
+          bind:content={graphCode.graphStr}
           lineWrapping={true}
           lang={yaml}
-          onChange = {() => {patchGraph()}}
           />
       </div>
     </Resizable.Pane>

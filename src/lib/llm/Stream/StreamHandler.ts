@@ -5,12 +5,14 @@ import { proposePlan } from '$lib/state/editor.svelte';
 
 import type { LLMStream } from '../BPAgent/LLMClient';
 
+
 export type StreamDeltaFn   = (delta: string) => void;
 export type ShowToolFn      = (payload: {
   id: string;
   tool?: any;
   delta?: string;
   approvalId?: string;
+  checkpoint?: string;
 }) => void;
 export type StopGeneratingFn  = () => void;
 
@@ -37,7 +39,12 @@ export class StreamHandler implements ApprovalGateway {
     const id = crypto.randomUUID();
     return new Promise<string | null>((resolve, reject) => {
       this.pendings.set(id, { resolve, reject });
-      this.callbacks.showTool({ id: crypto.randomUUID(), tool: message, approvalId: id });
+      this.callbacks.showTool({ 
+        id: crypto.randomUUID(), 
+        tool: {...message, status: "pending approval"}, 
+        approvalId: id, 
+        checkpoint: undefined 
+      });
     });
   }
 

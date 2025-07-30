@@ -28,31 +28,26 @@
 
 </script>
 
-<div class="flex flex-col h-full">
 
-  <!-- this div will actually scroll -->
-  <div class="flex-1 min-h-0  overflow-hidden">
-    {#if propose !== ""}
-        <CodeDouble 
-            bind:content
-            bind:propose
-            {lineWrapping}
-            {readOnly}
-            {theme}
-            {lang}
-            {klass}
-        />
+{#if propose !== ""}
+  <CodeDouble 
+    bind:content
+    bind:propose
+    {lineWrapping}
+    {readOnly}
+    {theme}
+    {lang}
+    {klass}
+  />
+{:else}
+  <CodeSingle
+    bind:content
+    {lineWrapping}
+    {readOnly}
+    {theme}
+    {lang}
+    {onChange}
+    {klass}
+  />
+{/if}
 
-    {:else}
-        <CodeSingle
-            bind:content
-            {lineWrapping}
-            {readOnly}
-            {theme}
-            {lang}
-            {onChange}
-            {klass}
-        />
-    {/if}
-  </div>
-</div>

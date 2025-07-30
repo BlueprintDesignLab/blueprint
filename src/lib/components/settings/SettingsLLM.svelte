@@ -5,7 +5,7 @@ import Label from "../ui/label/label.svelte";
   import Button from "../ui/button/button.svelte";
 
   import { Info } from "lucide-svelte";
-  import { tauriStore } from "$lib/state/tauriStore";
+  import { settingsStore } from "$lib/state/tauriStores";
   import { toast } from "svelte-sonner";
   
   // local state – replace with your store / api
@@ -14,16 +14,16 @@ import Label from "../ui/label/label.svelte";
   let modelName = $state("gpt-4.1");
 
   const loadInit = async () => {
-    endpoint = await tauriStore.get('url-endpoint') ?? "https://api.openai.com/v1";
-    apiKey = await tauriStore.get('api-key') ?? "";
-    modelName = await tauriStore.get('model-name') ?? "gpt-4.1";
+    endpoint = await settingsStore.get('url-endpoint') ?? "https://api.openai.com/v1";
+    apiKey = await settingsStore.get('api-key') ?? "";
+    modelName = await settingsStore.get('model-name') ?? "gpt-4.1";
   };
   loadInit();
 
   function onSave() {
-    tauriStore.set('api-key', apiKey.trim());
-    tauriStore.set('url-endpoint', endpoint.trim());
-    tauriStore.set('model-name', modelName.trim());
+    settingsStore.set('api-key', apiKey.trim());
+    settingsStore.set('url-endpoint', endpoint.trim());
+    settingsStore.set('model-name', modelName.trim());
 
     toast.success("LLM Settings Saved");
   }

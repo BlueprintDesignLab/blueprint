@@ -15,6 +15,8 @@
   const isLong = $derived(str.length > limit);
 
   let open = $state(false);        // one flag per row
+
+  let sliced = $derived(str.slice(0, 80) + "...");
 </script>
 
 <div class="min-w-0">
@@ -31,11 +33,9 @@
     {/if}
   </div>
 
-  <!-- {#if str && isLong && !open}
-    <span class="text-sm text-slate-400">
-      {str?.slice(0, limit)}…
-    </span>
-  {:else} -->
-    <pre class="text-sm text-slate-400 bg-slate-900 p-2 rounded overflow-x-auto">{open ? str : str?.slice(0, limit) + "..."}</pre>
-  <!-- {/if} -->
+  {#if str && isLong && !open}
+    <pre class="text-sm text-slate-400 bg-slate-900 p-2 rounded overflow-x-auto">{sliced}</pre>
+  {:else}
+    <pre class="text-sm text-slate-400 bg-slate-900 p-2 rounded overflow-x-auto">{str}</pre>
+  {/if}
 </div>

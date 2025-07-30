@@ -219,13 +219,13 @@ export const loadGraphFiles = async () => {
 };
 
 
-const graphYamlDebounced = debounce((graph: MergedGraph) => {
-  const src = saveGraphSemantic(graph);
+const graphYamlDebounced = debounce((src: string) => {
+  // const src = saveGraphSemantic(graph);
   invoke('write_project_file', { path: './.blueprint/graph.yaml', content: src })
 }, 100);
 
-const viewJsonDebounced  = debounce((graph: MergedGraph) => {
-  const src = saveGraphView(graph);
+const viewJsonDebounced  = debounce((src: string) => {
+  // const src = saveGraphView(graph);
   invoke('write_project_file', { path: './.blueprint/view.json', content: src })
 }, 100);
 

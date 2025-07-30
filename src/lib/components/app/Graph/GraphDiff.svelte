@@ -1,8 +1,8 @@
 <script lang="ts">
   import * as Resizable from "$lib/components/ui/resizable/index.js";
 
-  import GraphCodeFlow from "../../Graph/GraphCodeFlow.svelte";
-  import GraphView from "../../Graph/GraphView.svelte";
+  import GraphCodeFlow from "./GraphCodeFlow.svelte";
+  import GraphView from "./GraphView.svelte";
 
   import { graphCode } from "$lib/state/graph.svelte";
 </script>

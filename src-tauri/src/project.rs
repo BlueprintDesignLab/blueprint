@@ -86,7 +86,7 @@ pub async fn spawn_project_window(app: &AppHandle, root: PathBuf) -> Result<(), 
             "window.__TAURI_INITIAL_DATA__ = {};",
             serde_json::json!({
                 "mode": "project",
-                "projectRoot": root.to_string_lossy(), // <-- String or &str
+                "projectRoot": root.to_string_lossy(), 
             })
         ))
         .inner_size(1200.0, 800.0)

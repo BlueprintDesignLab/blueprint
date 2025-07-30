@@ -25,7 +25,7 @@ use crate::{
     schema_watcher::start_schema_watcher,
     watcher::start_watcher,
     write_file_tools::write_project_file,
-    checkpoint::ai_checkpoint,
+    checkpoint::{ai_checkpoint, restore_checkpoint},
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -99,7 +99,8 @@ pub fn run() {
             open_project,
             start_watcher,
             start_schema_watcher,
-            ai_checkpoint
+            ai_checkpoint,
+            restore_checkpoint,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -19,7 +19,7 @@
   import BPNode from "$lib/components/app/Graph/BPNode.svelte";
   import BPEdge from "$lib/components/app/Graph/BPEdge.svelte";
 
-  import { DEFAULT_MARKEREND, type MergedGraph } from "$lib/util/graphIO";
+  import { DEFAULT_MARKEREND, saveGraphView, type MergedGraph } from "$lib/util/graphIO";
   import { graphCode } from "$lib/state/graph.svelte";
 
   // let { nodes = $bindable(), edges = $bindable() }: MergedGraph = $props();
@@ -65,14 +65,15 @@
     const { targetNode } = updatedNodes;
     if (!targetNode) return;
 
-    const nodes = graphCode.nodes;
-    const idx = nodes.findIndex(n => n.id === targetNode.id);
+    const newView = saveGraphView({nodes, edges});
 
-    if (idx !== -1) {
-      nodes.splice(idx, 1, targetNode);
-      // graphCode.nodes = [...nodes];
-    } else {
-    }
+    graphCode.viewStr = newView;
+
+    // if (idx !== -1) {
+    //   nodes.splice(idx, 1, targetNode);
+    //   // graphCode.nodes = [...nodes];
+    // } else {
+    // }
   }
 </script>
 

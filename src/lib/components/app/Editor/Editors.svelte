@@ -36,6 +36,13 @@
         loadPlanFile().then(text => (editorState.planMD = text));
     }).then((unl) => planUnlisten = unl);
 
+    fileWatcher.addListener(e => {
+      if (e.kind.includes('data') 
+          && e.paths.some(p => (p.endsWith('/.blueprint/graph.yaml') || p.endsWith('/.blueprint/view.json')))) {
+        loadGraphFiles();
+      }
+    }).then((unl) => planUnlisten = unl);
+
     schemaCompiledWatcher.addListener(async (e) => {
       console.log(e.path);
 
@@ -57,21 +64,11 @@
     return () => {planUnlisten?.(); schemaUnlisten?.();};
   });
 
-  $inspect(graphCode.nodes);
-
-  // let run = 0;
   $effect(() => {
     console.log("saving graph");
-    // if (++run > 5) {
-    //   console.trace('loop detected');
-    //   return;
-    // }
-    graphCode.nodes;
-    graphCode.edges;
 
-    const snap = $state.snapshot(graphCode.getGraph()) as MergedGraph;
-    saveGraphYaml(snap);
-    saveViewJson(snap);
+    saveViewJson(graphCode.viewStr);
+    saveGraphYaml(graphCode.graphStr);
   });
 </script>
 

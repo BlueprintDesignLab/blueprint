@@ -102,4 +102,8 @@
   });
 </script>
 
-<div bind:this={host} class="{klass} w-full h-full" style="display:flex; overflow:hidden;"></div>
+<div class="flex flex-col h-full">
+  <div class="flex-1 min-h-0  overflow-hidden">
+    <div bind:this={host} class="{klass} w-full h-full" style="display:flex; overflow:hidden;"></div>
+  </div>
+</div>

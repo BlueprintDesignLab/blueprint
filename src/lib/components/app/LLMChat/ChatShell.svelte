@@ -11,7 +11,7 @@
   import { agentRole, setAgentFocusNode } from "$lib/state/agentRole.svelte";
   import { encoder } from "$lib/state/contextWindow.svelte";
 
-  import { StopCircle } from "lucide-svelte";
+  import { LucideAlignHorizontalDistributeStart, StopCircle } from "lucide-svelte";
 
   import { useSvelteFlow } from '@xyflow/svelte';
   import { Badge } from "$lib/components/ui/badge";
@@ -46,6 +46,12 @@
     console.log('Checkpoint created:', hash);
     
     agent.handleApproval(chItem.approvalId!, "approve");
+    console.log(chItem);
+
+    chItem.checkpoint = hash;
+    chItem.tool.status = "approved";
+
+    delete chItem.approvalId;
 
     requestAnimationFrame(() => {
       fitView();
@@ -54,6 +60,8 @@
 
   function reject(chItem: any) {
     agent.handleApproval(chItem.approvalId!, null);
+
+    delete chItem.approvalId;
   }
 
   let textarea: HTMLTextAreaElement | null = $state(null);
@@ -82,10 +90,10 @@
   }
 
   async function yolo() {
-    const hash = await invoke('ai_checkpoint');
-    console.log('Checkpoint created:', hash);
-    // question = "Just use your best judgement";
-    // sendWrapper();
+    // const hash = await invoke('ai_checkpoint');
+    // console.log('Checkpoint created:', hash);
+    question = "Just use your best judgement";
+    sendWrapper();
   }
 </script>
 
@@ -126,7 +134,7 @@
 
   <!-- takes all remaining height -->
   <main class="flex flex-col flex-1 overflow-hidden">
-    <div class="flex flex-col flex-1 min-h-0 mx-auto max-w-2xl w-full p-4">
+    <div class="flex flex-col flex-1 min-h-0 mx-auto w-full p-4">
       <div
         bind:this={chDiv}
         class="flex-1 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 px-6 py-5"
@@ -169,9 +177,9 @@
             <div class="flex items-center gap-1">
               <!-- Example formatting buttons - add your own icons -->
               
-              <!-- <button class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-700">
-                IDK
-              </button> -->
+              <Button variant="destructive" class="bg-red-400" onclick={() => agentAndChatState.clear()}>
+                Clear
+              </Button>
              
             </div>
 
