@@ -117,7 +117,7 @@ export const currAgentAndChatState = {
     }
     const nodeAgent = getDeveloperAgentForNode(agentRole.node);
     nodeAgent.scrollToBottom();
-    
+
     return nodeAgent;
   },
 };

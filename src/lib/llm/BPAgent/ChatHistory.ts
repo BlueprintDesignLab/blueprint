@@ -5,6 +5,7 @@ type ToolCall = {
   arguments: string;
   call_id: string;
 };
+
 type ToolResult = {
   call_id: string;
   output: string;

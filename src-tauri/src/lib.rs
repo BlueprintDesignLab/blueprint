@@ -6,6 +6,7 @@ pub mod menu;
 pub mod project;
 pub mod schema_watcher;
 pub mod watcher;
+pub mod checkpoint;
 
 use anyhow::{bail, Context, Result};
 
@@ -24,6 +25,7 @@ use crate::{
     schema_watcher::start_schema_watcher,
     watcher::start_watcher,
     write_file_tools::write_project_file,
+    checkpoint::ai_checkpoint,
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -96,7 +98,8 @@ pub fn run() {
             write_project_file,
             open_project,
             start_watcher,
-            start_schema_watcher
+            start_schema_watcher,
+            ai_checkpoint
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

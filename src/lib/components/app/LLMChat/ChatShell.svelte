@@ -16,6 +16,7 @@
   import { useSvelteFlow } from '@xyflow/svelte';
   import { Badge } from "$lib/components/ui/badge";
   import type { AgentAndChatState } from "$lib/state/allAgents.svelte";
+  import { invoke } from "@tauri-apps/api/core";
 
   const { fitView } = useSvelteFlow();
 
@@ -40,16 +41,19 @@
   };
 
 
-  function approve(id: string) {
-    agent.handleApproval(id, "approve");
+  async function approve(chItem: any) {
+    const hash = await invoke('ai_checkpoint');
+    console.log('Checkpoint created:', hash);
+    
+    agent.handleApproval(chItem.approvalId!, "approve");
 
     requestAnimationFrame(() => {
       fitView();
     })
   }
 
-  function reject(id: string) {
-    agent.handleApproval(id, null);
+  function reject(chItem: any) {
+    agent.handleApproval(chItem.approvalId!, null);
   }
 
   let textarea: HTMLTextAreaElement | null = $state(null);
@@ -77,9 +81,11 @@
     }
   }
 
-  function yolo() {
-    question = "Just use your best judgement";
-    sendWrapper();
+  async function yolo() {
+    const hash = await invoke('ai_checkpoint');
+    console.log('Checkpoint created:', hash);
+    // question = "Just use your best judgement";
+    // sendWrapper();
   }
 </script>
 

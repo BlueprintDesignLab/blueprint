@@ -87,7 +87,7 @@ export class Agent {
         const argsObj = JSON.parse(tc.args);
         const output = await this.registry.execute(tc.name, argsObj);
         this.history.addToolResult({ call_id: tc.call_id, output });
-        this.streamHandler.showToolCallResult(tc, tc.args, output);        
+        this.streamHandler.showToolCallResult(tc, tc.args, output);   
       }
 
       if (toolCalls.length === 0) this.done = true;

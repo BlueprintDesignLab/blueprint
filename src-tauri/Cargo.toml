@@ -38,6 +38,7 @@ serde_yaml = "0.9.34"
 tauri-plugin-shell = "2"
 tauri-plugin-deep-link = "2"
 tauri-plugin-process = "2"
+chrono = "0.4.41"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-updater = "2"
