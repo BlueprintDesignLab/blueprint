@@ -1,21 +1,20 @@
-name: 'publish'
+name: "publish"
 
 on:
   push:
     tags:
-      - 'v*'            # e.g. v1.0.0
+      - "v*" # e.g. v1.0.0
 
 jobs:
-  # 🍏 Apple Silicon build (runs on self-hosted machine)
   publish-tauri-arm64:
     name: Build macOS arm64
     permissions:
       contents: write
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS, ARM64]
     steps:
       - uses: actions/checkout@v4
 
-      - name: setup node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
@@ -23,35 +22,22 @@ jobs:
       - name: Install create-dmg
         run: brew install create-dmg
 
-      - name: install Rust stable
+      - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-darwin
 
-      - name: install frontend dependencies
+      - name: Install frontend dependencies
         run: npm ci
-
-      - name: Import signing certificate
-        env:
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          echo "$APPLE_CERTIFICATE" | base64 -d > certificate.p12
-          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
         with:
-          tagName: app-v__VERSION__
-          releaseName: 'Blueprint v__VERSION__'
-          releaseBody: 'See the assets to download this version and install.'
+          tagName: v__VERSION__
+          releaseName: "Blueprint ALPHA v__VERSION__"
+          releaseBody: "Source code, and compiled binaries for macOS ARM64."
           releaseDraft: true
           prerelease: false
           args: --target aarch64-apple-darwin
