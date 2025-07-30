@@ -35,7 +35,7 @@ export type QuicktypeLang =
 export async function compileSchemaPathAndWrite(schemaPath: string, stubPath: string) {
     const schemaContent = await invoke("read_file", {path: schemaPath}) as string;
 
-    console.log(stubPath);
+    // console.log(stubPath);
 
     const pathParts = stubPath.split(".");
     const extension = pathParts.at(-1) ?? "";

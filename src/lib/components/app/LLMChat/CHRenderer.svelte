@@ -50,9 +50,17 @@
           <Button variant="secondary" onclick={() => reject(chItem)}>Reject</Button>
         {/if}
 
-        {#if chItem.checkpoint !== undefined}
-          <Button onclick={() => resetProjectState(chItem.checkpoint)}>Restore project state</Button>
-        {/if}
+        <div class="flex justify-end">
+          {#if chItem.checkpoint !== undefined}
+            <Button
+              variant="destructive"
+              class="bg-red-400"
+              onclick={() => resetProjectState(chItem.checkpoint)}
+            >
+              Restore project state
+            </Button>
+          {/if}
+        </div>
       {/if}
 
   {:else}

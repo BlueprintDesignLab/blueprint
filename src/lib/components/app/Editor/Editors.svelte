@@ -44,7 +44,7 @@
     }).then((unl) => planUnlisten = unl);
 
     schemaCompiledWatcher.addListener(async (e) => {
-      console.log(e.path);
+      // console.log(e.path);
 
       const schemaPath = e.path;
       const edgeWithSchema = graphCode.getGraph().edges.find((e) => {
@@ -52,7 +52,7 @@
       });
 
       if (!edgeWithSchema) return;
-      console.log(edgeWithSchema);
+      // console.log(edgeWithSchema);
 
       const stubPaths = edgeWithSchema?.data?.stub_files ?? {};
 
@@ -66,6 +66,9 @@
 
   $effect(() => {
     console.log("saving graph");
+    if (!graphCode.viewStr) {
+      return;
+    }
 
     saveViewJson(graphCode.viewStr);
     saveGraphYaml(graphCode.graphStr);

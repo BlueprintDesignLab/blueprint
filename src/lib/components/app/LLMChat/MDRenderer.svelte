@@ -135,7 +135,7 @@
       <div class="relative">
         <!-- actual highlighted code comes in as HTML -->
         <pre class="rounded-xl overflow-auto bg-zinc-900 text-zinc-100 p-4 font-mono text-sm shadow-sm border border-zinc-800">
-          {@html section[1]}
+          {@html DOMPurify.sanitize(section[1])}
         </pre>
 
         <!-- Always‑visible action buttons -->

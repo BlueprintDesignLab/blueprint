@@ -21,7 +21,7 @@
     return 'border-neutral-300';
   });
 
-  let ref: HTMLDivElement | null = $state(null);
+  let ref: HTMLButtonElement | null = $state(null);
   const { updateNode } = useSvelteFlow();
 
   $effect(() => {
@@ -52,6 +52,14 @@
 
     agentAndChatState.send("write test cases to comprehensively test the code. Then run the test cases and verify correctness.");
   }
+
+  function select() {
+    setAgentFocusNode(id);
+  }
+
+  // function selectNode() {
+  //   graphCode.setSelectedNodesEdges([id], []);
+  // }
 </script>
 
 
@@ -64,7 +72,7 @@
 <Handle type="target" position={Position.Bottom} id="c" />
 <Handle type="target" position={Position.Left}   id="d" />
 
-<div
+<button
   bind:this={ref}
   class="auto-node relative w-max rounded border p-2 {diffClass}"
 >
@@ -77,6 +85,9 @@
 
   {#if agentRole.agentRole === 'code'}
     <div class="flex justify-end gap-1 mt-1">
+      <Button variant="secondary" class="text-[10px]" onclick={() => select()}>
+        Select
+      </Button>
       <Button variant="outline" class="text-[10px]" onclick={() => scaffold()}>
         Scaffold
       </Button>
@@ -98,7 +109,7 @@
       Focus
     </Badge>
   {/if}
-</div>
+</button>
 
 <style>
   .auto-node {

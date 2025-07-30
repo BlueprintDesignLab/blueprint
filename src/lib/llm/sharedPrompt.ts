@@ -76,8 +76,8 @@ edges:
     # For data edges (cross-language):
     schema_file: .blueprint/edges/data_flow.schema.json
     stub_files:
-      NodeA: src/edges/autogen/data_flow.NodeA.ts
-      NodeB: src/edges/autogen/data_flow.NodeB.cpp
+      NodeA: src/edges/autogen/data_flow_NodeA.ts
+      NodeB: src/edges/autogen/data_flow_NodeB.cpp
     # For interface edges (same-language/intra-process):
     interface_file: src/edges/interfaces/DataBus.ts
     source: "<NodeID>"      # required: producer node ID

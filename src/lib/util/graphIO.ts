@@ -140,8 +140,8 @@ export function yamlViewToGraph(yamlText: string, viewText: string): MergedGraph
     return getLayoutedElements(nodes, edges);
   }
 
-  // console.log(nodes);
-  // console.log(edges);
+  // // console.log(nodes);
+  // // console.log(edges);
 
   return { nodes, edges };
 }
@@ -177,7 +177,7 @@ export function saveGraphView(merged: MergedGraph): string {
 }
 
 export function saveGraphSemantic(merged: MergedGraph): string {
-  // console.log(merged);
+  // // console.log(merged);
   const outNodes: GraphSemYAML["nodes"] = {};
   const outEdges: GraphSemYAML["edges"] = {};
 
@@ -201,8 +201,6 @@ export function saveGraphSemantic(merged: MergedGraph): string {
   });
 
   const yamlStr = stringify({ nodes: outNodes, edges: outEdges }, {
-    // force every string to be quoted
-    defaultStringType: 'QUOTE_DOUBLE',
     lineWidth: 0
   });
 

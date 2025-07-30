@@ -5,6 +5,7 @@
   import { markdown } from '@codemirror/lang-markdown';
   import { basicSetup, EditorView } from 'codemirror';
   import { onMount } from 'svelte';
+  import { githubLight } from  "@uiw/codemirror-theme-github";
 
   interface Props {
     content?: string;
@@ -37,6 +38,7 @@
     return [
       basicSetup,
       (lang ?? markdown)(),
+      githubLight,
       EditorState.readOnly.of(readOnly),
       EditorView.theme(
         {

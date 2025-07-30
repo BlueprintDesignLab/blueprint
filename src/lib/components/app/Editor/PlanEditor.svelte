@@ -6,10 +6,10 @@
   import { editorState } from '$lib/state/editor.svelte';
   import { FileText } from 'lucide-svelte';
 
-  import CodeDynam from './Canvas/CodeDynam.svelte';
+  import CodeDynam from './Code/CodeDynam.svelte';
 
   $effect(() => {
-    console.log("save plan");
+    // console.log("save plan");
     savePlanMd(editorState.planMD);
   })
 </script>

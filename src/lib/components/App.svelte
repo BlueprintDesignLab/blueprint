@@ -8,12 +8,18 @@
   import { onMount } from "svelte";
   
   import { checkForAppUpdates } from "$lib/util/updater";
+  import { useOnSelectionChange } from "@xyflow/svelte";
+  import { graphCode } from "$lib/state/graph.svelte";
 
   let agentAndChatState = $derived(currAgentAndChatState.current); 
 
   onMount(() => {
     checkForAppUpdates();
   })
+
+  // useOnSelectionChange(({ nodes, edges }) => {
+  //   graphCode.setSelectedNodesEdges(nodes, edges);
+  // });
 </script>
 
 <Resizable.PaneGroup direction="horizontal" autoSaveId="canvasAISplit">

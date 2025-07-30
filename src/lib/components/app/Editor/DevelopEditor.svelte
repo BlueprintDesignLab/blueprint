@@ -5,35 +5,35 @@
   import { fileWatcher } from '$lib/watcher/fileWatcher';
   import { loadSrcFile, saveSrcFile } from '$lib/util/srcFileIO';
 
-  import Terminal from "./Canvas/Terminal.svelte";
+  import Terminal from "./Code/Terminal.svelte";
   import GraphDiff from "../Graph/GraphDiff.svelte";
 
-  let unlisten: (() => void) | null = null;
+  // let unlisten: (() => void) | null = null;
 
-  $effect(() => {
-    unlisten?.();
-    unlisten = null;
+  // $effect(() => {
+  //   unlisten?.();
+  //   unlisten = null;
 
-    loadSrcFile(editorState.currSrcPath).then(text => (editorState.currSrc = text));
+  //   loadSrcFile(editorState.currSrcPath).then(text => (editorState.currSrc = text));
 
-    fileWatcher.addListener(e => {
-      if (e.kind.includes('data') && e.paths.some(p => p.includes(editorState.currSrcPath)))
-        loadSrcFile(editorState.currSrcPath).then(text => (editorState.currSrc = text));
-    }).then((unl) => unlisten = unl);
+  //   fileWatcher.addListener(e => {
+  //     if (e.kind.includes('data') && e.paths.some(p => p.includes(editorState.currSrcPath)))
+  //       loadSrcFile(editorState.currSrcPath).then(text => (editorState.currSrc = text));
+  //   }).then((unl) => unlisten = unl);
 
-    return (() => {
-      unlisten?.();
-    });
-  })
+  //   return (() => {
+  //     unlisten?.();
+  //   });
+  // })
 
-  $effect(() => {
-    console.log("saving src");
-    editorState.currSrc;
+  // $effect(() => {
+  //   // console.log("saving src");
+  //   editorState.currSrc;
 
-    if (editorState.currSrcPath !== "") {
-      saveSrcFile(editorState.currSrcPath, editorState.currSrc);
-    }
-  })
+  //   if (editorState.currSrcPath !== "") {
+  //     saveSrcFile(editorState.currSrcPath, editorState.currSrc);
+  //   }
+  // })
 </script>
 
 <Resizable.PaneGroup direction="vertical" autoSaveId="terminalSRCSplit">

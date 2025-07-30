@@ -18,7 +18,7 @@ export const schemaCompiledWatcher = new (class {
 
     if (!this.#started) {
       await invoke('start_schema_watcher');
-      console.log("invoked schema watcher");
+      // console.log("invoked schema watcher");
       this.#started = true;
     }
 

@@ -43,10 +43,10 @@
 
   async function approve(chItem: any) {
     const hash = await invoke('ai_checkpoint');
-    console.log('Checkpoint created:', hash);
+    // // console.log('Checkpoint created:', hash);
     
     agent.handleApproval(chItem.approvalId!, "approve");
-    console.log(chItem);
+    // console.log(chItem);
 
     chItem.checkpoint = hash;
     chItem.tool.status = "approved";
@@ -60,7 +60,7 @@
 
   function reject(chItem: any) {
     agent.handleApproval(chItem.approvalId!, null);
-
+    chItem.tool.status = "rejected";
     delete chItem.approvalId;
   }
 
@@ -91,7 +91,7 @@
 
   async function yolo() {
     // const hash = await invoke('ai_checkpoint');
-    // console.log('Checkpoint created:', hash);
+    // // console.log('Checkpoint created:', hash);
     question = "Just use your best judgement";
     sendWrapper();
   }

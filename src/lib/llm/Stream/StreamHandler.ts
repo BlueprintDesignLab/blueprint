@@ -35,7 +35,7 @@ export class StreamHandler implements ApprovalGateway {
   private pendings = new Map<string, { resolve: (v: string | null) => void; reject: (e: Error) => void }>();
 
   ask(message: Call): Promise<string | null> {
-    console.log(message);
+    // // console.log(message);
     const id = crypto.randomUUID();
     return new Promise<string | null>((resolve, reject) => {
       this.pendings.set(id, { resolve, reject });
@@ -100,7 +100,7 @@ export class StreamHandler implements ApprovalGateway {
 
         case 'toolCallArgs': {
           buffer += ev.delta;
-          // console.log(ev.delta);
+          // // console.log(ev.delta);
           const extractor = activeToolCalls.get(ev.id)!;
           extractor.feed(ev.delta);
           pathExtractor.feed(ev.delta);
@@ -122,6 +122,7 @@ export class StreamHandler implements ApprovalGateway {
             //     break;
             //   }
             default:
+              console.log("here");
               this.callbacks.showTool({ id: ev.id, delta: ev.delta });
           }
           break;
@@ -142,7 +143,7 @@ export class StreamHandler implements ApprovalGateway {
       }
     }
 
-    // console.log(buffer);
+    // // console.log(buffer);
     return { assistantContent, toolCalls };
   }
 }

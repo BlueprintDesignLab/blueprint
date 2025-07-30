@@ -7,20 +7,18 @@
   import { saveGraphSemantic, saveGraphView } from "$lib/util/graphIO";
 
   import GraphDiff from "../Graph/GraphDiff.svelte";
-  import CodeSingle from "./Canvas/CodeSingle.svelte";
+  import CodeSingle from "./Code/CodeSingle.svelte";
 
-  // let graphSemDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
-  // let viewDerived = $derived(saveGraphView(graphCode.getSelectedGraph()));
+  let graphSemDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
+  let semDerived = $derived(graphCode.previewStr ? graphCode.previewStr : graphSemDerived);
 
-  // let semDerived = $derived(graphCode.previewStr ? graphCode.previewStr : graphSemDerived);
-
-  // function patchGraph() {
-  //   try {
-  //     graphCode.applyPatch(semDerived, viewDerived);
-  //   } catch (e) {
-  //     //suppress in-between invalid YAML states
-  //   }
-  // }
+  function patchGraph() {
+    try {
+      graphCode.applyPatch(semDerived);
+    } catch (e) {
+      //suppress in-between invalid YAML states
+    }
+  }
 </script>
           <!-- onChange = {() => {patchGraph()}} -->
 
@@ -29,9 +27,11 @@
     <Resizable.Pane defaultSize={20}>
       <div class="h-screen">
           <CodeSingle
-          bind:content={graphCode.graphStr}
+          bind:content={semDerived}
           lineWrapping={true}
           lang={yaml}
+          onChange={() => patchGraph()}
+          readOnly={graphCode.previewStr !== ""}
           />
       </div>
     </Resizable.Pane>

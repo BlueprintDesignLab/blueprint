@@ -41,7 +41,7 @@
   $effect(() => {
       settingsStore.set('editor', editor);
       settingsStore.set('email', email);
-      console.log(step, editor, email);
+      // console.log(step, editor, email);
       // await store.save();
   });
 

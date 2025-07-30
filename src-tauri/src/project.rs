@@ -16,6 +16,24 @@ pub async fn open_project(app: AppHandle, folder_path: PathBuf) -> Result<(), St
             .map_err(|e| format!("failed to create .blueprint dir: {e}"))?;
     }
 
+    // --- git init (only if .git does not exist) ---
+    let git_dir = folder_path.join(".git");
+    if !git_dir.exists() {
+        tokio::process::Command::new("git")
+            .arg("init")
+            .current_dir(&folder_path)
+            .status()
+            .await
+            .map_err(|e| format!("failed to spawn git init: {e}"))
+            .and_then(|s| {
+                if s.success() {
+                    Ok(())
+                } else {
+                    Err("git init failed".into())
+                }
+            })?;
+    }
+
     // append to .gitignore (creates it if missing)
     let gitignore_path = folder_path.join(".gitignore");
     let mut file = OpenOptions::new()

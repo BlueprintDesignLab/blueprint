@@ -1,6 +1,6 @@
 import { buildPreview, type PreviewGraph } from "$lib/util/graphDiff";
 
-import { yamlViewToGraph, type MergedGraph } from "$lib/util/graphIO";
+import { saveGraphSemantic, yamlViewToGraph, type MergedGraph } from "$lib/util/graphIO";
 
 import { type Node, type Edge } from "@xyflow/svelte";
 import { AgentAndChatState, developerAgentMap } from "./allAgents.svelte";
@@ -131,6 +131,49 @@ class GraphCode {
       edges: dispEdges
     };
   }
+
+  applyPatch(sem: string) {
+    const newGraph = yamlViewToGraph(sem, this.viewStr);
+
+    const editedGraph = this.overwritePartial(newGraph);
+    
+    if (editedGraph !== null) {
+      this.graphStr = saveGraphSemantic(editedGraph);
+    }
+  }
+
+  overwritePartial = (
+    patch: PartialGraph
+  ): MergedGraph | null => {
+    if (!patch.nodes && !patch.edges) return null; // nothing to do
+
+    let nodes: Node[] = [];
+    let edges: Edge[] = [];
+
+    /* ---------- NODES ---------- */
+    if (patch.nodes) {
+      const nodeMap = new Map(this.nodes.map((n) => [n.id, { ...n }]));
+
+      for (const n of patch.nodes) {
+        nodeMap.set(n.id, { ...nodeMap.get(n.id), ...n });
+      }
+
+      nodes = Array.from(nodeMap.values());
+    }
+
+    /* ---------- EDGES ---------- */
+    if (patch.edges) {
+      const edgeMap = new Map(this.edges.map((e) => [e.id, { ...e }]));
+
+      for (const e of patch.edges) {
+        edgeMap.set(e.id, { ...edgeMap.get(e.id), ...e });
+      }
+
+      edges = Array.from(edgeMap.values());
+    }
+
+    return {nodes, edges};
+  };
 }
 
 export const graphCode = new GraphCode();

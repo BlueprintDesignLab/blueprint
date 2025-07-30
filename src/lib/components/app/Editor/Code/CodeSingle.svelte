@@ -4,6 +4,7 @@
   import { EditorState, type Extension } from '@codemirror/state';
   import { markdown } from '@codemirror/lang-markdown';
   import { onMount } from 'svelte';
+  import { githubLight } from '@uiw/codemirror-theme-github';
 
   interface Props {
     content?: string;
@@ -31,6 +32,7 @@
   function extensions(): Extension[] {
     return [
       basicSetup,
+      githubLight,
       (lang ?? markdown)(),
       EditorView.theme(
         {

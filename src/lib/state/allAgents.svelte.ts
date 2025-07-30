@@ -45,6 +45,17 @@ function toDisplayTurn(nt: NeutralTurn): DisplayTurn {
   }
 }
 
+const rafThrottle = <A extends any[]>(fn: (...a: A) => void) => {
+  let id: number | undefined;
+  return (...args: A) => {
+    if (id !== undefined) return;            // already scheduled
+    id = requestAnimationFrame(() => {
+      fn(...args);
+      id = undefined;
+    });
+  };
+};
+
 export class AgentAndChatState {
   agent: Agent;
 
@@ -65,13 +76,13 @@ export class AgentAndChatState {
       }
     }
 
-    console.log(role + (node ?? ""));
+    // console.log(role + (node ?? ""));
     const history = new ChatHistory(role + (node ?? ""));
     this.history = history;
 
     (async () => {
       await history.load();
-      console.log(history.turns);
+      // console.log(history.turns);
       
       for (const turn of history.turns) {
         this.ch.push(toDisplayTurn(turn));
@@ -111,18 +122,46 @@ export class AgentAndChatState {
     if (autoscroll) this.scrollToBottom();
   }
 
-  streamDelta(delta: string) {
+  private assistantDeltaBuffer = '';
+  private flushAssistantDelta = rafThrottle(() => {
     const last = this.ch.at(-1);
-    if (last?.kind !== 'assistant') {
+    if (last?.kind === 'assistant') {
+      last.content += this.assistantDeltaBuffer;
+      this.assistantDeltaBuffer = '';
+      this.scrollIfNearBottom();
+    }
+  });
+
+  streamDelta(delta: string) {
+    // accumulate
+    this.assistantDeltaBuffer += delta;
+
+    // ensure the last element is an assistant turn
+    const last = this.ch.at(-1);
+    if (!last || last.kind !== 'assistant') {
       this.ch.push({ kind: 'assistant', content: '' });
     }
 
-    const target = this.ch.at(-1);
-    if (target && target.kind === 'assistant') {
-      target.content += delta;
-      this.scrollIfNearBottom();
-    }
+    // throttle the DOM update
+    this.flushAssistantDelta();
   }
+
+  private toolDeltaBuffer = new Map<string, string>();
+
+  private flushToolDeltas = rafThrottle(() => {
+    for (const [id, delta] of this.toolDeltaBuffer) {
+      const i = this.ch.findIndex(
+        (o): o is DisplayTurn & { kind: 'tool' } =>
+          o.kind === 'tool' && o.id === id
+      );
+      if (i !== -1 && this.ch[i].kind === "tool") {
+        (this.ch[i].tool as any).args =
+          ((this.ch[i].tool as any).args ?? '') + delta;
+      }
+    }
+    this.toolDeltaBuffer.clear();
+    this.scrollIfNearBottom();
+  });
 
   showTool(payload: {
     id: string;
@@ -137,6 +176,13 @@ export class AgentAndChatState {
     );
 
     if (i === -1) {
+      const chLast = this.ch.at(-1);
+      if (chLast?.kind === "assistant") {
+        if (chLast.content === "") {
+          this.ch.pop();
+        }
+      }
+
       this.ch.push({
         kind: "tool",
         id: payload.id,
@@ -149,10 +195,16 @@ export class AgentAndChatState {
 
       if (existing.kind === "tool") {
         if (payload.delta !== undefined) {
-          const existingTool = existing.tool;
-          existingTool.args = (existingTool.args ?? "") + payload.delta;
+          this.toolDeltaBuffer.set(
+            payload.id,
+            (this.toolDeltaBuffer.get(payload.id) ?? '') + payload.delta
+          );
+          this.flushToolDeltas();
+          return;
+
         } else {
-          // full replacement
+          this.flushToolDeltas();
+
           this.ch[i] = {
             kind: "tool",
             id: payload.id,
@@ -176,6 +228,7 @@ export class AgentAndChatState {
 
     const userMessage: DisplayTurn = { kind: "user", content: question };
     this.ch.push(userMessage);
+    this.ch.push({kind: "assistant", content: ""});
 
     this.generating = true;
     (async () => {

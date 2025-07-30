@@ -28,7 +28,7 @@ export class OpenAICompletionsLLMClient implements LLMClient {
         }
       })
     ]
-    // console.log(completionHistory);
+    // // console.log(completionHistory);
     return completionHistory;
   }
 

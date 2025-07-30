@@ -25,8 +25,8 @@ export class ToolRegistry {
   }
 
   async execute(name: string, args: any) {
-    // console.log(args);
-    // console.log(this.handlers.get(name)?.handler)
+    // // console.log(args);
+    // // console.log(this.handlers.get(name)?.handler)
     return this.handlers.get(name)!.handler(args);
   }
 }

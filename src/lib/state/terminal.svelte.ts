@@ -18,8 +18,6 @@ export class TerminalController {
   private running = false;
   private buffer = "";
 
-  private firstSentinel = false;
-
   constructor(xterm: Terminal, pty: IPty) {
     this.xterm = xterm;
     this.pty = pty;
@@ -35,18 +33,11 @@ export class TerminalController {
   setUpPtyToXTerm() {
     this.pty.onData((chunk) => {
       this.buffer += stripAnsi(chunk);
-      // console.log(this.buffer);
-      
-      // if (this.buffer.includes(SHELL_SENTINEL)) {
-      //   this.firstSentinel = true;
-      // }
-
-      // if (!this.firstSentinel) return;
 
       if (this.running && this.buffer.includes(SHELL_SENTINEL)) {
         const lines = this.buffer.split('\n');
         const cleaned = lines.slice(1, -1).join('\n');
-        console.log(cleaned);
+
         this.currentResolver?.(cleaned);
         this.pty.write('\n');
         this.reset();
