@@ -61,7 +61,7 @@ Blueprint Design AI solves this by making software architecture explicit and mac
 
 ## 📚 Documentation
 
-- [Design System](docs/design-system.md)
+- [Interface/Contract Driven Design](docs/interface-contract-dd.md)
 
 ## 🚧 Current Status
 
@@ -70,8 +70,7 @@ Blueprint Design AI solves this by making software architecture explicit and mac
 - [x] Basic plan → architecture workflow  
 - [x] Component isolation
 - [ ] Template system
-- [ ] Advanced AI collaboration features
-- [ ] Team collaboration tools
+- [ ] Additional design systems
 
 We also do not support existing projects as they violate the design system and 
 there is no reliable way to refactor away technical debt, however, we may support
