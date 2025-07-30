@@ -6,7 +6,7 @@ on:
       - 'v*'            # e.g. v1.0.0
 
 jobs:
-  # 🍏 Apple Silicon build (runs on GitHub-hosted macos-latest)
+  # 🍏 Apple Silicon build (runs on self-hosted machine)
   publish-tauri-arm64:
     name: Build macOS arm64
     permissions:
@@ -26,7 +26,7 @@ jobs:
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: aarch64-apple-darwin,x86_64-apple-darwin
+          targets: aarch64-apple-darwin
 
       - name: install frontend dependencies
         run: npm ci
@@ -56,7 +56,7 @@ jobs:
           prerelease: false
           args: --target aarch64-apple-darwin
 
-  # # 🖥️ Intel build (runs on your Mac mini self-hosted runner)
+  # # 🖥️ Intel build (runs on github runner)
   # publish-tauri-x86:
   #   name: Build macOS x86 (Local)
   #   permissions:
