@@ -82,9 +82,6 @@ jobs:
           includeUpdaterJson: true
           args: --target x86_64-apple-darwin
 
-  # --------------------------------------------------------
-  # 🐧 Linux x86_64 build (Github-hosted)
-  # --------------------------------------------------------
   publish-tauri-linux:
     name: Build Linux x86_64
     permissions:
