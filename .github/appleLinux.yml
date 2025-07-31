@@ -6,9 +6,6 @@ on:
       - 'v*'            # e.g. v1.0.0
 
 jobs:
-  # --------------------------------------------------------
-  # 🍏 macOS Apple Silicon build (self-hosted)
-  # --------------------------------------------------------
   publish-tauri-arm64:
     name: Build macOS arm64
     permissions:
@@ -17,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
@@ -33,34 +30,16 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-      - name: Import signing certificate
-        env:
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          echo "$APPLE_CERTIFICATE" | base64 -d > certificate.p12
-
-          # remove any leftover keychain so create always succeeds
-          security delete-keychain build.keychain 2>/dev/null || true
-
-          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
-
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
         with:
           tagName: v__VERSION__
-          releaseName: 'Blueprint ALPHA v__VERSION__'
-          releaseBody: 'Source code, and compiled binaries for macOS/Linux.'
+          releaseName: "Blueprint ALPHA v__VERSION__"
+          releaseBody: "Source code, and compiled binaries for macOS ARM64."
           releaseDraft: true
           prerelease: false
-          includeUpdaterJson: true   # ← auto-creates latest.json
           args: --target aarch64-apple-darwin
 
   # --------------------------------------------------------
@@ -89,19 +68,6 @@ jobs:
 
       - name: Install frontend dependencies
         run: npm ci
-
-      - name: Import macOS signing certificate
-        env:
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          echo "$APPLE_CERTIFICATE" | base64 -d > certificate.p12
-          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
       - uses: tauri-apps/tauri-action@v0
         env:
