@@ -110,7 +110,7 @@ export class StreamHandler implements ApprovalGateway {
               proposePlan(extractor.getBuffer());
               break;
 
-            case 'write_graph_yaml_file':
+            case 'propose_graph_yaml_file':
               graphCode.proposeGraph(extractor.getBuffer());
               // graphCode.showPreview();
               break;
@@ -122,7 +122,6 @@ export class StreamHandler implements ApprovalGateway {
             //     break;
             //   }
             default:
-              console.log("here");
               this.callbacks.showTool({ id: ev.id, delta: ev.delta });
           }
           break;

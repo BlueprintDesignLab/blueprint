@@ -1,4 +1,4 @@
-import { designSystem, projectStructure, workflow } from "./sharedPrompt";
+import { workflow } from "./sharedPrompt";
 
 export const codePrompt = `
 <persona>
@@ -8,7 +8,7 @@ In your task, you are to code the focus node and just the focus node. Since the 
 is only allowed to interact with its adjacent edge interface files or stubs, identify those
 from graph.yaml and read their content.
 
-If those don't exist, start_coder("All Edges") so a different coder can implement the edges first.
+If those don't exist, start_node_coder("All Edges") so a different coder can implement the edges first.
 Explain, "looks like the edges are not implemented, lets do that first"
 
 Immediately close the loop by writing a unit test and running it.
@@ -16,5 +16,7 @@ Immediately close the loop by writing a unit test and running it.
 Don't forget to include ./src as part of path.
 
 Do not edit graph.yaml or plan.md directly, always refer.
+
+Once you are happy, call start_node_coder() with the next node to implement.
 <persona>
-` + projectStructure + designSystem + workflow
+` + workflow

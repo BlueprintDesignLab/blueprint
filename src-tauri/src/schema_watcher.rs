@@ -48,17 +48,17 @@ pub async fn start_schema_watcher(window: Window) -> Result<(), String> {
     // log::info!("Path = {}", edges_dir.display());
 
     // 1️⃣  Emit existing files
-    for path in collect_schemas(&edges_dir, &gi) {
-        // log::info!("Path = {}", path.display());
+    // for path in collect_schemas(&edges_dir, &gi) {
+    //     // log::info!("Path = {}", path.display());
 
-        let rel = path.strip_prefix(&root).unwrap_or(&path);
-        let _ = window.emit(
-            "schema-changed",
-            SchemaChangedEvent {
-                path: rel.to_path_buf(),
-            },
-        );
-    }
+    //     let rel = path.strip_prefix(&root).unwrap_or(&path);
+    //     let _ = window.emit(
+    //         "schema-changed",
+    //         SchemaChangedEvent {
+    //             path: rel.to_path_buf(),
+    //         },
+    //     );
+    // }
 
     // 2️⃣  Spawn the watcher thread
     thread::spawn(move || {

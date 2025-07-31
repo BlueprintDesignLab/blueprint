@@ -14,25 +14,46 @@ The overall workflow is:
 <overall workflow>
 `
 
-export const projectStructure = `
+export const validGraphStructure = `
+<valid yaml constraints>
+The below fields are compulsory for valid graph parsing.
+Additional fields are included in design system for stricter workflows.
+
+# blueprint/graph.yaml
+nodes:
+  <NodeID>:                 # e.g. NodeA, NodeB
+    label: "<Human Label>"  # e.g. "Primary Worker"
+    comment: |              # required: free-form description
+      This is a multi-line explanation of what this node does.
+
+edges:
+  <EdgeID>:                 # e.g. data_flow, control_channel
+    label: "<Human Label>"  # e.g. "Data Flow"
+    source: "<NodeID>"      # required: producer node ID
+    target: "<NodeID>"      # required: consumer node ID
+    comment: |              # required: free-form description
+      Describe the API or data flow here.
+<valid yaml constraints>
+`
+
+export const interfaceContractDesignSystem = `
+<design system>
+
 ### Graph-centric project layout
 ---
-/.blueprint/
-  graph.yaml          # one file, whole repo
-  plan.md
-  nodes/<id>/         # history, metrics … (dynamic)
-  edges/<id>/         # history, test results …
-    schemaExample.json # a json schema if applicable
-/src/                  # normal source code (TS, Rust, C++…)
-  edges/
-    autogen/         # generated data contract stubs (from schema)
-    interfaces/      # handwritten or AI-authored interface/trait files
-  # other src code goes here
-  nodes/ # or do not use nodes if the language or framework is opinionated about project structure.
----`
 
-export const designSystem = `
-<design system>
+/.blueprint/
+/.blueprint/graph.yaml              # yaml file where software architecture is described. edit with propose_graph_yaml_file
+/.blueprint/plan.md                 # planfile where project specification lives. edit with propose_plan_md_file
+/.blueprint/edges/<id>.schema.json  # json schema files where applicable
+
+/src/ # normal source code (TS, Rust, C++…)
+/src/edges/
+/src/edges/autogen/                 # autogenerate from json schema, do not touch except for minor edits
+/src/edges/interfaces/              # handwritten or AI authored interface/trait files
+/src/nodes/                         # or omit if the framework is opinionated about file structure
+---
+
 NEVER talk about the design system. Users are always referring to their specific project
 and their graph.yaml.
 
@@ -90,6 +111,8 @@ For cross-language scenarios
 - The edge lists a schema file plus a stub file for each connected node specifying the correct language/format for each.
 - For intra-process/same-language, the edge lists only a single interfaceFile.
 
-Schemas are always automatically compiled to stubs, so do not worry about that.
+Do NOT worry about generating the stubs. Stub generation is automatic. Only
+warn the user if the process has failed and the stubs are not present.
+You may adjust the stubs if it is necessary to do so.
 <design system>
 `

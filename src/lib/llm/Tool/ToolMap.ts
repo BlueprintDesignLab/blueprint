@@ -25,7 +25,7 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
       parameters: {
         type: "object",
         properties: {
-          path:    { type: "string", description: "File path relative to the /src directory" },
+          path:    { type: "string", description: "File path relative to the project root directory" },
           content: { type: "string", description: "Full text content to write into the file." },
         },
         required: ["path", "content"],
@@ -75,7 +75,7 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
   writeGraphYAML: {
     schema: {
       type: "function",
-      name: "write_graph_yaml_file",
+      name: "propose_graph_yaml_file",
       description: "Create or replace the graph.yaml file.",
       parameters: {
         type: "object",
@@ -88,7 +88,7 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
       strict: true,
     },
     handler: async ({ content }, { approval }) => {
-      const ok = await approval.ask({ name: "write_graph_yaml_file", args: { content } });
+      const ok = await approval.ask({ name: "propose_graph_yaml_file", args: { content } });
       if (!ok) {
         graphCode.clearProposed();
         return "not approved"
@@ -189,15 +189,15 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
         type: "object",
         properties: { 
           node: { type: "string", description: "The focus node for the code to implement." },
-          message: { type: "string", description: "The initial message to send to the agent. It is a blank slate so give it context for the task it needs to accomplish" },
+          content: { type: "string", description: "The initial content to send to the agent. It is a blank slate so give it context for the task it needs to accomplish" },
         },
-        required: ["node", "message"],
+        required: ["node", "content"],
         additionalProperties: false,
       },
       strict: true,
     },
-    handler: async ({ node, message }, { approval }) => {
-      const ok = await approval.ask({ name: "start_node_coder", args: { node, message } });
+    handler: async ({ node, content }, { approval }) => {
+      const ok = await approval.ask({ name: "start_node_coder", args: { node, content } });
       if (!ok) return "not approved";
 
       setAgentFocusMode("code");
@@ -205,7 +205,7 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
 
       let agentAndChatState = getDeveloperAgentForNode(node); 
 
-      agentAndChatState.send(message);
+      agentAndChatState.send(content);
       return ok ? "coder started" : "not approved";
     },
   },
@@ -219,21 +219,21 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
         type: "object",
         properties: { 
           role: { type: "string", description: "The agent to refer to: 'plan' | 'architect'." },
-          message: { type: "string", description: "The initial message to send to the agent. It is a blank slate so give it context for the task it needs to accomplish" },
+          content: { type: "string", description: "The initial content to send to the agent. It is a blank slate so give it context for the task it needs to accomplish" },
         },
-        required: ["role", "message"],
+        required: ["role", "content"],
         additionalProperties: false,
       },
       strict: true,
     },
-    handler: async ({ role, message }, { approval }) => {
-      const ok = await approval.ask({ name: "refer", args: { role, message } });
+    handler: async ({ role, content }, { approval }) => {
+      const ok = await approval.ask({ name: "refer", args: { role, content } });
       if (!ok) return "not approved";
 
       setAgentFocusMode(role);
 
       let agentAndChatState = getAgentForRole(role); 
-      agentAndChatState!.send(message);
+      agentAndChatState!.send(content);
       
       return ok ? "refer successful" : "not approved";
     },

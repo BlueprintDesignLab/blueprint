@@ -7,3 +7,6 @@ export const projectRoot = (window as any).__TAURI_INITIAL_DATA__?.projectRoot ?
 
 // console.log(projectRoot);
 export const historyStore = new LazyStore(`chat-${projectRoot}.dat`);
+
+
+export const chatStyleStore = new LazyStore(`chat-style.dat`);

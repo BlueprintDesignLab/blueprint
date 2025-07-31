@@ -25,14 +25,14 @@ Node code may import
 
 Edges come in two channels:
 - Data (cross-language/inter-process):
-    - Edge declares a schema file (e.g. JSON Schema, Protobuf, OpenAPI).
-    - A static code generator creates one stub per node in /src/edges/autogen/.
-    - Each node imports only its own generated stub.
+- Edge declares a schema file (e.g. JSON Schema, Protobuf, OpenAPI).
+- A static code generator creates one stub per node in /src/edges/autogen/.
+- Each node imports only its own generated stub.
     
 - Interface (same-language/intra-process):
-    - Edge declares a canonical handwritten interface or trait file in /src/edges/interfaces/.
-    - Both nodes import only the edge’s interface, never from each other.
-    - The edge file may contain function signatures, classes, or a mediator/bus.
+- Edge declares a canonical handwritten interface or trait file in /src/edges/interfaces/.
+- Both nodes import only the edge’s interface, never from each other.
+- The edge file may contain function signatures, classes, or a mediator/bus.
 
 ```
 # blueprint/graph.yaml
@@ -54,8 +54,8 @@ edges:
     # For data edges (cross-language):
     schema_file: .blueprint/edges/data_flow.schema.json
     stub_files:
-      source: src/edges/autogen/data_flow.NodeA.ts
-      target: src/edges/autogen/data_flow.NodeB.cpp
+      <NodeID1>: src/edges/autogen/data_flow.NodeA.ts
+      <NodeID2>: src/edges/autogen/data_flow.NodeB.cpp
     # For interface edges (same-language/intra-process):
     interface_file: src/edges/interfaces/DataBus.ts
     source: "<NodeID>"      # required: producer node ID

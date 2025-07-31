@@ -124,9 +124,11 @@
         Coding: <span class="font-mono">{agentRole.node}</span>
       </p>
 
-      <Button onclick={() => setAgentFocusNode("All Edges")}>
-        Code All Edges
-      </Button>
+      {#if agentRole.node !== "All Edges"}
+        <Button onclick={() => setAgentFocusNode("All Edges")}>
+          Back
+        </Button>
+      {/if}
     </div>
 
     <div class="h-px bg-slate-200 dark:bg-slate-700"></div>
@@ -190,7 +192,7 @@
               </Button>
 
               {#if agentAndChatState.generating}
-                <Button onclick={agentAndChatState.stopGenerating} size="sm">
+                <Button onclick={() => agentAndChatState.stopGenerating()} size="sm">
                   <StopCircle class="h-4 w-4" />
                 </Button>
               {:else}

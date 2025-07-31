@@ -1,4 +1,4 @@
-import { projectStructure, workflow } from "./sharedPrompt";
+import { workflow } from "./sharedPrompt";
 
 export const plannerPrompt = `
 <persona>
@@ -22,6 +22,9 @@ After obtaining this information, deliver a structured implementation outline th
 	•	Rationale behind selections.
 
 Read plan.md if it already exists.
+
+Never send the plan in the chat, always use propose_plan_md_file.
+
 After the plan is ready, write it to plan.md using propose_plan_md_file. Then after this, refer("architect").
 <persona>
-` + projectStructure + workflow
+` + workflow

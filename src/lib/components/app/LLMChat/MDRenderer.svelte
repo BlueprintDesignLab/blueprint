@@ -9,6 +9,7 @@
   import Button from "$lib/components/ui/button/button.svelte";
 
   import DOMPurify from 'dompurify';
+  import { copyToClipboard } from "./clipboard";
 
   interface Props {
     content: string
@@ -41,14 +42,14 @@
 
   marked.use(markedKatex(options));
 
-  let parsed = $derived.by(() => {
+  let parsed: string = $derived.by(() => {
     // const replacedInline = replaceInlineDelimiters(content);
     // const replacedBlock = replaceBlockDelimiters(replacedInline);
 
     // @ts-ignore
     const parsed = marked.parse(content ?? "");
     return parsed;
-  });
+  }) as string;
 
   // @ts-ignore
   let sections = $derived(splitCodeBlocks(parsed));
@@ -99,66 +100,59 @@
 
   let copyButtonChecked = $state(-1);
 
-  async function copyToClipboard(rawHtml: string, index: number) {
-    const text = stripHtml(rawHtml);      // plain text
-    try {
-      // Try the richer API first (Chromium, Firefox 122+, Edge).
-      if (navigator.clipboard.write) {
-        const item = new ClipboardItem({
-          // Provide BOTH flavours so every target can paste something.
-          "text/plain": new Blob([text], { type: "text/plain" }),
-          "text/html":  new Blob([rawHtml], { type: "text/html" })
-        });
-        await navigator.clipboard.write([item]);
-      } else {
-        // Fallback for Safari / older Firefox
-        await navigator.clipboard.writeText(text);
-      }
+  function copyToClipboardWrapper(rawHtml: string, index: number) {
+    copyToClipboard(rawHtml);
 
-      copyButtonChecked = index;
-      setTimeout(() => (copyButtonChecked = -1), 3000);
-    } catch (err) {
-      console.error("Clipboard write failed:", err);
-    }
+    copyButtonChecked = index;
+    setTimeout(() => (copyButtonChecked = -1), 3000);
   }
 </script>
+<!-- Whole response wrapper -->
+<div class="space-y-6">
 
-<div class="wholeBlock space-y-6">
   {#if content === ""}
-    <div class="w-40 mx-auto pt-5 text-center text-muted-foreground text-sm animate-pulse">
+    <!-- “AI is thinking” placeholder -->
+    <div class="w-40 mx-auto pt-6 text-center text-muted-foreground text-sm animate-pulse">
       AI is thinking…
     </div>
-  {/if}
+  {:else}
+    <!-- Render each section -->
+    {#each sections as section, i}
+      {@const type = section[0]}
+      {@const content = section[1]}
 
-  {#each sections as section, i}
-    {#if section[0] === "code" && section[1].includes("hljs")}
-      <div class="relative">
-        <!-- actual highlighted code comes in as HTML -->
-        <pre class="rounded-xl overflow-auto bg-zinc-900 text-zinc-100 p-4 font-mono text-sm shadow-sm border border-zinc-800">
-          {@html DOMPurify.sanitize(section[1])}
-        </pre>
+      <!-- {type} -->
+      {#if type === "code"}
+        <!-- Code block -->
+        <div class="relative">
+          <pre
+            class="rounded-xl overflow-auto bg-zinc-900 text-zinc-100 py-3 pl-4 pr-14 font-mono text-sm shadow-sm border border-zinc-800"
+          >{@html DOMPurify.sanitize(content)}</pre>
 
-        <!-- Always‑visible action buttons -->
-        <div class="absolute top-2 right-2 flex gap-2">
-          <Button
-            size="sm"
-            variant="secondary"
-            onclick={() => copyToClipboard(section[1], i)}
-          >
-            {#if copyButtonChecked === i}
-              <CopyCheck class="w-4 h-4 mr-1" />
-            {:else}
-              <Copy class="w-4 h-4 mr-1" />
-            {/if}
-            Copy
-          </Button>
+          <!-- Copy button anchored to the block -->
+          <div class="absolute top-2.5 right-2">
+            <Button
+              size="icon"
+              variant="secondary"
+              onclick={() => copyToClipboardWrapper(content, i)}
+            >
+              {#if copyButtonChecked === i}
+                <CopyCheck class="w-4 h-4 mr-1" />
+              {:else}
+                <Copy class="w-4 h-4 mr-1" />
+              {/if}
+            </Button>
+          </div>
         </div>
-      </div>
-    {:else}
-      <article class="prose prose-neutral dark:prose-invert max-w-none">
-        <span class="text-container" data-testid="responseContent">{@html DOMPurify.sanitize(section[1])}</span>
-      </article>
-    {/if}
-  {/each}
+      {:else}
+        <!-- Regular markdown -->
+        <article class="prose prose-neutral dark:prose-invert max-w-none">
+          <span class="text-container" data-testid="responseContent">
+            {@html DOMPurify.sanitize(content)}
+          </span>
+        </article>
+      {/if}
+    {/each}
+  {/if}
 </div>
 
