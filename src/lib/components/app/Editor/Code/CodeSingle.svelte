@@ -5,6 +5,7 @@
   import { markdown } from '@codemirror/lang-markdown';
   import { onMount } from 'svelte';
   import { githubLight } from '@uiw/codemirror-theme-github';
+  import { Shield } from 'lucide-svelte';
 
   interface Props {
     content?: string;
@@ -85,6 +86,17 @@
 <!-- CodeMirrorEditor.svelte -->
 <div class="w-full h-full flex flex-col">
   <div class="flex-1 min-h-0">
+    {#if readOnly}
+      <div
+        class="shrink-0 flex items-center gap-2 px-4 py-2
+              bg-gradient-to-r from-white/10 via-amber-50/20 to-white/10
+              text-amber-600 text-sm font-semibold select-none
+              border-b border-white/10 backdrop-blur-sm"
+      >
+        <Shield />
+        Read Only
+      </div>
+    {/if}
     <div bind:this={host} class="{klass} w-full h-full"></div>
   </div>
 </div>

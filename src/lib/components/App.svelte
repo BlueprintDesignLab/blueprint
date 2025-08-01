@@ -7,7 +7,7 @@
   import { currAgentAndChatState } from '$lib/state/allAgents.svelte';
   import { onMount } from "svelte";
   
-  import { checkForAppUpdates } from "$lib/util/updater";
+  import { checkForAppUpdates } from "$lib/updater";
   import { useOnSelectionChange } from "@xyflow/svelte";
   import { graphCode } from "$lib/state/graph.svelte";
 

@@ -26,8 +26,8 @@
     "windows": [
       {
         "title": "blueprint",
-        "width": 400,
-        "height": 300,
+        "width": 1000,
+        "height": 800,
         "resizable": true,
         "fullscreen": false
       }

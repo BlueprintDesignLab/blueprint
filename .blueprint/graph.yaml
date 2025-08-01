@@ -55,51 +55,68 @@ nodes:
 edges:
   UI_to_Plan:
     label: "User Input & Plan/MD Flow"
-    interface_file: src/edges/interfaces/UIPlanAPI.ts
+    kind: descriptive
     source: UserInput
     target: PlanAgent
+    doc: docs/interface-contract-dd.md#UI_to_Plan
+    example_call: |
+      // Svelte
+      planAgent.applyPlanInput(editorState.planMD)
+    description: |
+      UI invokes planning LLM agent logic, passes markdown to agent via shared Svelte state and filesystem interface. Communication is by in-memory state and file IO, not a formal interface contract.
     comment: |
-      Invokes planning LLM agent functions, takes plan.md input, routes questions and actions from user UI to planning tools/logic.
+      Edge connects UI actions/events to the agent logic for planning, using conventions and documentation.
 
   Plan_to_Architect:
     label: "Plan Review & Graph Proposal"
-    interface_file: src/edges/interfaces/PlanArchitectAPI.ts
+    kind: descriptive
     source: PlanAgent
     target: ArchitectAgent
+    doc: docs/interface-contract-dd.md#Plan_to_Architect
+    description: |
+      Plan agent and architect agent share state, files, and control logic. They use shared stores and agent state, not strongly enforced API/code stubs.
     comment: |
-      Passes finalized plan.md, requests architectural breakdown or proposals. Agent-to-agent interface for plan handoff/revision.
+      Architect agent receives plan handoff and proposes/edits the graph structure per documentation and project conventions.
 
   Architect_to_Code:
     label: "Architecture/Graph to Code Agent"
-    interface_file: src/edges/interfaces/ArchitectCodeAPI.ts
+    kind: descriptive
     source: ArchitectAgent
     target: CodeAgents
+    description: |
+      Architect agent calls into code agents through shared agent state, editor triggers, and project files (YAML, plan, etc). No enforced stubs: all integration is through JS imports/state and user events.
     comment: |
-      Communicates node/edge structure, codegen requests, synchronization with the architectural graph to code generation logic.
+      Executes the phase where proposed graph (graph.yaml) is used as source for codegen/test work by code agents.
 
   UI_to_Code:
     label: "User UI & Per-node Code/Generate Controls"
-    interface_file: src/edges/interfaces/UICodeAgentAPI.ts
+    kind: descriptive
     source: UserInput
     target: CodeAgents
+    description: |
+      UI triggers (buttons, actions in Svelte) invoke code agent logic for scaffolding, tests, or code generation. Interaction is by calling agent functions from shared state; no stub/interface here.
+    example_call: |
+      getDeveloperAgentForNode(nodeId).send("scaffold")
     comment: |
-      UI triggers for node or edge scaffolding, code gen/test commands streamed to code agents. Used to drive node/edge implementations interactively.
+      Used so user (via UI) can request actions from code agents directly.
 
   CodeAgent_to_FS:
     label: "Code/Agent-Driven File IO (Tauri API)"
-    schema_file: .blueprint/edges/CodeFSSchema.json
-    stub_files:
-      CodeAgents: src/edges/autogen/CodeAgents_fs.ts
-      TauriBackend: src-tauri/autogen/CodeAgents_fs.rs
+    kind: descriptive
     source: CodeAgents
     target: TauriBackend
+    doc: docs/interface-contract-dd.md#File_IO
+    description: |
+      File IO is handled by invoking Rust-side Tauri commands and system APIs directly from Svelte. Calls are coordinated but not via generated schemas. See code in src/lib/llm/Tool/ToolMap.ts and src-tauri/src/.
     comment: |
-      Code agents use this channel to request file writes, directory trees, schema compilations, and run commands/tests through Rust APIs. Contracts must reflect safe, sandboxed FS operations.
+      All project source/output happens using the Rust backend as an integration glue.
 
   UI_to_Backend:
     label: "UI-to-Tauri Commands/Events"
-    interface_file: src/edges/interfaces/UITauriAPI.ts
+    kind: descriptive
     source: UserInput
     target: TauriBackend
+    description: |
+      Direct UI requests for project root, app updates, or system-level events are routed to the backend using tauri.invoke and event subscriptions.
     comment: |
-      Direct commands from UI to backend for system events, project root, and update handling not mediated by agent loop (pure system integration)
+      This covers direct system events, not mediated by agent loop, e.g. update checks, window events.
