@@ -23,19 +23,29 @@
           <!-- onChange = {() => {patchGraph()}} -->
 
 <Resizable.PaneGroup direction="horizontal" autoSaveId="graphYamlEditor">
-  <!-- {#if graphCode.filtering} -->
+  
     <Resizable.Pane defaultSize={20}>
-      <div class="h-screen">
+      {#if graphCode.previewStr}
+        <div class="h-screen">
+            <CodeSingle
+            bind:content={graphCode.previewStr}
+            lineWrapping={true}
+            lang={yaml}
+            readOnly={true}
+            />
+        </div>
+      {:else}
+        <div class="h-screen">
           <CodeSingle
           bind:content={graphCode.graphStr}
           lineWrapping={true}
           lang={yaml}
-          readOnly={graphCode.previewStr !== ""}
           />
-      </div>
+        </div>
+      {/if}
     </Resizable.Pane>
     <Resizable.Handle withHandle />
-  <!-- {/if} -->
+  
 
   <Resizable.Pane defaultSize={50}>
     <GraphDiff  />

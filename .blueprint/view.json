@@ -1,0 +1,133 @@
+{
+  "nodes": [
+    {
+      "id": "UserInput",
+      "position": {
+        "x": 265,
+        "y": 0
+      },
+      "type": "bpNode",
+      "width": 208,
+      "height": 38,
+      "zIndex": 0
+    },
+    {
+      "id": "PlanAgent",
+      "position": {
+        "x": -14.83826429980276,
+        "y": 312.8323471400395
+      },
+      "type": "bpNode",
+      "width": 300,
+      "height": 38,
+      "zIndex": 0
+    },
+    {
+      "id": "ArchitectAgent",
+      "position": {
+        "x": -29.60157790927022,
+        "y": 514.447731755424
+      },
+      "type": "bpNode",
+      "width": 340,
+      "height": 38,
+      "zIndex": 0
+    },
+    {
+      "id": "CodeAgents",
+      "position": {
+        "x": 150.50184586452718,
+        "y": 744.0625128162962
+      },
+      "type": "bpNode",
+      "width": 401,
+      "height": 38,
+      "zIndex": 0
+    },
+    {
+      "id": "TauriBackend",
+      "position": {
+        "x": 549.4444115601325,
+        "y": 593.688951563037
+      },
+      "type": "bpNode",
+      "width": 402,
+      "height": 38,
+      "zIndex": 0
+    }
+  ],
+  "edges": [
+    {
+      "id": "UI_to_Plan",
+      "source": "UserInput",
+      "target": "PlanAgent",
+      "zIndex": 1,
+      "markerEnd": {
+        "type": "arrow",
+        "width": 20,
+        "height": 20,
+        "strokeWidth": 1
+      }
+    },
+    {
+      "id": "Plan_to_Architect",
+      "source": "PlanAgent",
+      "target": "ArchitectAgent",
+      "zIndex": 1,
+      "markerEnd": {
+        "type": "arrow",
+        "width": 20,
+        "height": 20,
+        "strokeWidth": 1
+      }
+    },
+    {
+      "id": "Architect_to_Code",
+      "source": "ArchitectAgent",
+      "target": "CodeAgents",
+      "zIndex": 1,
+      "markerEnd": {
+        "type": "arrow",
+        "width": 20,
+        "height": 20,
+        "strokeWidth": 1
+      }
+    },
+    {
+      "id": "UI_to_Code",
+      "source": "UserInput",
+      "target": "CodeAgents",
+      "zIndex": 1,
+      "markerEnd": {
+        "type": "arrow",
+        "width": 20,
+        "height": 20,
+        "strokeWidth": 1
+      }
+    },
+    {
+      "id": "CodeAgent_to_FS",
+      "source": "CodeAgents",
+      "target": "TauriBackend",
+      "zIndex": 1,
+      "markerEnd": {
+        "type": "arrow",
+        "width": 20,
+        "height": 20,
+        "strokeWidth": 1
+      }
+    },
+    {
+      "id": "UI_to_Backend",
+      "source": "UserInput",
+      "target": "TauriBackend",
+      "zIndex": 1,
+      "markerEnd": {
+        "type": "arrow",
+        "width": 20,
+        "height": 20,
+        "strokeWidth": 1
+      }
+    }
+  ]
+}

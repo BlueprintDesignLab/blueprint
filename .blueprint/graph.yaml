@@ -1,0 +1,105 @@
+nodes:
+  UserInput:
+    label: "User UI & Input (Svelte SPA)"
+    main_file: src/lib/components/App.svelte
+    helper_files:
+      - src/lib/components/app/Editor/Editors.svelte
+      - src/lib/components/app/LLMChat/ChatShell.svelte
+      - src/lib/components/app/Editor/PlanEditor.svelte
+      - src/lib/components/app/Editor/ArchitectEditor.svelte
+      - src/lib/components/app/Editor/DevelopEditor.svelte
+    comment: |
+      Provides the main user interface for project planning, architecting, and coding. Hosts all editors and chat-based agent controls. Collects input, displays current plan and architecture, and maintains app-level state.
+
+  PlanAgent:
+    label: "Plan Agent (LLM planner logic, chat, tools)"
+    main_file: src/lib/state/allAgents.svelte.ts
+    helper_files:
+      - src/lib/llm/BPAgent/BPAgent.ts
+      - src/lib/llm/systemPrompts.ts
+      - src/lib/llm/Tool/ToolMap.ts
+    comment: |
+      Handles the user prompts and LLM-driven planning phase. Reads/writes the plan.md, proposes project changes or improvements, and mediates between user needs and architectural design, leveraging tool APIs.
+
+  ArchitectAgent:
+    label: "Architect Agent (LLM architect logic, chat, tools)"
+    main_file: src/lib/state/allAgents.svelte.ts
+    helper_files:
+      - src/lib/llm/BPAgent/BPAgent.ts
+      - src/lib/llm/systemPrompts.ts
+      - src/lib/llm/Tool/ToolMap.ts
+    comment: |
+      Drives the translation of plan.md into graph.yaml, offering architecture suggestions, explicit node/edge declarations, and reviewing architectural consistency. Uses tool APIs to propose or accept architecture contracts.
+
+  CodeAgents:
+    label: "Code Agents (Node/Edge Generator, per-node and global)"
+    main_file: src/lib/state/allAgents.svelte.ts
+    helper_files:
+      - src/lib/llm/BPAgent/BPAgent.ts
+      - src/lib/llm/Tool/ToolMap.ts
+      - src/lib/llm/systemPrompts.ts
+    comment: |
+      Responsible for scaffolding, generating, and testing node and edge code according to the architecture in graph.yaml. One agent per node plus one for 'All Edges'. Uses code, terminal, and test tool APIs. Writes to /src/nodes, /src/edges as required.
+
+  TauriBackend:
+    label: "Tauri Rust Backend (File IO, Watchers, System Integration)"
+    main_file: src-tauri/src/lib.rs
+    helper_files:
+      - src-tauri/src/read_file_tools.rs
+      - src-tauri/src/write_file_tools.rs
+      - src-tauri/src/watcher.rs
+      - src-tauri/src/schema_watcher.rs
+    comment: |
+      Rust backend for project file operations, directory listings, file watching, process/command execution, and deep integration hooks. Powers the filesystem and system tool interfaces consumed by the Svelte app and agents.
+
+edges:
+  UI_to_Plan:
+    label: "User Input & Plan/MD Flow"
+    interface_file: src/edges/interfaces/UIPlanAPI.ts
+    source: UserInput
+    target: PlanAgent
+    comment: |
+      Invokes planning LLM agent functions, takes plan.md input, routes questions and actions from user UI to planning tools/logic.
+
+  Plan_to_Architect:
+    label: "Plan Review & Graph Proposal"
+    interface_file: src/edges/interfaces/PlanArchitectAPI.ts
+    source: PlanAgent
+    target: ArchitectAgent
+    comment: |
+      Passes finalized plan.md, requests architectural breakdown or proposals. Agent-to-agent interface for plan handoff/revision.
+
+  Architect_to_Code:
+    label: "Architecture/Graph to Code Agent"
+    interface_file: src/edges/interfaces/ArchitectCodeAPI.ts
+    source: ArchitectAgent
+    target: CodeAgents
+    comment: |
+      Communicates node/edge structure, codegen requests, synchronization with the architectural graph to code generation logic.
+
+  UI_to_Code:
+    label: "User UI & Per-node Code/Generate Controls"
+    interface_file: src/edges/interfaces/UICodeAgentAPI.ts
+    source: UserInput
+    target: CodeAgents
+    comment: |
+      UI triggers for node or edge scaffolding, code gen/test commands streamed to code agents. Used to drive node/edge implementations interactively.
+
+  CodeAgent_to_FS:
+    label: "Code/Agent-Driven File IO (Tauri API)"
+    schema_file: .blueprint/edges/CodeFSSchema.json
+    stub_files:
+      CodeAgents: src/edges/autogen/CodeAgents_fs.ts
+      TauriBackend: src-tauri/autogen/CodeAgents_fs.rs
+    source: CodeAgents
+    target: TauriBackend
+    comment: |
+      Code agents use this channel to request file writes, directory trees, schema compilations, and run commands/tests through Rust APIs. Contracts must reflect safe, sandboxed FS operations.
+
+  UI_to_Backend:
+    label: "UI-to-Tauri Commands/Events"
+    interface_file: src/edges/interfaces/UITauriAPI.ts
+    source: UserInput
+    target: TauriBackend
+    comment: |
+      Direct commands from UI to backend for system events, project root, and update handling not mediated by agent loop (pure system integration)
