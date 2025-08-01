@@ -1,6 +1,6 @@
 import { Agent } from '$lib/llm/BPAgent/BPAgent';
 
-import { getSystemPromptFor } from '$lib/llm/SystemPrompts';
+import { getSystemPromptFor } from '$lib/llm/systemPrompts';
 import { toolsFor } from '$lib/llm/Tool/ToolRole';
 import { edgeCodePrompt } from '$lib/llm/edgeCoderPrompt';
 
@@ -82,7 +82,6 @@ export class AgentAndChatState {
 
     (async () => {
       await history.load();
-      // console.log(history.turns);
       
       for (const turn of history.turns) {
         this.ch.push(toDisplayTurn(turn));
@@ -116,7 +115,7 @@ export class AgentAndChatState {
   scrollIfNearBottom() {
     if (!this.chDiv) return;
 
-    const TOLERANCE = 150;
+    const TOLERANCE = 100;
     const autoscroll =
       (this.chDiv.offsetHeight + this.chDiv.scrollTop) > (this.chDiv.scrollHeight - TOLERANCE);
     if (autoscroll) this.scrollToBottom();

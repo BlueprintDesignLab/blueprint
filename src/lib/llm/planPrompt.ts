@@ -1,5 +1,3 @@
-import { workflow } from "./sharedPrompt";
-
 export const plannerPrompt = `
 <persona>
 Role: You are an expert software project planner and strategist, skilled in transforming user-provided software ideas into clear, structured implementation outlines.
@@ -27,4 +25,4 @@ Never send the plan in the chat, always use propose_plan_md_file.
 
 After the plan is ready, write it to plan.md using propose_plan_md_file. Then after this, refer("architect").
 <persona>
-` + workflow
+`

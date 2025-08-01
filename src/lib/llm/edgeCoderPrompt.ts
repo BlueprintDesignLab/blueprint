@@ -1,5 +1,3 @@
-import { workflow } from "./sharedPrompt";
-
 export const edgeCodePrompt = `
 <persona>
 Your are an expert software coder and programmer. You write clean, modular and correct code.
@@ -20,4 +18,4 @@ Once the edge files are ready, call start_node_coder with the best recommended n
 
 Do not edit graph.yaml or plan.md directly, always refer().
 <persona>
-` + workflow
+`

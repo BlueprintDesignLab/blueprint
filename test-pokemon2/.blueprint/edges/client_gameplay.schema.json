@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ClientGameplay",
+  "description": "Schema for real-time gameplay commands and server responses exchanged between the browser client and the game server.",
+  "type": "object",
+  "oneOf": [
+    {
+      "title": "PlayerInput",
+      "type": "object",
+      "properties": {
+        "type": {"const": "PlayerInput"},
+        "action": {"type": "string", "enum": ["move", "interact", "startBattle", "endTurn", "sendChat"]},
+        "payload": {"type": "object"}
+      },
+      "required": ["type", "action", "payload"]
+    },
+    {
+      "title": "BattleCommand",
+      "type": "object",
+      "properties": {
+        "type": {"const": "BattleCommand"},
+        "command": {"type": "string", "enum": ["attack", "switch", "item", "run"]},
+        "details": {"type": "object"}
+      },
+      "required": ["type", "command", "details"]
+    },
+    {
+      "title": "MapUpdate",
+      "type": "object",
+      "properties": {
+        "type": {"const": "MapUpdate"},
+        "mapState": {"type": "object"}
+      },
+      "required": ["type", "mapState"]
+    },
+    {
+      "title": "InventoryUpdate",
+      "type": "object",
+      "properties": {
+        "type": {"const": "InventoryUpdate"},
+        "inventoryState": {"type": "object"}
+      },
+      "required": ["type", "inventoryState"]
+    },
+    {
+      "title": "Notification",
+      "type": "object",
+      "properties": {
+        "type": {"const": "Notification"},
+        "message": {"type": "string"}
+      },
+      "required": ["type", "message"]
+    },
+    {
+      "title": "MatchmakingRequest",
+      "type": "object",
+      "properties": {
+        "type": {"const": "MatchmakingRequest"},
+        "preferences": {"type": "object"}
+      },
+      "required": ["type", "preferences"]
+    },
+    {
+      "title": "TradeOffer",
+      "type": "object",
+      "properties": {
+        "type": {"const": "TradeOffer"},
+        "offer": {"type": "object"}
+      },
+      "required": ["type", "offer"]
+    }
+  ]
+}

@@ -38,11 +38,6 @@
     const source = sfNodes.current.find(n => n.id === c.source)!;
     const target = sfNodes.current.find(n => n.id === c.target)!;
 
-    if (source.data.type != target.data.type) {
-      alert("Can't connect between different layers");
-      return;
-    }
-
     const newEdge = {
       id,
       source: c.source,
@@ -57,8 +52,8 @@
     return newEdge;
   }
 
-  let nodes = $derived(graphCode.nodes.map(n => ({ ...n })));
-  let edges = $derived(graphCode.edges.map(e => ({ ...e })));
+  let nodes = $derived(graphCode.nodes);
+  let edges = $derived(graphCode.edges);
 
   function patchNode(updatedNodes: {targetNode: Node}) {
     // // console.log(updatedNodes);
@@ -68,12 +63,6 @@
     const newView = saveGraphView({nodes, edges});
 
     graphCode.viewStr = newView;
-
-    // if (idx !== -1) {
-    //   nodes.splice(idx, 1, targetNode);
-    //   // graphCode.nodes = [...nodes];
-    // } else {
-    // }
   }
 </script>
 

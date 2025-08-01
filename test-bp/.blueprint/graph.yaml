@@ -1,0 +1,30 @@
+nodes:
+  FeedbackSystem:
+    label: Feedback System
+    main_file: src/FeedbackSystem.js
+    comment: >
+      Formats and delivers immediate, contextual, plain-language explanations
+      for user choices.
+
+      Receives scenario node, user choice, and player context to compose
+      feedback.
+edges:
+  ui_feedback:
+    source: UI
+    target: FeedbackSystem
+    label: UI & Feedback System
+    interface_file: src/edges/interfaces/UIFeedbackInterface.js
+    comment: >
+      UI requests formatted, plain-language explanations of the impact of each
+      user choice.
+
+      Pure JS, contextualized for UI display.
+  engine_feedback:
+    source: ScenarioEngine
+    target: FeedbackSystem
+    label: Engine & Feedback System
+    interface_file: src/edges/interfaces/EngineFeedbackInterface.js
+    comment: >
+      The scenario engine submits user choices and context to the
+      feedbacksystem, whichreturns descriptive, causal feedback for use in
+      bothUI and state

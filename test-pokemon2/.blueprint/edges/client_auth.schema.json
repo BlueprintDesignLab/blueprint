@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ClientAuth",
+  "description": "Schema for GameClient <-> AuthServer account REST API commands and responses.",
+  "type": "object",
+  "oneOf": [
+    {
+      "title": "RegisterRequest",
+      "type": "object",
+      "properties": {
+        "type": {"const": "RegisterRequest"},
+        "username": {"type": "string"},
+        "password": {"type": "string"},
+        "email": {"type": "string"}
+      },
+      "required": ["type", "username", "password", "email"]
+    },
+    {
+      "title": "LoginRequest",
+      "type": "object",
+      "properties": {
+        "type": {"const": "LoginRequest"},
+        "username": {"type": "string"},
+        "password": {"type": "string"}
+      },
+      "required": ["type", "username", "password"]
+    },
+    {
+      "title": "LogoutRequest",
+      "type": "object",
+      "properties": {
+        "type": {"const": "LogoutRequest"},
+        "token": {"type": "string"}
+      },
+      "required": ["type", "token"]
+    },
+    {
+      "title": "TokenRefreshRequest",
+      "type": "object",
+      "properties": {
+        "type": {"const": "TokenRefreshRequest"},
+        "refreshToken": {"type": "string"}
+      },
+      "required": ["type", "refreshToken"]
+    },
+    {
+      "title": "PasswordResetRequest",
+      "type": "object",
+      "properties": {
+        "type": {"const": "PasswordResetRequest"},
+        "email": {"type": "string"}
+      },
+      "required": ["type", "email"]
+    },
+    {
+      "title": "AccountQueryRequest",
+      "type": "object",
+      "properties": {
+        "type": {"const": "AccountQueryRequest"},
+        "token": {"type": "string"}
+      },
+      "required": ["type", "token"]
+    },
+    {
+      "title": "ErrorResponse",
+      "type": "object",
+      "properties": {
+        "type": {"const": "ErrorResponse"},
+        "error": {"type": "string"}
+      },
+      "required": ["type", "error"]
+    },
+    {
+      "title": "AuthResponse",
+      "type": "object",
+      "properties": {
+        "type": {"const": "AuthResponse"},
+        "success": {"type": "boolean"},
+        "token": {"type": "string"},
+        "refreshToken": {"type": "string"}
+      },
+      "required": ["type", "success"]
+    },
+    {
+      "title": "AccountDataResponse",
+      "type": "object",
+      "properties": {
+        "type": {"const": "AccountDataResponse"},
+        "username": {"type": "string"},
+        "email": {"type": "string"},
+        "accountStatus": {"type": "string"}
+      },
+      "required": ["type", "username", "email", "accountStatus"]
+    }
+  ]
+}

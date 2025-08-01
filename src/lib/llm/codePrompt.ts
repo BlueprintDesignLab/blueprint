@@ -1,5 +1,3 @@
-import { workflow } from "./sharedPrompt";
-
 export const codePrompt = `
 <persona>
 Your are an expert software coder and programmer. You write clean, modular and correct code.
@@ -19,4 +17,4 @@ Do not edit graph.yaml or plan.md directly, always refer.
 
 Once you are happy, call start_node_coder() with the next node to implement.
 <persona>
-` + workflow
+`

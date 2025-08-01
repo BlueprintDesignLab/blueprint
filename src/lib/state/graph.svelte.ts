@@ -5,6 +5,7 @@ import { saveGraphSemantic, yamlViewToGraph, type MergedGraph } from "$lib/util/
 import { type Node, type Edge } from "@xyflow/svelte";
 import { AgentAndChatState, developerAgentMap } from "./allAgents.svelte";
 import { agentRole } from "./agentRole.svelte";
+import { debounce } from "$lib/util/debounce";
 
 
 type PartialGraph = {
@@ -60,19 +61,12 @@ class GraphCode {
   }
 
   /** load external data into the *proposed* buffers */
-  proposeGraph = (newSem: string) => {
+  proposeGraph = debounce((newSem: string) => {
     this.previewStr = newSem;
     try {
-      this.previewGraph = buildPreview(
-        this.getGraph(),
-        newSem
-      );
-    } catch (e) {
-      // suppress intermediate state
-      // console.error('Invalid proposed YAML', e);
-      return;
-    }
-  };
+      this.previewGraph = buildPreview(this.getGraph(), newSem);
+    } catch { /* ignore */ }
+  }, 150);
 
   getGraph = () => {
     return {nodes: this.nodes, edges: this.edges} as MergedGraph;

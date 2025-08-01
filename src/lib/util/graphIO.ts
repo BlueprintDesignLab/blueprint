@@ -217,15 +217,15 @@ export const loadGraphFiles = async () => {
 };
 
 
-const graphYamlDebounced = debounce((src: string) => {
+const graphYamlDebounced = (src: string) => {
   // const src = saveGraphSemantic(graph);
   invoke('write_project_file', { path: './.blueprint/graph.yaml', content: src })
-}, 100);
+}
 
-const viewJsonDebounced  = debounce((src: string) => {
+const viewJsonDebounced  = (src: string) => {
   // const src = saveGraphView(graph);
   invoke('write_project_file', { path: './.blueprint/view.json', content: src })
-}, 100);
+}
 
 export const saveGraphYaml = graphYamlDebounced;
 export const saveViewJson  = viewJsonDebounced;

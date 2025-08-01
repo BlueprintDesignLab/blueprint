@@ -17,6 +17,7 @@
   import { Badge } from "$lib/components/ui/badge";
   import type { AgentAndChatState } from "$lib/state/allAgents.svelte";
   import { invoke } from "@tauri-apps/api/core";
+  import { generate } from "quicktype-core/dist/MarkovChain";
 
   const { fitView } = useSvelteFlow();
 
@@ -32,7 +33,7 @@
 
   $effect(() => {
     agentAndChatState.chDiv = chDiv;
-  })
+  });
 
   const sendWrapper = () => {
     if (!agentAndChatState.send(question)) return;
@@ -143,6 +144,10 @@
       >
         <div class="flex-1 overflow-y-auto">
           <ChRenderer {ch} {approve} {reject} />
+
+          <!-- {#if agentAndChatState.generating}
+            ...
+          {/if} -->
         </div>
       </div>
       

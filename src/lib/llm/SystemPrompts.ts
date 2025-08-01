@@ -1,7 +1,7 @@
 import { plannerPrompt }   from './planPrompt';
 import { architectPrompt } from './architectPrompt';
 import { codePrompt }      from './codePrompt';
-import { interfaceContractDesignSystem } from './sharedPrompt';
+import { interfaceContractDesignSystem, workflow } from './sharedPrompt';
 
 const ROLE_PROMPTS: Record<AgentRoles, string> = {
   plan  : plannerPrompt,
@@ -14,5 +14,5 @@ const ROLE_PROMPTS: Record<AgentRoles, string> = {
  * Keeps the public API stable even when internal parts change.
  */
 export function getSystemPromptFor(role: AgentRoles): string {
-  return ROLE_PROMPTS[role] + interfaceContractDesignSystem;
+  return ROLE_PROMPTS[role] + workflow + interfaceContractDesignSystem;
 }

@@ -1,8 +1,7 @@
 import OpenAI from "openai";
 import type { Tool as OpenAITool } from "openai/resources/responses/responses.mjs";
 import type { ChatHistory } from "./ChatHistory";
-import type { LLMClient } from "./OpenaiCompletionLLMClient";
-import type { LLMEvent, LLMStream } from "./LLMClient";
+import type { LLMClient, LLMEvent, LLMStream } from "./LLMClient";
 
 export class OpenAIResponsesLLMClient implements LLMClient {
   constructor(private openai: OpenAI, private model: string) {}

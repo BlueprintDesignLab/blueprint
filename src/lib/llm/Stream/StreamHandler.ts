@@ -66,7 +66,7 @@ export class StreamHandler implements ApprovalGateway {
       name: tc.name,
       timestamp: new Date().toISOString()
     };
-
+    // console.log(resObj);
     this.callbacks.showTool({id: tc.id, tool: resObj});
   }
 

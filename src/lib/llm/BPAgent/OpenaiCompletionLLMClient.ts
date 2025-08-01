@@ -1,18 +1,6 @@
 import type OpenAI from "openai";
 import type { ChatHistory } from "./ChatHistory";
-import type { LLMEvent, LLMStream } from "./LLMClient";
-
-export interface LLMClient {
-  createStream(
-    history: ChatHistory,
-    tools: any[], // neutral tool schema
-    instructions: string,
-    signal: AbortSignal
-  ): LLMStream;
-
-  toThisHistory(history: ChatHistory): any[];
-  toThisTools(tools: any[]): any[];
-}
+import type { LLMClient, LLMEvent, LLMStream } from "./LLMClient";
 
 export class OpenAICompletionsLLMClient implements LLMClient {
   constructor(private openai: OpenAI, private model: string) {}
@@ -43,11 +31,13 @@ export class OpenAICompletionsLLMClient implements LLMClient {
     signal: AbortSignal
   ): LLMStream {
     const openaiTools = this.toThisTools(tools);
+
     const messages = [
       { role: "system", content: instructions },
       ...this.toThisHistory(history)
     ]
 
+    // console.log(messages);
     return new OpenAICompletionsStream(this.openai, this.model, messages, openaiTools, signal);
   }
 }

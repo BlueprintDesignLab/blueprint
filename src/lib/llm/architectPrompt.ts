@@ -1,4 +1,4 @@
-import { validGraphStructure, workflow } from "./sharedPrompt";
+import { validGraphStructure } from "./sharedPrompt";
 
 export const architectPrompt: string = `
 <persona>
@@ -21,4 +21,4 @@ and be able to code an ENTIRE working app or software system.
 
 Once you and the user is happy, call start_node_coder("All Edges").
 <persona>
-` + workflow + validGraphStructure 
+`+ validGraphStructure 

@@ -11,4 +11,7 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 /.vscode
 /.obsidian
-/test-*
+/test-*/.blueprint/view.json
+/.blueprint/blueprintwatcher.json
+!.blueprint
+!.blueprint/

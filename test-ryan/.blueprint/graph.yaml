@@ -1,0 +1,78 @@
+nodes:
+  MobileUI:
+    label: "Flutter Mobile UI"
+    main_file: "src/MobileUI/main.dart"
+    comment: |
+      Handles user input, task management, and displays schedules and AI tips.
+      Provides two main sections: Work Life and Social Life/Trips.
+  AuthService:
+    label: "Google OAuth2 Auth"
+    main_file: "src/AuthService/google_auth.dart"
+    comment: |
+      Manages user authentication using Google OAuth2.
+  FirestoreDB:
+    label: "Firebase Firestore Database"
+    main_file: "src/FirestoreDB/firestore_service.dart"
+    comment: |
+      Stores user tasks, history, and categorization (work/social).
+      Provides real-time sync for the mobile app.
+  SchedulerEngine:
+    label: "Cloud Scheduling Engine"
+    main_file: "src/SchedulerEngine/index.js"
+    comment: |
+      Cloud function (Node.js) that receives tasks, resolves overlaps, and optimizes daily schedules.
+  AITipsAgent:
+    label: "Cloud AI Tips Agent"
+    main_file: "src/AITipsAgent/index.js"
+    comment: |
+      Cloud function (Node.js) that analyzes user’s social history and generates proactive improvement tips.
+
+edges:
+  auth_flow:
+    label: "User Auth Flow"
+    interfaceFile: src/edges/interfaces/AuthFlow.dart
+    source: MobileUI
+    target: AuthService
+    comment: |
+      Handles login, logout, and user session management.
+  db_access:
+    label: "Task & History Data Access"
+    interfaceFile: src/edges/interfaces/DBAccess.dart
+    source: MobileUI
+    target: FirestoreDB
+    comment: |
+      Allows the UI to read/write tasks, fetch history, and categorize items.
+  schedule_request:
+    label: "Schedule Optimization Request"
+    schema: .blueprint/edges/schedule_request.schema.json
+    stubs:
+      MobileUI: src/edges/autogen/schedule_request.MobileUI.dart
+      SchedulerEngine: src/edges/autogen/schedule_request.SchedulerEngine.js
+    source: MobileUI
+    target: SchedulerEngine
+    comment: |
+      Sends user tasks to the cloud scheduling engine and receives optimized schedules.
+  schedule_db_sync:
+    label: "Schedule Sync with DB"
+    interfaceFile: src/edges/interfaces/ScheduleDBSync.js
+    source: SchedulerEngine
+    target: FirestoreDB
+    comment: |
+      Scheduler updates the database with optimized schedules.
+  ai_tips_request:
+    label: "AI Tips Request"
+    schema: .blueprint/edges/ai_tips_request.schema.json
+    stubs:
+      MobileUI: src/edges/autogen/ai_tips_request.MobileUI.dart
+      AITipsAgent: src/edges/autogen/ai_tips_request.AITipsAgent.js
+    source: MobileUI
+    target: AITipsAgent
+    comment: |
+      UI requests proactive tips from the AI agent.
+  ai_tips_db_access:
+    label: "AI Tips DB Access"
+    interfaceFile: src/edges/interfaces/AITipsDBAccess.js
+    source: AITipsAgent
+    target: FirestoreDB
+    comment: |
+      AI agent reads user history and writes tips to the database.

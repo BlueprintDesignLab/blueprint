@@ -9,16 +9,16 @@
   import GraphDiff from "../Graph/GraphDiff.svelte";
   import CodeSingle from "./Code/CodeSingle.svelte";
 
-  let graphSemDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
-  let semDerived = $derived(graphCode.previewStr ? graphCode.previewStr : graphSemDerived);
+  // let graphSemDerived = $derived(saveGraphSemantic(graphCode.getSelectedGraph()));
+  // let semDerived = $derived(graphCode.previewStr ? graphCode.previewStr : graphSemDerived);
 
-  function patchGraph() {
-    try {
-      graphCode.applyPatch(semDerived);
-    } catch (e) {
-      //suppress in-between invalid YAML states
-    }
-  }
+  // function patchGraph() {
+  //   try {
+  //     graphCode.applyPatch(semDerived);
+  //   } catch (e) {
+  //     //suppress in-between invalid YAML states
+  //   }
+  // }
 </script>
           <!-- onChange = {() => {patchGraph()}} -->
 
@@ -27,10 +27,9 @@
     <Resizable.Pane defaultSize={20}>
       <div class="h-screen">
           <CodeSingle
-          bind:content={semDerived}
+          bind:content={graphCode.graphStr}
           lineWrapping={true}
           lang={yaml}
-          onChange={() => patchGraph()}
           readOnly={graphCode.previewStr !== ""}
           />
       </div>

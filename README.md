@@ -1,6 +1,6 @@
 # Blueprint
 
-**Join our community:** [Discord](https://discord.gg/aT2mYAVVzk) | [Website](PLACEHOLDER_LANDING_PAGE) | [Report Issues](https://github.com/BlueprintDesignLab/blueprint/issues) | [Contribute](CONTRIBUTING.md)
+**Join our community:** [Discord](https://discord.gg/aT2mYAVVzk) | [Website](blueprintlab.io) | [Report Issues](https://github.com/BlueprintDesignLab/blueprint/issues)
 
 **Agile development with AI collaborators.**
 
@@ -68,17 +68,20 @@ Blueprint Design AI solves this by making software architecture explicit and mac
 ⚠️ **Alpha Release** - We're actively building and want your feedback!
 
 - [x] Basic plan → architecture workflow  
-- [x] Component isolation
+- [x] Interface/contract driven design system
+- [x] Component context isolation
+- [ ] LLMStream implementation for Anthropic SDK, Gemini SDK etc.
 - [ ] Template system
 - [ ] Additional design systems
+- [ ] AI learn from manual file changes
 
-We also do not support existing projects as they violate the design system and 
-there is no reliable way to refactor away technical debt, however, we may support
-this in the future.
+We also do not support large existing projects as they violate the design system and 
+there is no reliable way to refactor into existing design systems. However, you can turn
+off design systems and just *vibe*.
 
 ## 🙌 Contributing
 
-We welcome contributions! Check out our [contributing guide](CONTRIBUTING.md) to get started.
+We welcome contributions! Check out our [contributing guide (TODO)](CONTRIBUTING.md) to get started.
 
 Looking to add:
 - New architecture templates

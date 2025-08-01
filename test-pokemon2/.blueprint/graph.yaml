@@ -1,0 +1,123 @@
+nodes:
+  GameClient:
+    label: Game Client (UI & Gameplay)
+    main_file: src/client/game/main.ts
+    helper_files:
+      - src/client/game/battle.ts
+      - src/client/game/overworld.ts
+      - src/client/game/ui.ts
+    comment: >
+      Browser-based client built with Phaser and TypeScript for map
+      exploration, 
+
+      battles, inventory, trading, and collection management. Handles user
+      input,
+
+      rendering, and sends/receives real-time game data via Socket.IO.
+  GameServer:
+    label: Game Server (Realtime Core)
+    main_file: src/server/game/index.ts
+    helper_files:
+      - src/server/game/battle.ts
+      - src/server/game/matchmaking.ts
+      - src/server/game/trading.ts
+      - src/server/game/overworld.ts
+    comment: >
+      Main multiplayer and PvE/PvP gameplay logic (Node.js). 
+
+      Handles world state, player synchronization, matchmaking, real-time
+      turn-based battles, 
+
+      and trading. Mediates between GameClient, Persistence, and AuthServer.
+  AuthServer:
+    label: Authentication & Account API (Express)
+    main_file: src/server/auth/index.ts
+    helper_files:
+      - src/server/auth/security.ts
+    comment: >
+      RESTful API for user registration, login, session management, and
+      security.
+
+      Issues and validates authentication tokens for player sessions. Covers
+      anti-cheat
+
+      and account bans.
+  Persistence:
+    label: Persistent Storage Adapter (DB)
+    main_file: src/server/persistence/index.ts
+    helper_files:
+      - src/server/persistence/mongo.ts
+      - src/server/persistence/postgres.ts
+    comment: >
+      Abstraction over MongoDB/Postgres for all persistent player data,
+      inventory, 
+
+      creatures, world state, and authentication/session records.
+      Synchronous/async 
+
+      data access for AuthServer and GameServer.
+edges:
+  client_gameplay:
+    source: GameClient
+    target: GameServer
+    label: Gameplay Interaction Channel
+    schema_file: .blueprint/edges/client_gameplay.schema.json
+    stub_files:
+      source: src/edges/autogen/client_gameplay.GameClient.ts
+      target: src/edges/autogen/client_gameplay.GameServer.ts
+    comment: >
+      Real-time and turn-based gameplay sync, player input, battle commands, map
+      movement,
+
+      inventory, encounter triggers, trade offers, matchmaking requests, and
+      notifications 
+
+      between browser and game server over Socket.IO.
+  client_auth:
+    source: GameClient
+    target: AuthServer
+    label: Client Auth API Channel
+    schema_file: .blueprint/edges/client_auth.schema.json
+    stub_files:
+      source: src/edges/autogen/client_auth.GameClient.ts
+      target: src/edges/autogen/client_auth.AuthServer.ts
+    comment: >
+      REST and realtime account management and authentication. Handles:
+      registration, login, token refresh, logout, password reset, and account
+      queries. Data passed according to `client_auth.schema.json` and
+      implemented as HTTP requests or WebSocket events.
+  auth_persistence:
+    source: AuthServer
+    target: Persistence
+    label: Auth Storage Contract
+    interface_file: src/edges/interfaces/AuthPersistence.ts
+    comment: >
+      Read/write account info, password hashes, session tokens, and anti-cheat
+      flags
+
+      between AuthServer and Persistence layer.
+  game_persistence:
+    source: GameServer
+    target: Persistence
+    label: Game Data Storage Contract
+    interface_file: src/edges/interfaces/GamePersistence.ts
+    comment: >
+      Persistent player data (creatures, inventory, world progress, trades),
+      transactional logic,
+
+      state save/load for PvP and PvE, and leaderboard persistence.
+  gameplay_auth:
+    source: GameServer
+    target: AuthServer
+    label: Game Session Auth Validation
+    interface_file: src/edges/interfaces/GameplayAuth.ts
+    comment: >
+      Validate player session tokens, account status, anti-cheat, and bans for
+      all multiplayer events.
+  trade_pvp:
+    source: GameServer
+    target: GameServer
+    label: Internal multiplayer (PvP/Trade)
+    comment: >
+      Used internally for transactional PvP match logic, player-to-player
+      trade/session mediation.

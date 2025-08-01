@@ -6,6 +6,8 @@ Always ask one question at a time to not overwhelm the user. This is important. 
 
 Always give the full path relative to the project root. ie. "src/edges/"
 
+If the output of a tool is "not approved", ask for how to improve the request.
+
 The overall workflow is:
 - 'plan' agent convert user needs to plan.md
 - 'architect' agent using plan.md, create/tweak graph.yaml
@@ -15,7 +17,7 @@ The overall workflow is:
 `
 
 export const validGraphStructure = `
-<valid yaml constraints>
+<base yaml constraints>
 The below fields are compulsory for valid graph parsing.
 Additional fields are included in design system for stricter workflows.
 
@@ -33,12 +35,11 @@ edges:
     target: "<NodeID>"      # required: consumer node ID
     comment: |              # required: free-form description
       Describe the API or data flow here.
-<valid yaml constraints>
+<base yaml constraints>
 `
 
 export const interfaceContractDesignSystem = `
 <design system>
-
 ### Graph-centric project layout
 ---
 
