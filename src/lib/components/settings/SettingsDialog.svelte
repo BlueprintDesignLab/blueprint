@@ -6,7 +6,7 @@
 
   import { Bolt, Bot, CircleUser, Heart } from "lucide-svelte";
 
-  import SettingsLlm from "./SettingsLLM.svelte";
+  import SettingsLlm from "./SettingsLLM2.svelte";
   import SettingsFeedback from "./SettingsFeedback.svelte";
   import SettingsAccount from "./SettingsAccount.svelte";
 	

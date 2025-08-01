@@ -1,34 +1,11 @@
-import { settingsStore } from "$lib/state/tauriStores";
-
 import { ChatHistory } from "./ChatHistory";
 import { ToolRegistry } from "../Tool/ToolRegistry";
 import { StreamHandler, type UIUpdaterCallbacks } from "../Stream/StreamHandler";
 import { type ToolKey } from "../Tool/ToolRole";
 
-import OpenAI from "openai";
-import { OpenAICompletionsLLMClient } from "./OpenaiCompletionLLMClient";
+import { getCurrLLMClient } from "./currLLMClient";
 
 const MAX_STEPS = 9999999999999;
-
-async function getProvider() {
-  const provider = await settingsStore.get('provider');
-
-  if (provider === "openai") {
-    const openai = new OpenAI({
-      baseURL: await settingsStore.get('url-endpoint'),
-      apiKey: await settingsStore.get('api-key'),
-      dangerouslyAllowBrowser: true
-    });
-
-    return openai;
-  }
-}
-
-// async function getProviderClient(provider: any) {
-//   const 
-
-//   if 
-// }
 
 export class Agent {
   private history: ChatHistory;
@@ -63,22 +40,15 @@ export class Agent {
     while (!this.done && step++ < MAX_STEPS) {
       this.controller = new AbortController();
 
-      const openai = new OpenAI({
-        baseURL: await settingsStore.get('url-endpoint'),
-        apiKey: await settingsStore.get('api-key'),
-        dangerouslyAllowBrowser: true
-      });
-      const model: string = await settingsStore.get('model-name') ?? "gpt-4.1";
+      const client = await getCurrLLMClient();
+      if (!client) {
+        console.error("Model not selected?");
+        break;
+      }
 
-      const client = new OpenAICompletionsLLMClient(openai, model);
       const stream = client.createStream(this.history, this.registry.listToolSchemas(), this.systemPrompt, this.controller.signal)
 
-      // const client = new OpenAIResponsesLLMClient(openai, model);
-      // const stream = client.createStream(this.history, this.registry.listToolSchemas(), this.systemPrompt, this.controller.signal)
-
       const { assistantContent, toolCalls } = await this.streamHandler.consume(stream);
-
-      // this.history.addAssistant(assistantContent);
 
       if (assistantContent) {
         this.history.addAssistant(assistantContent);

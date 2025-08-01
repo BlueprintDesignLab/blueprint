@@ -9,9 +9,20 @@ Current AI tools work great for small tasks, but break down on complex projects.
 - AI overwriting carefully written code  
 - Chaotic collaboration between team members and AI
 
-Blueprint Design AI solves this by making software architecture explicit and machine-readable. Humans and AI collaborate on a shared plan, generate a visual architecture graph, then develop components independently with clear boundaries.
+Blueprint Design AI solves this by making software architecture explicit and machine-readable. 
 
-**The result?** AI that actually understands your system, respects your code boundaries, and helps you ship faster without the integration nightmares.
+Humans and AI collaborate on a shared plan, generate a visual architecture graph, then develop components independently with clear boundaries.
+
+By generating shared artifacts (plan.md and graph.yaml), Blueprint also reduces the cognitive load on the
+user and makes it easier to see what is going on when the AI agent is performing tasks.
+
+Blueprint also aggressively isolates context between different agents, instead opting to
+use artifacts as the **source of truth** for shared knowledge. It also implements a `clear`
+button handing back to the user so the context window can be minimal. This is to combat
+`context rot`, see [Nvidia's research](https://github.com/NVIDIA/RULER) and [Chroma's research](https://research.trychroma.com/context-rot).
+
+Each component in the Blueprint architecture gets its own "expert" agent, which can only
+"see" that component, leading to cheaper, faster and more reliable generations.
 
 ## 🚀 Quick Start
 
