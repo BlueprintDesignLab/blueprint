@@ -9,10 +9,10 @@ export const fileWatcher = new (class {
 
   async addListener(cb: (e: FsEvent) => void) {
     // ensure the Rust side is started only once
-    // if (!this.#started) {
-    //   await invoke('start_watcher');
-    //   this.#started = true;
-    // }
+    if (!this.#started) {
+      await invoke('start_watcher');
+      this.#started = true;
+    }
 
     const unlisten = await listen('fs-event', ({ payload }) => cb(payload as FsEvent));
     this.#unlisteners.push(unlisten);
