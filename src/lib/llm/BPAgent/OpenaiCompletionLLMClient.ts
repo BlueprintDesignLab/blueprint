@@ -52,13 +52,25 @@ class OpenAICompletionsStream implements LLMStream {
   ) {}
 
   async *events(): AsyncIterable<LLMEvent> {
-    const stream = await this.openai.chat.completions.create(
-      { model: this.model, messages: this.messages, stream: true, tools: this.tools, parallel_tool_calls: false },
-      { signal: this.signal }
-    );
+    const isOmodel = this.model.startsWith('o');
+
+    const payload: any = {
+      model: this.model,
+      messages: this.messages,
+      stream: true,
+      tools: this.tools,
+    };
+
+    // only add these keys when NOT an “o-series” reasoning model
+    if (!isOmodel) {
+      payload.temperature = 0;
+      payload.parallel_tool_calls = false;
+    }
+    const stream = await this.openai.chat.completions.create(payload, { signal: this.signal });
 
     const toolCallBuffer: Record<number, { id: string; name: string; args: string }> = {};
 
+    // @ts-ignore
     for await (const chunk of stream) {
       const delta = chunk.choices[0]?.delta;
 

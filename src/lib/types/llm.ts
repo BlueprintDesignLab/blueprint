@@ -72,7 +72,7 @@ export const BUILTIN_PROVIDERS: Record<string, Omit<ProviderConfig, 'apiKey' | '
 
 // Available SDK Types for selection
 export const SDK_TYPES: { value: SdkType; label: string }[] = [
-  { value: 'chat_completion', label: 'Chat Completion (OpenAI, Google, OpenRouter... Compatible)' },
+  { value: 'chat_completion', label: 'OpenAI Chat Completion (Compatible with most providers)' },
   // { value: 'messages', label: 'Messages (Anthropic Compatible)' },
   // { value: 'chat', label: 'Chat (Google Compatible)' }, // Re-enabled as per original plan
 ];

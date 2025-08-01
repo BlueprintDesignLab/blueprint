@@ -4,10 +4,10 @@ import OpenAI from 'openai';
 // import { GoogleGenAI } from "@google/genai";
 
 import { settingsStore } from '$lib/state/tauriStores';
-import type { LlmSettings, ProviderConfig } from '$lib/types/llm';
-import { DEFAULT_LLM_SETTINGS } from '$lib/types/llm';
+
 import type { LLMClient } from './LLMClient';
 import { OpenAICompletionsLLMClient } from './OpenaiCompletionLLMClient';
+import { DEFAULT_LLM_SETTINGS, type LlmSettings, type ProviderConfig } from '$lib/types/llm';
 
 /**
  * Loads the current LLM settings and instantiates the appropriate client.
@@ -39,12 +39,13 @@ export async function getCurrLLMClient(): Promise<LLMClient | null> { // Adjust 
     const selectedProviderId = llmSettings.selectedProviderId;
     const selectedProvider: ProviderConfig | undefined = llmSettings.providers[selectedProviderId];
 
+
     if (!selectedProvider) {
-      console.error(`Selected provider '${selectedProviderId}' configuration not found.`);
+      console.error(`Selected provider '${selectedProviderId}' or configuration not found.`);
       return null;
     }
 
-    const { baseUrl, apiKey, sdkType } = selectedProvider;
+    const { baseUrl, apiKey, sdkType, selectedModel } = selectedProvider;
 
     // 4. Validate essential configuration
     if (!baseUrl || !apiKey) {
@@ -61,7 +62,7 @@ export async function getCurrLLMClient(): Promise<LLMClient | null> { // Adjust 
           apiKey: apiKey,
           dangerouslyAllowBrowser: true, // Required for browser usage in Tauri
         });
-        return new OpenAICompletionsLLMClient(openaiClient, "gpt-4.1");
+        return new OpenAICompletionsLLMClient(openaiClient, selectedModel);
 
     //   case 'messages':
     //     // Handles Anthropic and any custom provider configured for Anthropic compatibility
