@@ -88,17 +88,20 @@ nodes:
   <NodeID>:                 # e.g. NodeA, NodeB
     label: "<Human Label>"  # e.g. "Primary Worker"
     main_file: "<path>"     # required: path to the node’s primary source file, this is the only file allowed to interact with neighbouring edges
+    locked: false           # if locked, AI is not allowed to write to the file
     helper_files:           # optional: supporting files
       - "<path/to/helper1>"
       - "<path/to/helper2>"
     comment: |              # required: free-form description
       This is a multi-line explanation of what this node does.
 
+
 edges:
   # schema edge
   <EdgeID>:                 # e.g. data_flow, control_channel
     label: "<Human Label>"  # e.g. "Data Flow"
     kind: schema
+    locked: false           # if locked, AI is not allowed to write to the file
     source: "<NodeID>"      # required: producer node ID
     target: "<NodeID>"      # required: consumer node ID
     # For data edges (cross-language):
@@ -113,6 +116,7 @@ edges:
   <EdgeID>:                
     label: "<Human Label>" 
     kind: interface
+    locked: false           # if locked, AI is not allowed to write to the file
     source: "<NodeID>"      
     target: "<NodeID>"     
     # For interface edges (same-language/intra-process):
@@ -124,6 +128,7 @@ edges:
   <EdgeID>:                 
     label: "<Human Label>"
     kind: flexible
+    locked: false           # if locked, AI is not allowed to write to the file
     source: "<NodeID>"      
     target: "<NodeID>"      
     usage: |
@@ -134,7 +139,6 @@ edges:
       func(<data>)
     comment: |              # required: free-form description
       Describe the API or data flow here.
-
 ---
 
 For cross-language scenarios

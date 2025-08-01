@@ -8,6 +8,7 @@ import { clearProposedCurrSrc, clearProposedPlan, commitCurrSrc, commitPlan } fr
 import { graphCode } from "$lib/state/graph.svelte";
 import { setAgentFocusMode, setAgentFocusNode } from "$lib/state/agentRole.svelte";
 import { getAgentForRole, getDeveloperAgentForNode } from "$lib/state/allAgents.svelte";
+import { isFileLocked } from "./isFileLocked";
 
 export interface ToolHandler {
   handler: (args: any, deps: { approval: ApprovalGateway }) => Promise<string>;
@@ -34,6 +35,11 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
       strict: true,
     },
     handler: async ({ path, content }, { approval }) => {
+      if (isFileLocked(path, graphCode.getGraphStr())) {
+        clearProposedCurrSrc();
+        return "The component is locked and should not be modified by AI.";
+      }
+
       const ok = await approval.ask({ name: "write_project_file", args: { path, content } });
       if (!ok) {
         clearProposedCurrSrc();

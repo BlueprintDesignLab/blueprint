@@ -9,6 +9,8 @@
   import { agentRole, setAgentFocusNode } from '$lib/state/agentRole.svelte';
   import { getDeveloperAgentForNode } from '$lib/state/allAgents.svelte';
   import { tick } from 'svelte';
+  import { Unlock, Lock } from 'lucide-svelte';
+  import { parse, stringify } from 'yaml';
 
   let { id, data = $bindable() }: NodeProps = $props();
 
@@ -31,21 +33,6 @@
     });
   });
 
-
-  // function scaffold() {
-  //   setAgentFocusNode(id);
-  //   let agentAndChatState = getDeveloperAgentForNode(id); 
-
-  //   agentAndChatState.send("Scaffold the current node, write function signatures, classes etc. Write high level comments but do not implement inner logic.");
-  // }
-
-  async function lock() {
-    // setAgentFocusNode(id);
-    // let agentAndChatState = getDeveloperAgentForNode(id); 
-
-    // agentAndChatState.send("Scaffold the current node, write function signatures, classes etc. Write high level comments but do not implement inner logic.");
-  }
-
   function generate() {
     setAgentFocusNode(id);
     let agentAndChatState = getDeveloperAgentForNode(id); 
@@ -64,6 +51,21 @@
     setAgentFocusNode(id);
   }
 
+  // action: flip the lock flag for one node
+  function toggleNodeLock(nodeId: string) {
+    const doc: any = parse(graphCode.graphStr);          
+    if (doc?.nodes?.[nodeId]) {
+      const node = doc.nodes[nodeId];
+      node.locked = !node.locked;
+      
+      const newGraphStr = stringify(doc);
+      console.log(newGraphStr);
+      graphCode.graphStr = newGraphStr;
+    }
+  }
+
+  let isLocked = $derived(data.locked ?? false);
+
   // function selectNode() {
   //   graphCode.setSelectedNodesEdges([id], []);
   // }
@@ -79,29 +81,53 @@
 <Handle type="target" position={Position.Bottom} id="c" />
 <Handle type="target" position={Position.Left}   id="d" />
 
+<!-- inside the node -->
 <button
   bind:this={ref}
   class="auto-node relative w-max rounded border p-2 {diffClass}"
 >
-  <!-- pulsing ring when focused -->
+  <!-- locked indicator -->
+  {#if isLocked}
+    <Lock
+      size={12}
+      class="absolute top-1 left-1 text-red-600"
+      aria-label="locked"
+    />
+  {/if}
+
   {#if agentRole.node === id}
-    <div class="absolute -inset-0.5 rounded-[inherit] ring-4 ring-blue-500 animate-pulse"></div>
+    <div
+      class="absolute -inset-0.5 rounded-[inherit] ring-4 ring-blue-500 animate-pulse pointer-events-none"
+    ></div>
   {/if}
 
   <div class="relative z-10 text-sm">{data.label}</div>
 
   {#if agentRole.agentRole === 'code'}
     <div class="flex justify-end gap-1 mt-1">
-      <Button variant="secondary" class="text-[10px]" onclick={() => select()}>
+      <Button variant="secondary" class="text-[10px]" onclick={select}>
         Select
       </Button>
-      <Button variant="outline" class="text-[10px]" onclick={() => lock()}>
-        Lock
+
+      <!-- lock/unlock toggle -->
+      <Button
+        variant="outline"
+        class="text-[10px] flex items-center gap-1"
+        onclick={() => toggleNodeLock(id)}
+      >
+        {#if isLocked}
+          <Unlock size={10} />
+          Unlock
+        {:else}
+          <Lock size={10} />
+          Lock
+        {/if}
       </Button>
-      <Button variant="outline" class="text-[10px]" onclick={() => generate()}>
+
+      <Button variant="outline" class="text-[10px]" onclick={generate}>
         Generate
       </Button>
-      <Button variant="outline" class="text-[10px]" onclick={() => test()}>
+      <Button variant="outline" class="text-[10px]" onclick={test}>
         Test
       </Button>
     </div>

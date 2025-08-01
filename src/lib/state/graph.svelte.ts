@@ -32,6 +32,10 @@ class GraphCode {
   nodes = $derived(yamlViewToGraph(this.graphStr, this.viewStr).nodes);
   edges = $derived(yamlViewToGraph(this.graphStr, this.viewStr).edges);
 
+  getGraphStr() {
+    return $state.snapshot(this.graphStr);
+  }
+
   /* accept the proposal and make it live */
   commitGraph = () => {
     this.graphStr = this.previewStr;
