@@ -66,6 +66,8 @@ class OpenAICompletionsStream implements LLMStream {
       payload.temperature = 0;
       payload.parallel_tool_calls = false;
     }
+
+    // console.log(payload);
     const stream = await this.openai.chat.completions.create(payload, { signal: this.signal });
 
     const toolCallBuffer: Record<number, { id: string; name: string; args: string }> = {};

@@ -77,7 +77,7 @@ Edges come in two channels:
   - Both nodes import only the edge’s interface, never from each other.
   - The edge file may contain function signatures, classes, or a mediator/bus.
 
-- Descriptive / Flexible (no code contract):
+- Flexible (no code contract):
   - Edge is just documentation; no stub, schema, or interface is required.
   - Used when the interaction is ad-hoc, via shared state, UI callbacks, or other non-contractual means.
   - Still appears in graph.yaml for traceability, but nothing is generated.
@@ -95,9 +95,10 @@ nodes:
       This is a multi-line explanation of what this node does.
 
 edges:
-  # strict edge
+  # schema edge
   <EdgeID>:                 # e.g. data_flow, control_channel
     label: "<Human Label>"  # e.g. "Data Flow"
+    kind: schema
     source: "<NodeID>"      # required: producer node ID
     target: "<NodeID>"      # required: consumer node ID
     # For data edges (cross-language):
@@ -105,19 +106,29 @@ edges:
     stub_files:
       NodeA: src/edges/autogen/data_flow_NodeA.ts
       NodeB: src/edges/autogen/data_flow_NodeB.cpp
-    # For interface edges (same-language/intra-process):
-    interface_file: src/edges/interfaces/DataBus.ts
     comment: |              # required: free-form description
       Describe the API or data flow here.
 
-  # flexible/descriptive edge
-  <EdgeID>:                 # e.g. data_flow, control_channel
-    label: "<Human Label>"  # e.g. "Data Flow"
-    source: "<NodeID>"      # required: producer node ID
-    target: "<NodeID>"      # required: consumer node ID
+  # interface edge
+  <EdgeID>:                
+    label: "<Human Label>" 
+    kind: interface
+    source: "<NodeID>"      
+    target: "<NodeID>"     
+    # For interface edges (same-language/intra-process):
+    interface_file: src/edges/interfaces/DataBus.ts
+    comment: |              
+      Describe the API or data flow here.
+
+  # flexible edge
+  <EdgeID>:                 
+    label: "<Human Label>"
+    kind: flexible
+    source: "<NodeID>"      
+    target: "<NodeID>"      
     usage: |
       Describe type of usage and why it's best to not be strict here.
-    example_call: |
+    example_call: | 
       An example of the dependency:
       import <func> from NodeID1
       func(<data>)

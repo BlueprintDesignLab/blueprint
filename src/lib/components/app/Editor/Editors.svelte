@@ -64,12 +64,14 @@
     return () => {planUnlisten?.(); schemaUnlisten?.();};
   });
 
+  $inspect(graphCode.viewStr);
+
   $effect(() => {
     // console.log("saving graph");
-    if (!graphCode.viewStr) {
+    if (!graphCode.graphStr) {
       return;
     }
-
+    // console.log(JSON.stringify({nodes: graphCode.nodes, edges: graphCode.edges}, null, 2));
     saveViewJson(graphCode.viewStr);
     saveGraphYaml(graphCode.graphStr);
   });

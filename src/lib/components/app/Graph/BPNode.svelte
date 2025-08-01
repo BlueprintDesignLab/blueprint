@@ -32,11 +32,18 @@
   });
 
 
-  async function scaffold() {
-    setAgentFocusNode(id);
-    let agentAndChatState = getDeveloperAgentForNode(id); 
+  // function scaffold() {
+  //   setAgentFocusNode(id);
+  //   let agentAndChatState = getDeveloperAgentForNode(id); 
 
-    agentAndChatState.send("Scaffold the current node, write function signatures, classes etc. Write high level comments but do not implement inner logic.");
+  //   agentAndChatState.send("Scaffold the current node, write function signatures, classes etc. Write high level comments but do not implement inner logic.");
+  // }
+
+  async function lock() {
+    // setAgentFocusNode(id);
+    // let agentAndChatState = getDeveloperAgentForNode(id); 
+
+    // agentAndChatState.send("Scaffold the current node, write function signatures, classes etc. Write high level comments but do not implement inner logic.");
   }
 
   function generate() {
@@ -88,8 +95,8 @@
       <Button variant="secondary" class="text-[10px]" onclick={() => select()}>
         Select
       </Button>
-      <Button variant="outline" class="text-[10px]" onclick={() => scaffold()}>
-        Scaffold
+      <Button variant="outline" class="text-[10px]" onclick={() => lock()}>
+        Lock
       </Button>
       <Button variant="outline" class="text-[10px]" onclick={() => generate()}>
         Generate
