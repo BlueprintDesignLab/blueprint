@@ -8,6 +8,8 @@ import { settingsStore } from '$lib/state/tauriStores';
 import type { LLMClient } from './LLMClient';
 import { OpenAICompletionsLLMClient } from './OpenaiCompletionLLMClient';
 import { DEFAULT_LLM_SETTINGS, type LlmSettings, type ProviderConfig } from '$lib/types/llm';
+import Anthropic from '@anthropic-ai/sdk';
+import { AnthropicLLMClient } from './AnthropicLLMClient';
 
 /**
  * Loads the current LLM settings and instantiates the appropriate client.
@@ -21,7 +23,7 @@ export async function getCurrLLMClient(): Promise<LLMClient | null> { // Adjust 
     // 2. Type guard and merge with defaults for safety
     let llmSettings: LlmSettings;
     if (llmSettingsRaw && typeof llmSettingsRaw === 'object' && 'providers' in llmSettingsRaw && 'selectedProviderId' in llmSettingsRaw) {
-      // Merge with defaults to ensure structure, but prefer loaded values
+      // @ts-ignore Merge with defaults to ensure structure, but prefer loaded values 
       llmSettings = {
         ...DEFAULT_LLM_SETTINGS,
         ...llmSettingsRaw,
@@ -64,14 +66,14 @@ export async function getCurrLLMClient(): Promise<LLMClient | null> { // Adjust 
         });
         return new OpenAICompletionsLLMClient(openaiClient, selectedModel);
 
-    //   case 'messages':
-    //     // Handles Anthropic and any custom provider configured for Anthropic compatibility
-    //     const anthropicClient = new Anthropic({
-    //       baseURL: baseUrl, // Anthropic SDK supports baseURL
-    //       apiKey: apiKey,
-    //       // dangerouslyAllowBrowser is generally not needed for Anthropic SDK in browser/Tauri, but check latest docs if issues arise
-    //     });
-    //     return anthropicClient;
+      case 'messages':
+        // Handles Anthropic and any custom provider configured for Anthropic compatibility
+        const anthropicClient = new Anthropic({
+          baseURL: baseUrl, // Anthropic SDK supports baseURL
+          apiKey: apiKey,
+          dangerouslyAllowBrowser: true,
+        });
+        return new AnthropicLLMClient(anthropicClient, selectedModel);
 
       default:
         console.error(`Unsupported SDK type '${sdkType}' for provider '${selectedProvider.name}'.`);

@@ -86,6 +86,7 @@ export class StreamHandler implements ApprovalGateway {
     let buffer = "";
 
     for await (const ev of stream.events()) {
+      console.log(ev);
       switch (ev.type) {
         case 'text':
           assistantContent += ev.delta;

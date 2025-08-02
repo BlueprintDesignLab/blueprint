@@ -60,7 +60,7 @@ export const BUILTIN_PROVIDERS: Record<string, Omit<ProviderConfig, 'apiKey' | '
     id: 'anthropic',
     name: 'Anthropic',
     type: 'builtin',
-    baseUrl: 'https://api.anthropic.com/v1', // Removed trailing spaces, confirmed standard
+    baseUrl: 'https://api.anthropic.com', // Removed trailing spaces, confirmed standard
   },
   google: {
     id: 'google',
@@ -73,7 +73,7 @@ export const BUILTIN_PROVIDERS: Record<string, Omit<ProviderConfig, 'apiKey' | '
 // Available SDK Types for selection
 export const SDK_TYPES: { value: SdkType; label: string }[] = [
   { value: 'chat_completion', label: 'OpenAI Chat Completion (Compatible with most providers)' },
-  // { value: 'messages', label: 'Messages (Anthropic Compatible)' },
+  { value: 'messages', label: 'Messages (Anthropic Compatible)' },
   // { value: 'chat', label: 'Chat (Google Compatible)' }, // Re-enabled as per original plan
 ];
 
@@ -107,7 +107,7 @@ export function createProviderConfig(
 // Helper to get available SDK types for a given provider ID
 // (Keeping this flexible as per your original requirement)
 export function getAvailableSdkTypes(providerId: string): SdkType[] {
-  return ['chat_completion'];
+  return ['chat_completion', 'messages'];
 }
 
 // Helper to get suggested models for a given provider ID
