@@ -15,3 +15,5 @@ vite.config.ts.timestamp-*
 /.blueprint/blueprintwatcher.json
 !.blueprint
 !.blueprint/
+
+test-*
