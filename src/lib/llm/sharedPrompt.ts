@@ -48,13 +48,8 @@ export const interfaceContractDesignSystem = `
 /.blueprint/
 /.blueprint/graph.yaml              # yaml file where software architecture is described. edit with propose_graph_yaml_file
 /.blueprint/plan.md                 # planfile where project specification lives. edit with propose_plan_md_file
-/.blueprint/edges/<id>.schema.json  # json schema files where applicable
 
-/src/ # normal source code (TS, Rust, C++…)
-/src/edges/
-/src/edges/autogen/                 # autogenerate from json schema, do not touch except for minor edits
-/src/edges/interfaces/              # handwritten or AI authored interface/trait files
-/src/                         # where the rest of the code lives. <IMPORTANT> For paths, respect the conventions of the stack. <IMPORTANT>
+/src/ # normal source code (TS, Rust, C++…) <IMPORTANT> For paths, respect the conventions of the stack. <IMPORTANT>
 ---
 
 Nodes = self-contained components (one language each).
@@ -86,60 +81,62 @@ Edges come in two channels:
   - Used when the interaction is ad-hoc, lightweight, via shared state, UI callbacks, or other non-contractual means.
   - Still appears in graph.yaml for traceability, but nothing is generated.
 
----
+<IMPORTANT>
+For all paths, respect the conventions of the tech stack.
+<IMPORTANT>
+___
 # blueprint/graph.yaml
 nodes:
   <NodeID>:                 # e.g. NodeA, NodeB
-    label: "<Human Label>"  # e.g. "Primary Worker"
-    main_file: "<path>"     # required: path to the node’s primary source file, this is the only file allowed to interact with neighbouring edges
+    label: <Human Label>    # e.g. Primary Worker
+    main_file: <path>       # required: path to the node’s primary source file, this is the only file allowed to interact with other nodes/edges
     helper_files:           # optional: supporting files. Keep all files to less than 500 lines of code. split into helpers if necessary. 
-      - "<path/to/helper1>"
-      - "<path/to/helper2>"
+      - <path>
+      - <path>
     responsibility:         # the main responsibility of the component
-    comment: |              # required: free-form description
-      This is a multi-line explanation of what this node does.
+    comment:                # optional: free-form explanation of what this node does
 
 edges:
   # schema edge
   <EdgeID>:                 # e.g. data_flow, control_channel
-    label: "<Human Label>"  # e.g. "Data Flow"
+    label: <Human Label>    # e.g. Data Flow
     kind: schema
-    source: "<NodeID>"      # required: producer node ID
-    target: "<NodeID>"      # required: consumer node ID
+    source: <NodeID>        # required: producer node ID
+    target: <NodeID>        # required: consumer node ID
     # For data edges (cross-language):
-    schema_file: .blueprint/edges/data_flow.schema.json
+    schema_file: <path>
     stub_files:
-      NodeA: src/edges/autogen/data_flow_NodeA.ts
-      NodeB: src/edges/autogen/data_flow_NodeB.cpp
-    comment: |              # required: free-form description
-      Describe the API or data flow here.
+      NodeA: <path>
+      NodeB: <path>
+    responsibility:         # the main responsibility of the component
+    comment:                # optional: free-form description
 
   # interface edge
   <EdgeID>:                
-    label: "<Human Label>" 
+    label: <Human Label> 
     kind: interface
-    source: "<NodeID>"      
-    target: "<NodeID>"     
+    source: <NodeID>      
+    target: <NodeID>     
     # For interface edges (same-language/intra-process):
-    interface_file: src/edges/interfaces/DataBus.ts
-    comment: |              
-      Describe the API or data flow here.
+    interface_file: <path>
+    responsibility:         # the main responsibility of the component
+    comment:                # optional: free-form description
 
   # flexible edge
   <EdgeID>:                 
-    label: "<Human Label>"
+    label: <Human Label>
     kind: flexible
-    source: "<NodeID>"      
-    target: "<NodeID>"      
+    source: <NodeID>      
+    target: <NodeID>      
     usage: |
       Describe type of usage and why it's best to not be strict here.
     example_call: | 
       An example of the dependency:
       import <func> from NodeID1
       func(<data>)
-    comment: |              # required: free-form description
-      Describe the API or data flow here.
----
+    responsibility:         # the main responsibility of the component
+    comment:                # optional: free-form description
+___
 
 For cross-language scenarios
 - The edge lists a schema file plus a stub file for each connected node specifying the correct language/format for each.

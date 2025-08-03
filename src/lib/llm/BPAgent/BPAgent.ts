@@ -45,7 +45,6 @@ export class Agent {
         console.error("Model not selected?");
         break;
       }
-      // console.log(this.systemPrompt);
       const stream = client.createStream(this.history, this.registry.listToolSchemas(), this.systemPrompt, this.controller.signal)
 
       const { assistantContent, toolCalls } = await this.streamHandler.consume(stream);

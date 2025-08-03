@@ -245,6 +245,8 @@ export const edgeCodingAgent = new AgentAndChatState('code', "Project Scaffolder
 
 export const currAgentAndChatState = {
   get current() {
+    agentRole.agentRole;
+    agentRole.node;
     if (agentRole.agentRole === "code" && agentRole.node !== "Project Scaffolder") {
       const nodeAgent = getDeveloperAgentForNode(agentRole.node);
       nodeAgent.scrollToBottom();
