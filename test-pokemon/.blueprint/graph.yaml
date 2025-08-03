@@ -106,4 +106,4 @@ edges:
     comment: |
       TypeScript interface (or type import) for Persistence to use shared data types (Creature, Party, MapData) defined in DataContracts. Ensures save/load logic is type-safe and future-proof.
 
-# All edges are intra-process TypeScript interfaces for now. If future cross-language or serialization is needed, JSON Schemas can be added to DataContracts and referenced here.
+# Project Scaffolder are intra-process TypeScript interfaces for now. If future cross-language or serialization is needed, JSON Schemas can be added to DataContracts and referenced here.

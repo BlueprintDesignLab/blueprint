@@ -125,8 +125,8 @@
         Coding: <span class="font-mono">{agentRole.node}</span>
       </p>
 
-      {#if agentRole.node !== "All Edges"}
-        <Button onclick={() => setAgentFocusNode("All Edges")}>
+      {#if agentRole.node !== "Project Scaffolder"}
+        <Button onclick={() => setAgentFocusNode("Project Scaffolder")}>
           Back
         </Button>
       {/if}

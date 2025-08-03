@@ -69,7 +69,7 @@ export class AgentAndChatState {
     let sysPrompt = getSystemPromptFor(role);
 
     if (role === "code") {
-      if (node === "All Edges") {
+      if (node === "Project Scaffolder") {
         sysPrompt = edgeCodePrompt;
       } else {
         sysPrompt += `Your focus node is ${node}`
@@ -250,7 +250,7 @@ export const developerAgentMap = new SvelteMap<NodeId, AgentAndChatState>();
 
 export const planAgent = new AgentAndChatState("plan")
 export const architectAgent = new AgentAndChatState('architect');
-export const edgeCodingAgent = new AgentAndChatState('code', "All Edges");
+export const edgeCodingAgent = new AgentAndChatState('code', "Project Scaffolder");
 
 export const currAgentAndChatState = {
   get current() {
@@ -274,7 +274,7 @@ export function getAgentForRole(agentRole: AgentRoles): AgentAndChatState | null
 }
 
 export function getDeveloperAgentForNode(nodeId: NodeId): AgentAndChatState {
-  if (nodeId === 'All Edges') {
+  if (nodeId === 'Project Scaffolder') {
     return edgeCodingAgent;
   }
 

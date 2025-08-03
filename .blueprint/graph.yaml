@@ -39,7 +39,7 @@ nodes:
       - src/lib/llm/Tool/ToolMap.ts
       - src/lib/llm/systemPrompts.ts
     comment: |
-      Responsible for scaffolding, generating, and testing node and edge code according to the architecture in graph.yaml. One agent per node plus one for 'All Edges'. Uses code, terminal, and test tool APIs. Writes to /src/nodes, /src/edges as required.
+      Responsible for scaffolding, generating, and testing node and edge code according to the architecture in graph.yaml. One agent per node plus one for 'Project Scaffolder'. Uses code, terminal, and test tool APIs. Writes to /src/nodes, /src/edges as required.
 
   TauriBackend:
     label: "Tauri Rust Backend (File IO, Watchers, System Integration)"

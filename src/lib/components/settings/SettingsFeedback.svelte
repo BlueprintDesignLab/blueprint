@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { ArrowRight, Sparkles, Users } from 'lucide-svelte';
+	import { ArrowRight, Sparkles } from 'lucide-svelte';
 	import { openUrl } from '@tauri-apps/plugin-opener';
 
 	function openDiscord() {
@@ -25,7 +25,7 @@
 	</div> -->
 
 	<Button onclick={openDiscord} size="sm">
-		Join the Discord
+		Join our Discord
 		<ArrowRight class="ml-2 h-4 w-4" />
 	</Button>
 </div>

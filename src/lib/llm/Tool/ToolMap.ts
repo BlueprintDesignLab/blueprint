@@ -110,7 +110,7 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     schema: {
       type: "function",
       name: "read_file",
-      description: "Read the contents of a text file.",
+      description: "Read the contents of a text file under project root.",
       parameters: {
         type: "object",
         properties: { path: { type: "string", description: "Relative path from the project root." } },

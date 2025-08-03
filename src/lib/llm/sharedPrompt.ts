@@ -21,7 +21,7 @@ export const validGraphStructure = `
 The below fields are compulsory for valid graph parsing.
 Additional fields are included in design system for stricter workflows.
 
-# blueprint/graph.yaml
+# /.blueprint/graph.yaml
 nodes:
   <NodeID>:                 # e.g. NodeA, NodeB
     label: "<Human Label>"  # e.g. "Primary Worker"
@@ -42,7 +42,6 @@ export const interfaceContractDesignSystem = `
 <design system>
 ### Graph-centric project layout
 ---
-
 /.blueprint/
 /.blueprint/graph.yaml              # yaml file where software architecture is described. edit with propose_graph_yaml_file
 /.blueprint/plan.md                 # planfile where project specification lives. edit with propose_plan_md_file
@@ -88,20 +87,17 @@ nodes:
   <NodeID>:                 # e.g. NodeA, NodeB
     label: "<Human Label>"  # e.g. "Primary Worker"
     main_file: "<path>"     # required: path to the node’s primary source file, this is the only file allowed to interact with neighbouring edges
-    locked: false           # if locked, AI is not allowed to write to the file
     helper_files:           # optional: supporting files
       - "<path/to/helper1>"
       - "<path/to/helper2>"
     comment: |              # required: free-form description
       This is a multi-line explanation of what this node does.
 
-
 edges:
   # schema edge
   <EdgeID>:                 # e.g. data_flow, control_channel
     label: "<Human Label>"  # e.g. "Data Flow"
     kind: schema
-    locked: false           # if locked, AI is not allowed to write to the file
     source: "<NodeID>"      # required: producer node ID
     target: "<NodeID>"      # required: consumer node ID
     # For data edges (cross-language):
@@ -116,7 +112,6 @@ edges:
   <EdgeID>:                
     label: "<Human Label>" 
     kind: interface
-    locked: false           # if locked, AI is not allowed to write to the file
     source: "<NodeID>"      
     target: "<NodeID>"     
     # For interface edges (same-language/intra-process):
@@ -128,7 +123,6 @@ edges:
   <EdgeID>:                 
     label: "<Human Label>"
     kind: flexible
-    locked: false           # if locked, AI is not allowed to write to the file
     source: "<NodeID>"      
     target: "<NodeID>"      
     usage: |

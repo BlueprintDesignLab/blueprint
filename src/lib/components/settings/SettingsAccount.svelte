@@ -7,7 +7,7 @@
   import { user } from '$lib/authStore';
   import { openUrl } from '@tauri-apps/plugin-opener';
 
-  let loading = $state(false);
+  let loading = $state(true);
   let error = $state<string | null>(null);
 
   function landingPageLogin() {
