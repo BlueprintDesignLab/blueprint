@@ -137,7 +137,7 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     schema: {
       type: "function",
       name: "list_directory_tree",
-      description: "List full contents of a directory tree.",
+      description: "List full contents of a directory tree. Lists all sub directories recursively so no need to call again.",
       parameters: {
         type: "object",
         properties: { path: { type: "string" } },
@@ -190,7 +190,7 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
     schema: {
       type: "function",
       name: "start_node_coder",
-      description: "Start a dedicated node coder which will implement a node inside graph.yaml.",
+      description: "Start an expert coder which will implement a node inside graph.yaml.",
       parameters: {
         type: "object",
         properties: { 
@@ -224,8 +224,11 @@ export const toolMap: Record<ToolKey, ToolHandler> = {
       parameters: {
         type: "object",
         properties: { 
-          role: { type: "string", description: "The agent to refer to: 'plan' | 'architect'." },
-          content: { type: "string", description: "The initial content to send to the agent. It is a blank slate so give it context for the task it needs to accomplish" },
+          role: { type: "string", description: "The agent to refer to: 'plan' | 'architect' | 'code'." },
+          content: { 
+            type: "string", 
+            description: "The initial content to send to the agent. It is a blank slate so give it context for the task it needs to accomplish" 
+          },
         },
         required: ["role", "content"],
         additionalProperties: false,

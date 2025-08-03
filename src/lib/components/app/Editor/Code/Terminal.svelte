@@ -6,7 +6,7 @@
   import { spawn } from 'tauri-pty';
   import { invoke } from '@tauri-apps/api/core';
 
-  import { SHELL_SENTINEL, TerminalController, terminalController } from '$lib/state/terminal.svelte';
+  import { TerminalController, terminalController } from '$lib/state/terminal.svelte';
 
   let container: HTMLDivElement;
 
@@ -17,11 +17,18 @@
     xTerm.open(container);
     fit.fit();
 
-    invoke("get_project_root").then((path) => {
-      const pty = spawn('zsh', [],  { cols: xTerm.cols, rows: xTerm.rows, cwd: path as string});
+    Promise.all([
+      invoke<string>('get_project_root'),
+      invoke<string>('get_user_shell')
+    ]).then(([root, shell]) => {
+      const pty = spawn(shell, ['-l'], {
+        cols: xTerm.cols,
+        rows: xTerm.rows,
+        cwd: root
+      });
 
       terminalController.controller = new TerminalController(xTerm, pty);
-    });    
+    });  
 
     const ro = new ResizeObserver(() => {
       fit.fit(),

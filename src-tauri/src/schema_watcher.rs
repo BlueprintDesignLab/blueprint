@@ -21,20 +21,20 @@ struct SchemaChangedEvent {
     path: PathBuf,
 }
 
-fn collect_schemas(dir: &Path, gi: &ignore::gitignore::Gitignore) -> Vec<PathBuf> {
-    walkdir::WalkDir::new(dir)
-        .into_iter()
-        .filter_map(|e| e.ok())
-        .filter(|e| e.file_type().is_file())
-        .map(|e| e.into_path())
-        .filter(|p| {
-            !is_ignored(gi, p)
-                && p.file_name()
-                    .and_then(|n| n.to_str())
-                    .map_or(false, |n| n.ends_with(".schema.json"))
-        })
-        .collect()
-}
+// fn collect_schemas(dir: &Path, gi: &ignore::gitignore::Gitignore) -> Vec<PathBuf> {
+//     walkdir::WalkDir::new(dir)
+//         .into_iter()
+//         .filter_map(|e| e.ok())
+//         .filter(|e| e.file_type().is_file())
+//         .map(|e| e.into_path())
+//         .filter(|p| {
+//             !is_ignored(gi, p)
+//                 && p.file_name()
+//                     .and_then(|n| n.to_str())
+//                     .map_or(false, |n| n.ends_with(".schema.json"))
+//         })
+//         .collect()
+// }
 
 #[tauri::command]
 pub async fn start_schema_watcher(window: Window) -> Result<(), String> {

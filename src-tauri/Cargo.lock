@@ -97,6 +97,7 @@ dependencies = [
  "anyhow",
  "chrono",
  "ignore",
+ "libc",
  "log",
  "notify",
  "serde",

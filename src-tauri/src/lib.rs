@@ -7,6 +7,7 @@ pub mod project;
 pub mod schema_watcher;
 pub mod watcher;
 pub mod checkpoint;
+pub mod pty_ext;
 
 use anyhow::{bail, Context, Result};
 
@@ -19,13 +20,14 @@ use std::{
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    menu::{build_menu, handle_menu_event},
-    project::{get_project_root, open_project},
-    read_file_tools::{list_directory_tree, read_file},
-    schema_watcher::start_schema_watcher,
-    watcher::start_watcher,
-    write_file_tools::write_project_file,
-    checkpoint::{ai_checkpoint, restore_checkpoint},
+    checkpoint::{ai_checkpoint, restore_checkpoint}, 
+    menu::{build_menu, handle_menu_event}, 
+    project::{get_project_root, open_project}, 
+    pty_ext::{get_user_shell}, 
+    read_file_tools::{list_directory_tree, read_file}, 
+    schema_watcher::start_schema_watcher, 
+    watcher::start_watcher, 
+    write_file_tools::write_project_file
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -101,6 +103,8 @@ pub fn run() {
             start_schema_watcher,
             ai_checkpoint,
             restore_checkpoint,
+
+            get_user_shell
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,74 +1,59 @@
+import stripAnsi from 'strip-ansi';
 import type { Terminal } from '@xterm/xterm';
 import { type IPty } from 'tauri-pty';
 
-import stripAnsi from 'strip-ansi';
-
-export const terminalController: {controller: TerminalController | null}= {
+export const terminalController: { controller: TerminalController | null } = {
   controller: null
-}
-
-export const SHELL_SENTINEL = "<BLUEPRINT_SHELL>";
+};
 
 export class TerminalController {
   private pty: IPty;
   private xterm: Terminal;
-  private currentResolver: ((s: string) => void) | null = null;
-
-  // NEW: track streaming scrub state
-  private running = false;
-  private buffer = "";
+  private dispose: () => void;
 
   constructor(xterm: Terminal, pty: IPty) {
     this.xterm = xterm;
     this.pty = pty;
 
-    pty.write('export PS1="' + SHELL_SENTINEL + '"\n');
-    pty.write('clear\n');
-
-    this.setUpPtyToXTerm();
-    this.xterm.onData((d) => this.pty.write(d));
-    // setTimeout(() => this.setUpPtyToXTerm(), 500);
-  }
-
-  setUpPtyToXTerm() {
-    this.pty.onData((chunk) => {
-      this.buffer += stripAnsi(chunk);
-
-      if (this.running && this.buffer.includes(SHELL_SENTINEL)) {
-        const lines = this.buffer.split('\n');
-        const cleaned = lines.slice(1, -1).join('\n');
-
-        this.currentResolver?.(cleaned);
-        this.pty.write('\n');
-        this.reset();
-        return; // Do not write the sentinel or trailing prompt
-      }
-
-      this.xterm.write(chunk);
-    });
+    // Normal plumbing
+    const unl = pty.onData((chunk) => xterm.write(chunk));
+    this.dispose = unl.dispose.bind(unl);
+    xterm.onData((d) => pty.write(d));
   }
 
   resize() {
     this.pty.resize(this.xterm.cols, this.xterm.rows);
   }
 
-  /** public API: run a shell line, return stdout as string */
-  run(cmd: string): Promise<string> {
-    if (this.currentResolver) throw new Error("command already running");
+  /** Run a command and return its stdout */
+  async run(cmd: string): Promise<string> {
+    let buffer = '';
+    const unlisten = this.pty.onData((c) => (buffer += c));
+    
+    // Generate unique marker
+    const marker = `__BLUEPRINT_DONE_${Date.now()}_`;
+    
+    // Execute command with marker
+    this.pty.write(`${cmd}; echo "${marker}"\n`);
 
-    this.buffer = "";
+    // Wait for marker
+    while (!buffer.includes(marker)) {
+      await new Promise(r => setTimeout(r, 50));
+    }
 
-    return new Promise<string>((resolve) => {
-      this.currentResolver = resolve;
-      const command = `${cmd}\n`;
-      this.pty.write(command);
-      this.running = true;
-    });
-  } 
+    unlisten.dispose();
 
-  private reset() {
-    this.currentResolver = null;
-    this.buffer = "";
-    this.running = false;
+    // Process output
+    const markerIndex = buffer.indexOf(marker);
+    const output = buffer.substring(0, markerIndex);
+    const lines = stripAnsi(output).split('\n');
+    const final = lines.slice(1).join('\n');
+
+    console.log(final);
+    return final; 
+  }
+
+  destroy() {
+    this.dispose();
   }
 }

@@ -1,10 +1,12 @@
 export const workflow = `
 <overall workflow>
-If you have not listed the directory and read the relevant files, always do so first to understand current progress.
+Begin with list_directory_tree() tool to understand the current project state.
+No need to run again if it has been run recently.
+Do NOT use ls. Just use list_directory_tree().
 
 Always ask one question at a time to not overwhelm the user. This is important. Be concise.
 
-Always give the full path relative to the project root. ie. "src/edges/"
+Always give the full path relative to the project root.
 
 If the output of a tool is "not approved", ask for how to improve the request.
 
@@ -51,7 +53,7 @@ export const interfaceContractDesignSystem = `
 /src/edges/
 /src/edges/autogen/                 # autogenerate from json schema, do not touch except for minor edits
 /src/edges/interfaces/              # handwritten or AI authored interface/trait files
-/src/nodes/                         # or omit if the framework is opinionated about file structure
+/src/                         # where the rest of the code lives. <IMPORTANT> For paths, respect the conventions of the stack. <IMPORTANT>
 ---
 
 Nodes = self-contained components (one language each).
@@ -62,8 +64,10 @@ Runtime context (chat, logs) stays inside the per-node / per-edge folders.
 ### Import / build rules
 
 Node code may import
-- its own source, **plus**
+- its own source, and any helper files
 - the stub, interface and flexible file(s) listed for it in each connected edge (see below).
+- helper files may only be imported by the main file
+- imports across flexible edges are unregulated and allowed
 
 Edges come in two channels:
 - Data (cross-language/inter-process):
@@ -78,7 +82,7 @@ Edges come in two channels:
 
 - Flexible (no code contract):
   - Edge is just documentation; no stub, schema, or interface is required.
-  - Used when the interaction is ad-hoc, via shared state, UI callbacks, or other non-contractual means.
+  - Used when the interaction is ad-hoc, lightweight, via shared state, UI callbacks, or other non-contractual means.
   - Still appears in graph.yaml for traceability, but nothing is generated.
 
 ---
@@ -87,9 +91,10 @@ nodes:
   <NodeID>:                 # e.g. NodeA, NodeB
     label: "<Human Label>"  # e.g. "Primary Worker"
     main_file: "<path>"     # required: path to the node’s primary source file, this is the only file allowed to interact with neighbouring edges
-    helper_files:           # optional: supporting files
+    helper_files:           # optional: supporting files. Keep all files to less than 500 lines of code. split into helpers if necessary. 
       - "<path/to/helper1>"
       - "<path/to/helper2>"
+    responsibility:         # the main responsibility of the component
     comment: |              # required: free-form description
       This is a multi-line explanation of what this node does.
 
@@ -144,6 +149,7 @@ warn the user if the process has failed and the stubs are not present.
 You may adjust the stubs if it is necessary to do so.
 
 Use your best judgement on whether the edge should be strict or flexible. Think like
-an expert software engineer, critically evaluate the tradeoffs
+an expert software engineer, critically evaluate the tradeoffs. In the initial stage
+of the project, favour flexible for simplicity.
 <design system>
 `

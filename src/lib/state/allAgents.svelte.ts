@@ -66,15 +66,7 @@ export class AgentAndChatState {
   chDiv: HTMLDivElement | null = $state(null);
 
   constructor(role: AgentRoles, node?: NodeId) {
-    let sysPrompt = getSystemPromptFor(role);
-
-    if (role === "code") {
-      if (node === "Project Scaffolder") {
-        sysPrompt = edgeCodePrompt;
-      } else {
-        sysPrompt += `Your focus node is ${node}`
-      }
-    }
+    let sysPrompt = getSystemPromptFor(role, node);
 
     // console.log(role + (node ?? ""));
     const history = new ChatHistory(role + (node ?? ""));
@@ -269,6 +261,7 @@ export const currAgentAndChatState = {
 export function getAgentForRole(agentRole: AgentRoles): AgentAndChatState | null {
   if (agentRole === 'plan') return planAgent;
   if (agentRole === 'architect') return architectAgent;
+  if (agentRole === 'code') return edgeCodingAgent;
 
   return null;
 }
