@@ -1,8 +1,7 @@
 import { Agent } from '$lib/llm/BPAgent/BPAgent';
 
-import { getSystemPromptFor } from '$lib/llm/systemPrompts';
+import { getSystemPromptFor } from '$lib/llm/systemPrompt';
 import { toolsFor } from '$lib/llm/Tool/ToolRole';
-import { edgeCodePrompt } from '$lib/llm/edgeCoderPrompt';
 
 import { tick } from 'svelte';
 import { SvelteMap } from 'svelte/reactivity';
@@ -246,15 +245,18 @@ export const edgeCodingAgent = new AgentAndChatState('code', "Project Scaffolder
 
 export const currAgentAndChatState = {
   get current() {
+    if (agentRole.agentRole === "code" && agentRole.node !== "Project Scaffolder") {
+      const nodeAgent = getDeveloperAgentForNode(agentRole.node);
+      nodeAgent.scrollToBottom();
+
+      return nodeAgent;
+    }
+
     let mainAgent = getAgentForRole(agentRole.agentRole);
     if (mainAgent) {
       mainAgent.scrollToBottom();
       return mainAgent;
     }
-    const nodeAgent = getDeveloperAgentForNode(agentRole.node);
-    nodeAgent.scrollToBottom();
-
-    return nodeAgent;
   },
 };
 

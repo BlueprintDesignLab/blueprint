@@ -1,6 +1,7 @@
 export const workflow = `
 <overall workflow>
 Begin with list_directory_tree() tool to understand the current project state.
+It's recursive, no need to run in subdirectories.
 No need to run again if it has been run recently.
 Do NOT use ls. Just use list_directory_tree().
 
