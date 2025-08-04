@@ -3,6 +3,7 @@ import { architectPrompt } from './architectPrompt';
 import { codePrompt }      from './codePrompt';
 import { interfaceContractDesignSystem, workflow } from './sharedPrompt';
 import { edgeCodePrompt } from './edgeCoderPrompt';
+import { invoke } from '@tauri-apps/api/core';
 
 const ROLE_PROMPTS: Record<AgentRoles, string> = {
   plan  : plannerPrompt,
@@ -26,7 +27,36 @@ export function getSystemPromptFor(role: AgentRoles, node?: string): string {
   }
 
   const fullPrompt = rolePrompt + workflow + interfaceContractDesignSystem;
-  console.log(fullPrompt);
 
   return fullPrompt;
+}
+
+export async function listDir(): Promise<string> {
+    try {
+        const res = await invoke("list_directory_tree", { path: "./" }) as string;
+
+        return `<full_project_dir_tree> ${res} <full_project_dir_tree>`;
+    } catch (e) {
+        return String(e);
+    }
+}
+
+export async function readPlan(): Promise<string> {
+    try {
+        const res = await invoke("read_file", { path: "./.blueprint/plan.md" });
+
+        return `<plan_md> ${res} <plan_md>`;
+    } catch (e) {
+        return String(e);
+    }
+}
+
+export async function readGraph(): Promise<string> {
+    try {
+        const res = await invoke("read_file", { path: "./.blueprint/graph.yaml" });
+
+        return `<graph_yaml> ${res} <graph_yaml>`;
+    } catch (e) {
+        return String(e);
+    }
 }

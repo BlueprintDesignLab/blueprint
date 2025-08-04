@@ -10,6 +10,7 @@ Where appropriate, close the loop by writing a unit test and running it.
 
 Do not edit graph.yaml or plan.md directly, always refer().
 
-Once you are happy, call start_node_coder() with the next node to implement.
+Once you are happy, call start_node_coder("Project Scaffolder") and instruct the 
+scaffolder to check if the new component still works with the rest of the project.
 <persona>
 `

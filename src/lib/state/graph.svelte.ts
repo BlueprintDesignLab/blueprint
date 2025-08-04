@@ -70,7 +70,7 @@ class GraphCode {
     try {
       this.previewGraph = buildPreview(this.getGraph(), newSem);
     } catch { /* ignore */ }
-  }, 150);
+  }, 50);
 
   getGraph = () => {
     return {nodes: this.nodes, edges: this.edges} as MergedGraph;

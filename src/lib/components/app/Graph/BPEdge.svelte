@@ -52,6 +52,6 @@
 
 <EdgeLabel x={labelX} y={labelY} selectEdgeOnClick>
   {#if data}
-    {data.label}
+    {data.kind}
   {/if}
 </EdgeLabel>

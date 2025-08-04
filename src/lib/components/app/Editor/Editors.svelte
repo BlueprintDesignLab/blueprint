@@ -64,8 +64,7 @@
     return () => {planUnlisten?.(); schemaUnlisten?.();};
   });
 
-  $inspect(graphCode.viewStr);
-
+  // $inspect(graphCode.viewStr);
   $effect(() => {
     // console.log("saving graph");
     if (!graphCode.graphStr) {

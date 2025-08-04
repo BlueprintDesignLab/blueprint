@@ -4,6 +4,7 @@ import { StreamHandler, type UIUpdaterCallbacks } from "../Stream/StreamHandler"
 import { type ToolKey } from "../Tool/ToolRole";
 
 import { getCurrLLMClient } from "./currLLMClient";
+import { listDir, readGraph, readPlan } from "../systemPrompt";
 
 const MAX_STEPS = 9999999999999;
 
@@ -45,6 +46,14 @@ export class Agent {
         console.error("Model not selected?");
         break;
       }
+
+      const [dir, plan, graph] = await Promise.all([
+        listDir(),   
+        readPlan(),  
+        readGraph()  
+      ]);
+
+      this.systemPrompt += plan + graph;
       const stream = client.createStream(this.history, this.registry.listToolSchemas(), this.systemPrompt, this.controller.signal)
 
       const { assistantContent, toolCalls } = await this.streamHandler.consume(stream);

@@ -53,7 +53,6 @@ export function isFileLocked(filePath: string, yaml: string): boolean {
     );
   });
 
-  console.log(lockedPaths);
-
+  // console.log(lockedPaths);
   return lockedPaths.has(target);
 }

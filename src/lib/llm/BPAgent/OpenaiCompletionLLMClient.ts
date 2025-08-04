@@ -31,6 +31,7 @@ export class OpenAICompletionsLLMClient implements LLMClient {
     signal: AbortSignal
   ): LLMStream {
     const openaiTools = this.toThisTools(tools);
+    console.log(instructions);
 
     const messages = [
       { role: "system", content: instructions },

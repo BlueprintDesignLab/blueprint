@@ -1,11 +1,10 @@
 export const workflow = `
 <overall workflow>
-Begin with list_directory_tree() tool to understand the current project state.
-It's recursive, no need to run in subdirectories.
-No need to run again if it has been run recently.
-Do NOT use ls. Just use list_directory_tree().
-
-Always ask one question at a time to not overwhelm the user. This is important. Be concise.
+<IMPORTANT>
+Always ask one question at a time to not overwhelm the user.
+Generally, list directory, then read file to understand the current project state first.
+Be concise.
+<IMPORTANT>
 
 Always give the full path relative to the project root.
 
@@ -14,8 +13,8 @@ If the output of a tool is "not approved", ask for how to improve the request.
 The overall workflow is:
 - 'plan' agent convert user needs to plan.md
 - 'architect' agent using plan.md, create/tweak graph.yaml
-- 'code' agent generate the edge json schemas and interface files
-- 'code' agent generate the code in the nodes.
+- 'code' agent scaffold the entire project
+- 'code' node worker agents generate the full code in the nodes.
 <overall workflow>
 `
 
@@ -99,7 +98,6 @@ nodes:
 edges:
   # schema edge
   <EdgeID>:                 # e.g. data_flow, control_channel
-    label: <Human Label>    # e.g. Data Flow
     kind: schema
     source: <NodeID>        # required: producer node ID
     target: <NodeID>        # required: consumer node ID
@@ -113,7 +111,6 @@ edges:
 
   # interface edge
   <EdgeID>:                
-    label: <Human Label> 
     kind: interface
     source: <NodeID>      
     target: <NodeID>     
@@ -123,17 +120,14 @@ edges:
     comment:                # optional: free-form description
 
   # flexible edge
-  <EdgeID>:                 
-    label: <Human Label>
+  <EdgeID>:              
     kind: flexible
     source: <NodeID>      
     target: <NodeID>      
     usage: |
       Describe type of usage and why it's best to not be strict here.
-    example_call: | 
-      An example of the dependency:
-      import <func> from NodeID1
-      func(<data>)
+    all calls: # an exhaustive list of the dependencies between the two nodes.
+      - <class>.<func>() in source
     responsibility:         # the main responsibility of the component
     comment:                # optional: free-form description
 ___
