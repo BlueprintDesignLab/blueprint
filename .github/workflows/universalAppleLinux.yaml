@@ -3,17 +3,17 @@ name: Publish
 on:
   push:
     tags:
-      - 'v*'            # e.g. v1.0.0
+      - "v*" # e.g. v1.0.0
 
 jobs:
   # --------------------------------------------------------
   # 🍏 macOS Universal build (self-hosted)
   # --------------------------------------------------------
-  publish-tauri-universal:
+  publish-tauri-arm64:
     name: Build macOS Universal
     permissions:
       contents: write
-    runs-on: self-hosted  # Make sure this runner can build for both architectures
+    runs-on: self-hosted # Make sure this runner can build for both architectures
     steps:
       - uses: actions/checkout@v4
 
@@ -28,7 +28,7 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: universal-apple-darwin
+          targets: aarch64-apple-darwin
 
       - name: Install frontend dependencies
         run: npm ci
@@ -61,7 +61,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -83,8 +83,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: v__VERSION__
-          releaseName: 'Blueprint ALPHA v__VERSION__'
-          releaseBody: 'Source code, and compiled binaries for macOS/Linux.'
+          releaseName: "Blueprint ALPHA v__VERSION__"
+          releaseBody: "Source code, and compiled binaries for macOS/Linux."
           releaseDraft: true
           includeUpdaterJson: true
-          args: ''
+          args: ""
