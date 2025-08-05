@@ -13,7 +13,7 @@ jobs:
     name: Build macOS arm64 and Linux x86_64
     permissions:
       contents: write
-    runs-on: self-hosted # Make sure this runner can build for both architectures
+    runs-on: [self-hosted, macOS]
     steps:
       - uses: actions/checkout@v4
 
