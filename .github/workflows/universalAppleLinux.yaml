@@ -9,8 +9,8 @@ jobs:
   # --------------------------------------------------------
   # 🍏 macOS Universal build (self-hosted)
   # --------------------------------------------------------
-  publish-tauri-arm64:
-    name: Build macOS arm64
+  publish-tauri-universal:
+    name: Build macOS arm64 and Linux x86_64
     permissions:
       contents: write
     runs-on: self-hosted # Make sure this runner can build for both architectures
