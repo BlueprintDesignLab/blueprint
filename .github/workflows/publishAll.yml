@@ -1,3 +1,4 @@
+# .github/workflows/publish.yml
 name: Publish
 
 on:
@@ -5,10 +6,14 @@ on:
     tags:
       - 'v*'            # e.g. v1.0.0
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  # --------------------------------------------------------
-  # 🍏 macOS Universal build (kept self-hosted)
-  # --------------------------------------------------------
+  # -------------------------------------------------------------
+  # 🍏 macOS Universal – SELF-HOSTED (unchanged from original)
+  # -------------------------------------------------------------
   publish-tauri-universal:
     name: Build macOS Universal
     permissions:
@@ -28,7 +33,7 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: universal-apple-darwin
+          targets: x86_64-apple-darwin,aarch64-apple-darwin   # <- fixed
 
       - name: Install frontend dependencies
         run: npm ci
@@ -47,11 +52,11 @@ jobs:
           releaseDraft: true
           prerelease: false
           includeUpdaterJson: true
-          args: --target universal-apple-darwin
+          args: --target universal-apple-darwin               # <- Tauri v2 merges the two builds
 
-  # --------------------------------------------------------
-  # 🐧 Linux x86_64 (GitHub hosted)
-  # --------------------------------------------------------
+  # -------------------------------------------------------------
+  # 🐧 Linux x86_64 (GitHub-hosted)
+  # -------------------------------------------------------------
   publish-tauri-linux:
     name: Build Linux x86_64
     permissions:
@@ -98,9 +103,9 @@ jobs:
           includeUpdaterJson: true
           args: ''
 
-  # --------------------------------------------------------
-  # 🪟 Windows x86_64 (GitHub hosted, **no signing**)
-  # --------------------------------------------------------
+  # -------------------------------------------------------------
+  # 🪟 Windows x86_64 (GitHub-hosted, no signing)
+  # -------------------------------------------------------------
   publish-tauri-windows:
     name: Build Windows x86_64
     permissions:
