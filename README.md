@@ -1,6 +1,6 @@
 # Blueprint
 
-**Join our community:** [Discord](https://discord.gg/aT2mYAVVzk) | [Website](blueprintlab.io) | [Report Issues](https://github.com/BlueprintDesignLab/blueprint/issues)
+**Join our community:** [Discord](https://discord.gg/aT2mYAVVzk) | [Report Issues](https://github.com/BlueprintDesignLab/blueprint/issues)
 
 **Agile development with AI collaborators.**
 
