@@ -27,9 +27,8 @@ Each component in the Blueprint architecture gets its own "expert" agent, which 
 ## 🚀 Quick Start
 
 1. **Download the desktop app** from [releases](https://github.com/BlueprintDesignLab/blueprint/releases)
-2. **Create your first project** with our starter template
 3. **Collaborate with AI** on planning and architecture
-4. **Develop with confidence** knowing AI won't break your integrations
+4. **Develop with confidence** with expert ai for each component
 
 ## 🎯 Key Features
 
@@ -52,16 +51,6 @@ Each component in the Blueprint architecture gets its own "expert" agent, which 
 - Natural context window management per component
 - Predictable, safe collaboration
 
-## 🎬 See It In Action
-
-[Demo video placeholder - animated GIF showing the three-stage workflow]
-
-## 📦 Getting Started
-
-1. Download from releases
-2. Install the desktop app
-3. Play
-
 ## 🌟 Why Developers Love This
 
 > "Finally an AI tool that doesn't break my code. I can actually delegate real work instead of just simple functions."  
@@ -81,21 +70,14 @@ Each component in the Blueprint architecture gets its own "expert" agent, which 
 - [x] Basic plan → architecture workflow  
 - [x] Interface/contract driven design system
 - [x] Component context isolation
-- [ ] LLMStream implementation for Anthropic SDK, Gemini SDK etc.
+- [x] API compatible with Openai Chat Completion and Anthropic Messages.
 - [ ] Template system
 - [ ] Additional design systems
 - [ ] AI learn from manual file changes
 
-We also do not support large existing projects as they violate the design system and 
-there is no reliable way to refactor into existing design systems. However, you can turn
-off design systems and just *vibe*.
-
 ## 🙌 Contributing
 
 We welcome contributions! Check out our [contributing guide (TODO)](CONTRIBUTING.md) to get started.
-
-Looking to add:
-- New architecture templates
 
 ## 📄 License
 
@@ -103,4 +85,4 @@ MIT License - see [LICENSE](LICENSE) file
 
 ---
 
-*Blueprint Design AI - Making human + AI software development predictable and safe*
+*Blueprint Loop: Agile Loop Accelerated With AI Collaborators*
