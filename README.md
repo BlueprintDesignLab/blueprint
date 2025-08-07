@@ -69,7 +69,10 @@ If you want to tinker with the application and build it yourself:
 
 ## 📚 Documentation
 
-- [Interface/Contract Driven Design](docs/interface-contract-dd.md)
+The frontend of the code is coded with [Svelte 5](https://svelte.dev/)
+The live graph is coded with [Svelte Flow](https://svelteflow.dev/)
+Design was handled with [Shadcn-Svelte](https://www.shadcn-svelte.com/)
+Desktop app was code with [Tauri 2.0](https://tauri.app/) and [Rust](https://www.rust-lang.org/)
 
 ## 🚧 Current Status
 
