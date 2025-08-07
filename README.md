@@ -57,14 +57,6 @@ Each component in the Blueprint architecture gets its own "expert" agent, which 
 - Natural context window management per component
 - Predictable, safe collaboration
 
-## 🌟 Why Developers Love This
-
-> "Finally an AI tool that doesn't break my code. I can actually delegate real work instead of just simple functions."  
-> — Early Beta User
-
-> "The architecture graph makes team collaboration so much clearer. No more guessing what connects to what."  
-> — Platform Engineering Lead
-
 ## 📚 Documentation
 
 - [Interface/Contract Driven Design](docs/interface-contract-dd.md)
