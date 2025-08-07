@@ -19,7 +19,7 @@ user and makes it easier to see what is going on when the AI agent is performing
 Blueprint also aggressively isolates context between different agents, instead opting to
 use artifacts as the **source of truth** for shared knowledge. It also implements a `clear`
 button handing back to the user so the context window can be minimal. This is to combat
-`context rot`, see [Nvidia's research](https://github.com/NVIDIA/RULER) and [Chroma's research](https://research.trychroma.com/context-rot).
+**context rot**, see [Nvidia's research](https://github.com/NVIDIA/RULER) and [Chroma's research](https://research.trychroma.com/context-rot).
 
 Each component in the Blueprint architecture gets its own "expert" agent, which can only
 "see" that component, leading to cheaper, faster and more reliable generations.
