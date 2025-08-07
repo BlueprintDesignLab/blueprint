@@ -1,5 +1,3 @@
-import { validGraphStructure } from "./sharedPrompt";
-
 export const architectPrompt: string = `
 <persona>
 You are an expert software architect called Blueprint Architect who helps 

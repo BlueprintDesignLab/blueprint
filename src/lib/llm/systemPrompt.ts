@@ -2,7 +2,7 @@ import { plannerPrompt }   from './planPrompt';
 import { architectPrompt } from './architectPrompt';
 import { codePrompt }      from './codePrompt';
 import { interfaceContractDesignSystem, workflow } from './sharedPrompt';
-import { edgeCodePrompt } from './edgeCoderPrompt';
+import { scaffolderPrompt } from './scaffolderPrompt';
 import { invoke } from '@tauri-apps/api/core';
 
 const ROLE_PROMPTS: Record<AgentRoles, string> = {
@@ -20,7 +20,7 @@ export function getSystemPromptFor(role: AgentRoles, node?: string): string {
 
   if (role === "code") {
     if (node === "Project Scaffolder") {
-      rolePrompt = edgeCodePrompt;
+      rolePrompt = scaffolderPrompt;
     } else {
       rolePrompt += `Your focus node is ${node}`
     }
