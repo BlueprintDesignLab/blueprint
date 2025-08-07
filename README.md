@@ -9,9 +9,9 @@ Current AI tools work great for small tasks, but break down on complex projects.
 - AI overwriting carefully written code  
 - Chaotic collaboration between team members and AI
 
-Blueprint Design AI solves this by making software architecture explicit and machine-readable. 
+Blueprint Design AI solves this by allowing humans and AI to collaborate on a shared plan, generate a visual architecture graph, then develop components independently with clear boundaries.
 
-Humans and AI collaborate on a shared plan, generate a visual architecture graph, then develop components independently with clear boundaries.
+![demo video](https://github.com/BlueprintDesignLab/blueprint/blob/main/static/demo.gif)
 
 By generating shared artifacts (plan.md and graph.yaml), Blueprint also reduces the cognitive load on the
 user and makes it easier to see what is going on when the AI agent is performing tasks.
