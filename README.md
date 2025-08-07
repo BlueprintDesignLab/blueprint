@@ -27,11 +27,13 @@ Each component in the Blueprint architecture gets its own "expert" agent, which 
 ## 🚀 Quick Start
 
 1. **Download the desktop app** from [releases](https://github.com/BlueprintDesignLab/blueprint/releases)
-1.a. **Currently the binaries are not all signed!** If you want to tinker with the application and build it yourself without the security warning:
+Note: **Currently the windows binary is not signed!**
+
+If you want to tinker with the application and build it yourself:
 - Clone the repository
 - Run `npm i`
 - Run `npm run tauri dev`
-- **Note that you must have the prerequisites of Node and Rust installed**
+- **Note that you must have Node and Rust installed**
 
 3. **Collaborate with AI** on planning and architecture
 4. **Develop with confidence** with expert ai for each component
@@ -59,7 +61,10 @@ Each component in the Blueprint architecture gets its own "expert" agent, which 
 
 ## 📚 Documentation
 
-- [Interface/Contract Driven Design](docs/interface-contract-dd.md)
+The frontend of the code is coded with [Svelte 5](https://svelte.dev/)
+The live graph is coded with [Svelte Flow](https://svelteflow.dev/)
+Design was handled with [Shadcn-Svelte](https://www.shadcn-svelte.com/)
+Desktop app was code with [Tauri 2.0](https://tauri.app/) and [Rust](https://www.rust-lang.org/)
 
 ## 🚧 Current Status
 
