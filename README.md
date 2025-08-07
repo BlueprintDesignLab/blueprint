@@ -35,6 +35,7 @@ If you want to tinker with the application and build it yourself:
 - Run `npm run tauri dev`
 - **Note that you must have Node and Rust installed**
 
+2. **Type in your API key in settings**: fully local and secure.
 3. **Collaborate with AI** on planning and architecture
 4. **Develop with confidence** with expert ai for each component
 
